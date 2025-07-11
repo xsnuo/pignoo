@@ -1,10 +1,8 @@
 package com.xuesinuo.pignoo.demo;
 
-import java.util.function.Function;
 
 import org.springframework.stereotype.Component;
 
-import com.xuesinuo.pignoo.Pignoo;
 import com.xuesinuo.pignoo.PignooList;
 import com.xuesinuo.pignoo.Pigpen;
 import com.xuesinuo.pignoo.PignooFilter.FMode;

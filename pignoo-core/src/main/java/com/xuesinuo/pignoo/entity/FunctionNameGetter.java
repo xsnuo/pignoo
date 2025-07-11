@@ -15,6 +15,7 @@ public class FunctionNameGetter<E> {
     private E proxy;
     private NamePicker namePicker;
 
+    @SuppressWarnings("unchecked")
     public FunctionNameGetter(Class<E> c) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(c);

@@ -3,14 +3,10 @@ package com.xuesinuo.pignoo.entity;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
-
-import com.xuesinuo.pignoo.SqlExecuter;
 
 public class EntityProxyFactory<E> {
     private Enhancer enhancer;
@@ -43,6 +39,7 @@ public class EntityProxyFactory<E> {
         this.enhancer = enhancer;
     }
 
+    @SuppressWarnings("unchecked")
     public synchronized E build(E entity) {
         if (entity == null) {
             return null;
