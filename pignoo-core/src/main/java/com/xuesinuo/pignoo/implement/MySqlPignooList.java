@@ -24,14 +24,16 @@ public class MySqlPignooList<E> implements PignooList<E> {
     private static final SqlExecuter sqlExecute = new SimpleJdbcSqlExecuter();
 
     private final Connection conn;
+    private final boolean useJdbcTransaction;
     private final Class<E> c;
     private final EntityMapper<E> entityMapper;
     private PignooFilter<E> filter;
     private PignooSorter<E> sorter;
     private final EntityProxyFactory<E> entityProxyFactory;
 
-    public MySqlPignooList(Connection conn, Class<E> c) {
+    public MySqlPignooList(Connection conn, boolean useJdbcTransaction, Class<E> c) {
         this.conn = conn;
+        this.useJdbcTransaction = useJdbcTransaction;
         this.c = c;
         this.entityMapper = new EntityMapper<>(c);
         this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, pig) -> {
@@ -117,6 +119,9 @@ public class MySqlPignooList<E> implements PignooList<E> {
             sql.append("ORDER BY ");
             sql.append(sorter2Sql(sorter));
         }
+        if (useJdbcTransaction) {
+            sql.append("FOR UPDATE ");
+        }
         E e = sqlExecute.selectOne(conn, sql.toString(), sqlParam.params, c, entityMapper);
         return entityProxyFactory.build(e);
     }
@@ -136,6 +141,9 @@ public class MySqlPignooList<E> implements PignooList<E> {
         if (sorter != null) {
             sql.append("ORDER BY ");
             sql.append(sorter2Sql(sorter));
+        }
+        if (useJdbcTransaction) {
+            sql.append("FOR UPDATE ");
         }
         List<E> eList = sqlExecute.selectList(conn, sql.toString(), sqlParam.params, c, entityMapper);
         return entityProxyFactory.build(eList);
@@ -158,6 +166,9 @@ public class MySqlPignooList<E> implements PignooList<E> {
             sql.append(sorter2Sql(sorter));
         }
         sql.append("LIMIT " + offset + "," + limit + " ");
+        if (useJdbcTransaction) {
+            sql.append("FOR UPDATE ");
+        }
         List<E> eList = sqlExecute.selectList(conn, sql.toString(), sqlParam.params, c, entityMapper);
         return entityProxyFactory.build(eList);
     }

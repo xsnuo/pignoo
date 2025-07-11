@@ -46,7 +46,7 @@ public class Pignoo implements AutoCloseable {
     public <E> PignooList<E> getPignooList(Class<E> c) {
         switch (engine) {
         case MySQL:
-            return new MySqlPignooList<>(conn, c);
+            return new MySqlPignooList<>(conn, useJdbcTransaction, c);
         }
         throw new RuntimeException("Unknow database engine");
     }
