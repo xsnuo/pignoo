@@ -58,6 +58,10 @@ public class EntityMapper<E> {
         return classInfo.primaryKeyGetter;
     }
 
+    public boolean autoPrimaryKey() {
+        return classInfo.autoPrimaryKey;
+    }
+
     public String getColumnByFunction(Function<E, ?> function) {
         String functionName = functionNameGetter.getFunctionName(function);
         int index = classInfo.getterNames.indexOf(functionName);

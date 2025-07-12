@@ -268,7 +268,20 @@ public class MySqlPignooList<E> implements PignooList<E> {
         sql.append("(" + params.keySet().stream().map(column -> "`" + column + "`").collect(Collectors.joining(",")) + ") ");
         sql.append("VALUES ");
         sql.append("(" + params.values().stream().map(value -> sqlParam.next(value)).collect(Collectors.joining(",")) + ") ");
-        Object primaryKeyValue = sqlExecute.insert(conn, sql.toString(), sqlParam.params, c);
+        Object primaryKeyValue = null;
+        if (entityMapper.autoPrimaryKey()) {
+            primaryKeyValue = sqlExecute.insert(conn, sql.toString(), sqlParam.params, c);
+        } else {
+            try {
+                primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
+            } catch (IllegalAccessException | InvocationTargetException ex) {
+                throw new RuntimeException("Primary key is not found " + e, ex);
+            }
+            if (primaryKeyValue == null) {
+                throw new RuntimeException("Primary key can not be NULL " + e);
+            }
+            sqlExecute.update(conn, sql.toString(), sqlParam.params);
+        }
 
         StringBuilder sql2 = new StringBuilder("");
         SqlParam sqlParam2 = new SqlParam();
