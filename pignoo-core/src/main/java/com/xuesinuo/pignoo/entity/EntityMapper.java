@@ -7,7 +7,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-/** 需要逐个Entity.class缓存下来的映射 */
+/**
+ * 实体映射器，启动包很类信息、getter方法与属性名的映射器
+ * 
+ * @author xuesinuo
+ * @since 0.1.0
+ */
 public class EntityMapper<E> {
 
     private ClassInfo<E> classInfo;

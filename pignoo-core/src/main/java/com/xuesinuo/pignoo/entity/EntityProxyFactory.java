@@ -8,6 +8,14 @@ import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
 
+/**
+ * 查询结果实体的代理的创建器
+ * <p>
+ * 每个查询结果Entity都会经过此工厂创建代理，代理调用setter方法时会同步更新数据库
+ * 
+ * @author xuesinuo
+ * @since 0.1.0
+ */
 public class EntityProxyFactory<E> {
     private Enhancer enhancer;
     private EntityMapper<E> mapper;

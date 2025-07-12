@@ -10,6 +10,12 @@ import com.xuesinuo.pignoo.annotation.Column;
 import com.xuesinuo.pignoo.annotation.PrimaryKey;
 import com.xuesinuo.pignoo.annotation.Table;
 
+/**
+ * 解析实体类
+ * 
+ * @author xuesinuo
+ * @since 0.1.0
+ */
 public class ClassInfo<E> {
     protected Constructor<E> constructor;
     protected String tableName;

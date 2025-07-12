@@ -7,6 +7,14 @@ import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
 
+/**
+ * getter方法与属性名映射器
+ * <p>
+ * 用于通过getter方法获取属性名
+ * 
+ * @author xuesinuo
+ * @since 0.1.0
+ */
 public class FunctionNameGetter<E> {
     private static class NamePicker {
         private String name;

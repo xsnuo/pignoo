@@ -10,6 +10,12 @@ import java.util.Map;
 import com.xuesinuo.pignoo.SqlExecuter;
 import com.xuesinuo.pignoo.entity.EntityMapper;
 
+/**
+ * 原生JDBC的{@SqlExecuter}实现
+ * 
+ * @author xuesinuo
+ * @since 0.1.0
+ */
 public class SimpleJdbcSqlExecuter implements SqlExecuter {
 
     private SimpleJdbcSqlExecuter() {}

@@ -22,6 +22,12 @@ import com.xuesinuo.pignoo.PignooSorter.SMode;
 import com.xuesinuo.pignoo.entity.EntityMapper;
 import com.xuesinuo.pignoo.entity.EntityProxyFactory;
 
+/**
+ * 基于MySQL语法实现的{@link PignooList}
+ * 
+ * @author xuesinuo
+ * @since 0.1.0
+ */
 public class MySqlPignooList<E> implements PignooList<E> {
 
     private static final SqlExecuter SqlExecuter = SimpleJdbcSqlExecuter.getInstance();
@@ -42,7 +48,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         this.c = c;
         this.entityMapper = EntityMapper.build(c);
         this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, entity) -> {
-            if (pignoo.getHasClosed()) {
+            if (pignoo.hasClosed()) {
                 return;
             }
             StringBuilder sql = new StringBuilder("");
@@ -424,7 +430,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
     }
 
     @Override
-    public long mix(E e) {
+    public long mixAll(E e) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         Map<String, Object> params = new LinkedHashMap<>();
@@ -456,7 +462,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
     }
 
     @Override
-    public long replace(E e) {
+    public long replaceAll(E e) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         Map<String, Object> params = new LinkedHashMap<>();
@@ -506,7 +512,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
     }
 
     @Override
-    public long remove() {
+    public long removeAll() {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("DELETE FROM ");
