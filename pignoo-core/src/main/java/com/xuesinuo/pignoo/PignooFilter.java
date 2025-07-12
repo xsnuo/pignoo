@@ -1,5 +1,6 @@
 package com.xuesinuo.pignoo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -125,6 +126,9 @@ public class PignooFilter<E> {
      *         The copied PignooFilter instance
      */
     public static <E> PignooFilter<E> copy(PignooFilter<E> filter) {
+        if (filter == null) {
+            return null;
+        }
         PignooFilter<E> pignooFilter = new PignooFilter<>();
         pignooFilter.field = filter.getField();
         pignooFilter.mode = filter.getMode();
@@ -158,34 +162,14 @@ public class PignooFilter<E> {
         PignooFilter<E> pignooFilter = new PignooFilter<>();
         pignooFilter.field = field;
         pignooFilter.mode = mode;
-        pignooFilter.values = Arrays.asList(values);
-        pignooFilter.xor = XOR.AND;
-        return pignooFilter;
-    }
-
-    /**
-     * 构建一个PignooFilter实例
-     * <p>
-     * Build a PignooFilter instance
-     *
-     * @param field  字段（用Getter方法指代）
-     *               <p>
-     *               Field (use Getter method to refer)
-     * @param mode   筛选条件
-     *               <p>
-     *               Filter conditions
-     * @param values 值
-     *               <p>
-     *               Value
-     * @return PignooFilter实例
-     *         <p>
-     *         PignooFilter instance
-     */
-    public static <E> PignooFilter<E> build(Function<E, ?> field, FMode mode, Collection<Object> values) {
-        PignooFilter<E> pignooFilter = new PignooFilter<>();
-        pignooFilter.field = field;
-        pignooFilter.mode = mode;
-        pignooFilter.values = values;
+        pignooFilter.values = new ArrayList<>();
+        for (Object value : values) {
+            if (value instanceof Collection) {
+                pignooFilter.values.addAll((Collection<?>) value);
+            } else {
+                pignooFilter.values.add(value);
+            }
+        }
         pignooFilter.xor = XOR.AND;
         return pignooFilter;
     }
@@ -243,67 +227,18 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public PignooFilter<E> and(Function<E, ?> field, FMode mode, Collection<Object> values) {
-        PignooFilter<E> pignooFilter = new PignooFilter<>();
-        pignooFilter.field = field;
-        pignooFilter.mode = mode;
-        pignooFilter.values = values;
-        pignooFilter.xor = XOR.AND;
-        pignooFilter.otherPignooFilterList = Arrays.asList(this);
-        return pignooFilter;
-    }
-
-    /**
-     * 现有条件上OR拼接下一个条件
-     * <p>
-     * OR concatenate the next condition on the existing condition
-     *
-     * @param field  字段（用Getter方法指代）
-     *               <p>
-     *               Field (use Getter method to refer)
-     * @param mode   筛选条件
-     *               <p>
-     *               Filter conditions
-     * @param values 值
-     *               <p>
-     *               Value
-     * @return PignooFilter实例
-     *         <p>
-     *         PignooFilter instance
-     */
-    public PignooFilter<E> or(Function<E, ?> field, FMode mode, Collection<Object> values) {
-        PignooFilter<E> pignooFilter = new PignooFilter<>();
-        pignooFilter.field = field;
-        pignooFilter.mode = mode;
-        pignooFilter.values = values;
-        pignooFilter.xor = XOR.OR;
-        pignooFilter.otherPignooFilterList = Arrays.asList(this);
-        return pignooFilter;
-    }
-
-    /**
-     * 现有条件上AND拼接下一个条件
-     * <p>
-     * AND concatenate the next condition on the existing condition
-     *
-     * @param field  字段（用Getter方法指代）
-     *               <p>
-     *               Field (use Getter method to refer)
-     * @param mode   筛选条件
-     *               <p>
-     *               Filter conditions
-     * @param values 值
-     *               <p>
-     *               Value
-     * @return PignooFilter实例
-     *         <p>
-     *         PignooFilter instance
-     */
     public PignooFilter<E> and(Function<E, ?> field, FMode mode, Object... values) {
         PignooFilter<E> pignooFilter = new PignooFilter<>();
         pignooFilter.field = field;
         pignooFilter.mode = mode;
-        pignooFilter.values = Arrays.asList(values);
+        pignooFilter.values = new ArrayList<>();
+        for (Object value : values) {
+            if (value instanceof Collection) {
+                pignooFilter.values.addAll((Collection<?>) value);
+            } else {
+                pignooFilter.values.add(value);
+            }
+        }
         pignooFilter.xor = XOR.AND;
         pignooFilter.otherPignooFilterList = Arrays.asList(this);
         return pignooFilter;
@@ -331,7 +266,14 @@ public class PignooFilter<E> {
         PignooFilter<E> pignooFilter = new PignooFilter<>();
         pignooFilter.field = field;
         pignooFilter.mode = mode;
-        pignooFilter.values = Arrays.asList(values);
+        pignooFilter.values = new ArrayList<>();
+        for (Object value : values) {
+            if (value instanceof Collection) {
+                pignooFilter.values.addAll((Collection<?>) value);
+            } else {
+                pignooFilter.values.add(value);
+            }
+        }
         pignooFilter.xor = XOR.OR;
         pignooFilter.otherPignooFilterList = Arrays.asList(this);
         return pignooFilter;

@@ -39,6 +39,9 @@ public class PignooSorter<E> {
      *         The copied PignooSorter
      */
     public static <E> PignooSorter<E> copy(PignooSorter<E> sorter) {
+        if (sorter == null) {
+            return null;
+        }
         PignooSorter<E> pignooSorter = new PignooSorter<>();
         pignooSorter.field = sorter.getField();
         pignooSorter.mode = sorter.getMode();

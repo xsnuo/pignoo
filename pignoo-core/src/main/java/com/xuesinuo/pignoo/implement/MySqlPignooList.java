@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.xuesinuo.pignoo.Pignoo;
 import com.xuesinuo.pignoo.PignooFilter;
@@ -140,21 +141,28 @@ public class MySqlPignooList<E> implements PignooList<E> {
     private String filter2Sql(PignooFilter<E> filter, SqlParam sqlParam) {
         String sql = "";
         if (filter != null) {
-            if (filter.getField() != null && filter.getMode() != null) {
-                sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` " + fmodeToSql(filter.getMode()) + " ";
-                if (filter.getValues().size() == 1) {
-                    sql += sqlParam.next(filter.getValues().iterator().next()) + " ";
-                } else if (filter.getValues().size() > 1) {
-                    sql += "(" + filter.getValues().stream().map(p -> sqlParam.next(p)).collect(Collectors.joining(",")) + ") ";
-                }
-            }
             if (filter.getXor() != null && filter.getOtherPignooFilterList() != null) {
-                List<String> sqlList = filter.getOtherPignooFilterList().stream().map(f -> filter2Sql(f, sqlParam)).toList();
-                sqlList.add(sql);
+                List<String> sqlStream = filter.getOtherPignooFilterList().stream().map(f -> filter2Sql(f, sqlParam)).toList();
+                sql += thisFilter2Sql(sql, filter, sqlParam);
+                List<String> sqlList = Stream.concat(sqlStream.stream(), Stream.of(sql)).toList();
                 sql = sqlList.stream().filter(s -> s != null && !s.isBlank()).collect(Collectors.joining(xorToSql(filter.getXor()) + " "));
                 if (filter.getXor() == XOR.OR) {
                     sql = "(" + sql + ")";
                 }
+            } else {
+                sql += thisFilter2Sql(sql, filter, sqlParam);
+            }
+        }
+        return sql;
+    }
+
+    private String thisFilter2Sql(String sql, PignooFilter<E> filter, SqlParam sqlParam) {
+        if (filter.getField() != null && filter.getMode() != null) {
+            sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` " + fmodeToSql(filter.getMode()) + " ";
+            if (filter.getValues().size() == 1) {
+                sql += sqlParam.next(filter.getValues().iterator().next()) + " ";
+            } else if (filter.getValues().size() > 1) {
+                sql += "(" + filter.getValues().stream().map(p -> sqlParam.next(p)).collect(Collectors.joining(",")) + ") ";
             }
         }
         return sql;
@@ -219,7 +227,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
     }
 
     @Override
-    public List<E> get(long limit, long offset) {
+    public List<E> get(long offset, long limit) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT ");
@@ -272,16 +280,6 @@ public class MySqlPignooList<E> implements PignooList<E> {
             this.sorter = sorter;
         } else {
             this.sorter = this.sorter.then(sorter);
-        }
-        return this;
-    }
-
-    @Override
-    public PignooList<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Collection<Object> values) {
-        if (this.filter == null) {
-            this.filter = PignooFilter.build(field, mode, values);
-        } else {
-            this.filter = this.filter.and(field, mode, values);
         }
         return this;
     }

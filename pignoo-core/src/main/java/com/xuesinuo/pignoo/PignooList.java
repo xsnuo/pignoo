@@ -69,17 +69,17 @@ public interface PignooList<E> {
      * <p>
      * Get a part of the list
      * 
-     * @param limit  获取条数
-     *               <p>
-     *               Number of entries to get
      * @param offset 跳过条数
      *               <p>
      *               Number of entries to skip
+     * @param limit  获取条数
+     *               <p>
+     *               Number of entries to get
      * @return 部分List
      *         <p>
      *         Part of the list
      */
-    List<E> get(long count, long offset);
+    List<E> get(long offset, long count);
 
     /**
      * 获取List大小
@@ -142,26 +142,6 @@ public interface PignooList<E> {
      *         The filtered list
      */
     PignooList<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values);
-
-    /**
-     * 过滤
-     * <p>
-     * Filter
-     * 
-     * @param field  过滤字段
-     *               <p>
-     *               Filtering field
-     * @param mode   过滤方式
-     *               <p>
-     *               Filtering mode
-     * @param values 过滤值
-     *               <p>
-     *               Filtering value
-     * @return 过滤后的List
-     *         <p>
-     *         The filtered list
-     */
-    PignooList<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Collection<Object> values);
 
     /**
      * 过滤
