@@ -4,7 +4,12 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
-/** SQL执行器 */
+/**
+ * Pignoo的SQL执行器
+ * 
+ * @author xuesinuo
+ * @version 0.1.0
+ */
 public interface SqlExecuter {
 
     /** 查询一个实体 */
