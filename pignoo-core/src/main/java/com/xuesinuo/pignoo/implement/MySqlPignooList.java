@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.xuesinuo.pignoo.Pignoo;
 import com.xuesinuo.pignoo.PignooFilter;
 import com.xuesinuo.pignoo.PignooList;
 import com.xuesinuo.pignoo.PignooSorter;
@@ -23,6 +24,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
 
     private static final SqlExecuter sqlExecute = new SimpleJdbcSqlExecuter();
 
+    private final Pignoo pignoo;
     private final Connection conn;
     private final boolean useJdbcTransaction;
     private final Class<E> c;
@@ -31,12 +33,16 @@ public class MySqlPignooList<E> implements PignooList<E> {
     private PignooSorter<E> sorter;
     private final EntityProxyFactory<E> entityProxyFactory;
 
-    public MySqlPignooList(Connection conn, boolean useJdbcTransaction, Class<E> c) {
+    public MySqlPignooList(Pignoo pignoo, Connection conn, boolean useJdbcTransaction, Class<E> c) {
+        this.pignoo = pignoo;
         this.conn = conn;
         this.useJdbcTransaction = useJdbcTransaction;
         this.c = c;
         this.entityMapper = new EntityMapper<>(c);
         this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, pig) -> {
+            if (pignoo.getHasClosed()) {
+                return;
+            }
             StringBuilder sql = new StringBuilder("");
             sql.append("UPDATE ");
             sql.append("`" + entityMapper.tableName() + "` ");
@@ -54,7 +60,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
 
     @Override
     public PignooList<E> copy() {
-        MySqlPignooList<E> pignooList = new MySqlPignooList<>(conn, useJdbcTransaction, c);
+        MySqlPignooList<E> pignooList = new MySqlPignooList<>(pignoo, conn, useJdbcTransaction, c);
         pignooList.filter = PignooFilter.copy(filter);
         pignooList.sorter = PignooSorter.copy(sorter);
         return pignooList;

@@ -19,6 +19,8 @@ public class Pignoo implements AutoCloseable {
 
     private boolean hasRollbacked = false;
 
+    private boolean hasClosed = false;
+
     public static enum DatabaseEngine {
         MySQL
     }
@@ -46,7 +48,7 @@ public class Pignoo implements AutoCloseable {
     public <E> PignooList<E> getPignooList(Class<E> c) {
         switch (engine) {
         case MySQL:
-            return new MySqlPignooList<>(conn, useJdbcTransaction, c);
+            return new MySqlPignooList<>(this, conn, useJdbcTransaction, c);
         }
         throw new RuntimeException("Unknow database engine");
     }
@@ -68,6 +70,10 @@ public class Pignoo implements AutoCloseable {
 
     @Override
     public void close() {
+        if (hasClosed) {
+            return;
+        }
+        hasClosed = true;
         if (useJdbcTransaction) {
             if (!hasRollbacked) {
                 try {
@@ -85,5 +91,9 @@ public class Pignoo implements AutoCloseable {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean getHasClosed() {
+        return hasClosed;
     }
 }
