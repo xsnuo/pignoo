@@ -46,11 +46,21 @@ public interface PignooList<E> {
     /** 新增一条数据 */
     E add(E e);
 
-    /** 删除数据 */
-    long remove(E e);
+    /** 修改数据：混入不为NULL的属性 */
+    long mixByPk(E e);
+
+    /** 修改数据：完全替换 */
+    long replaceByPk(E e);
+
+    /** 修改数据：混入不为NULL的属性 */
+    long mix(E e);
+
+    /** 修改数据：完全替换 */
+    long replace(E e);
 
     /** 删除数据 */
-    long removeAll();
+    long removeByPk(E e);
 
-    // TODO 做一个用于更新数据的BeanCopy方法
+    /** 删除数据 */
+    long remove();
 }

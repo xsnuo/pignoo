@@ -249,18 +249,18 @@ public class MySqlPignooList<E> implements PignooList<E> {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         Map<String, Object> params = new LinkedHashMap<>();
-        for (int i = 0; i < entityMapper.columns().size(); i++) {
-            Method getter = entityMapper.getters().get(i);
-            if (getter != null) {
-                try {
+        try {
+            for (int i = 0; i < entityMapper.columns().size(); i++) {
+                Method getter = entityMapper.getters().get(i);
+                if (getter != null) {
                     Object paramValue = getter.invoke(e);
                     if (paramValue != null) {
                         params.put(entityMapper.columns().get(i), paramValue);
                     }
-                } catch (Exception exception) {
-                    exception.printStackTrace();
                 }
             }
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            throw new RuntimeException(ex);
         }
         sql.append("INSERT INTO ");
         sql.append("`" + entityMapper.tableName() + "` ");
@@ -281,23 +281,163 @@ public class MySqlPignooList<E> implements PignooList<E> {
     }
 
     @Override
-    public long remove(E e) {
+    public long mixByPk(E e) {
+        Object primaryKeyValue = null;
+        try {
+            primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            throw new RuntimeException("Primary key is not found " + e, ex);
+        }
+        if (primaryKeyValue == null) {
+            throw new RuntimeException("Primary key can not be NULL " + e);
+        }
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
-        sql.append("DELETE FROM ");
-        sql.append("`" + entityMapper.tableName() + "` ");
-        sql.append("WHERE ");
+        Map<String, Object> params = new LinkedHashMap<>();
         try {
-            sql.append("`" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(entityMapper.primaryKeyGetter().invoke(e)) + " ");
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            throw new RuntimeException("Primary key is not found " + e);
+            for (int i = 0; i < entityMapper.columns().size(); i++) {
+                Method getter = entityMapper.getters().get(i);
+                if (getter != null && !entityMapper.columns().get(i).equals(entityMapper.primaryKeyColumn())) {
+                    Object paramValue = getter.invoke(e);
+                    if (paramValue != null) {
+                        params.put(entityMapper.columns().get(i), paramValue);
+                    }
+                }
+            }
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            throw new RuntimeException(ex);
+        }
+        if (params.size() == 0) {
+            return 0L;
+        }
+        sql.append("UPDATE ");
+        sql.append("`" + entityMapper.tableName() + "` ");
+        sql.append("SET ");
+        sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + sqlParam.next(params.get(column))).collect(Collectors.joining(",")) + " ");
+        sql.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
+        return sqlExecute.update(conn, sql.toString(), sqlParam.params);
+    }
+
+    @Override
+    public long replaceByPk(E e) {
+        Object primaryKeyValue = null;
+        try {
+            primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            throw new RuntimeException("Primary key is not found " + e, ex);
+        }
+        if (primaryKeyValue == null) {
+            throw new RuntimeException("Primary key can not be NULL " + e);
+        }
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        Map<String, Object> params = new LinkedHashMap<>();
+        try {
+            for (int i = 0; i < entityMapper.columns().size(); i++) {
+                Method getter = entityMapper.getters().get(i);
+                if (getter != null && !entityMapper.columns().get(i).equals(entityMapper.primaryKeyColumn())) {
+                    Object paramValue = getter.invoke(e);
+                    params.put(entityMapper.columns().get(i), paramValue);
+                }
+            }
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            throw new RuntimeException(ex);
+        }
+        if (params.size() == 0) {
+            return 0L;
+        }
+        sql.append("UPDATE ");
+        sql.append("`" + entityMapper.tableName() + "` ");
+        sql.append("SET ");
+        sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + params.get(column) == null ? "NULL" : sqlParam.next(params.get(column))).collect(Collectors.joining(",")) + " ");
+        sql.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
+        return sqlExecute.update(conn, sql.toString(), sqlParam.params);
+    }
+
+    @Override
+    public long mix(E e) {
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        Map<String, Object> params = new LinkedHashMap<>();
+        try {
+            for (int i = 0; i < entityMapper.columns().size(); i++) {
+                Method getter = entityMapper.getters().get(i);
+                if (getter != null && !entityMapper.columns().get(i).equals(entityMapper.primaryKeyColumn())) {
+                    Object paramValue = getter.invoke(e);
+                    if (paramValue != null) {
+                        params.put(entityMapper.columns().get(i), paramValue);
+                    }
+                }
+            }
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            throw new RuntimeException(ex);
+        }
+        if (params.size() == 0) {
+            return 0L;
+        }
+        sql.append("UPDATE ");
+        sql.append("`" + entityMapper.tableName() + "` ");
+        sql.append("SET ");
+        sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + sqlParam.next(params.get(column))).collect(Collectors.joining(",")) + " ");
+        if (filter != null) {
+            sql.append("WHERE ");
+            sql.append(filter2Sql(filter, sqlParam));
         }
         return sqlExecute.update(conn, sql.toString(), sqlParam.params);
     }
 
     @Override
-    public long removeAll() {
+    public long replace(E e) {
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        Map<String, Object> params = new LinkedHashMap<>();
+        for (int i = 0; i < entityMapper.columns().size(); i++) {
+            Method getter = entityMapper.getters().get(i);
+            if (getter != null && !entityMapper.columns().get(i).equals(entityMapper.primaryKeyColumn())) {
+                try {
+                    Object paramValue = getter.invoke(e);
+                    params.put(entityMapper.columns().get(i), paramValue);
+                } catch (IllegalAccessException | InvocationTargetException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+        if (params.size() == 0) {
+            return 0L;
+        }
+        sql.append("UPDATE ");
+        sql.append("`" + entityMapper.tableName() + "` ");
+        sql.append("SET ");
+        sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + params.get(column) == null ? "NULL" : sqlParam.next(params.get(column))).collect(Collectors.joining(",")) + " ");
+        if (filter != null) {
+            sql.append("WHERE ");
+            sql.append(filter2Sql(filter, sqlParam));
+        }
+        return sqlExecute.update(conn, sql.toString(), sqlParam.params);
+    }
+
+    @Override
+    public long removeByPk(E e) {
+        Object primaryKeyValue = null;
+        try {
+            primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            throw new RuntimeException("Primary key is not found " + e, ex);
+        }
+        if (primaryKeyValue == null) {
+            throw new RuntimeException("Primary key can not be NULL " + e);
+        }
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("DELETE FROM ");
+        sql.append("`" + entityMapper.tableName() + "` ");
+        sql.append("WHERE ");
+        sql.append("`" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
+        return sqlExecute.update(conn, sql.toString(), sqlParam.params);
+    }
+
+    @Override
+    public long remove() {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("DELETE FROM ");
