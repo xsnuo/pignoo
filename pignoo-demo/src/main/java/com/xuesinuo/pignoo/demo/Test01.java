@@ -3,7 +3,7 @@ package com.xuesinuo.pignoo.demo;
 import org.springframework.stereotype.Component;
 
 import com.xuesinuo.pignoo.PignooList;
-import com.xuesinuo.pignoo.Pigpen;
+import com.xuesinuo.pignoo.Gru;
 import com.xuesinuo.pignoo.PignooFilter.FMode;
 import com.xuesinuo.pignoo.annotation.Column;
 import com.xuesinuo.pignoo.annotation.PrimaryKey;
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class Test01 {
 
-    private final Pigpen pigpen;
+    private final Gru gru;
 
     @Table("pig")
     @Data
@@ -34,7 +34,7 @@ public class Test01 {
 
     @PostConstruct
     public void init() {
-        pigpen.runTransaction(pignoo -> {
+        gru.runTransaction(pignoo -> {
             Pig newPig = new Pig();
             newPig.setName("戴夫");
             PignooList<Pig> pigList = pignoo.getPignooList(Pig.class);

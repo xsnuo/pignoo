@@ -7,11 +7,11 @@ import javax.sql.DataSource;
 
 import com.xuesinuo.pignoo.Pignoo.DatabaseEngine;
 
-public class Pigpen {
+public class Gru {
     private final DatabaseEngine engine;
     private final DataSource dataSource;
 
-    public Pigpen(DatabaseEngine engine, DataSource dataSource) {
+    public Gru(DatabaseEngine engine, DataSource dataSource) {
         this.engine = engine;
         this.dataSource = dataSource;
     }
