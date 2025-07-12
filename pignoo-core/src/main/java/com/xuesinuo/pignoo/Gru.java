@@ -1,6 +1,5 @@
 package com.xuesinuo.pignoo;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.sql.DataSource;
@@ -16,20 +15,16 @@ public class Gru {
         this.dataSource = dataSource;
     }
 
-    public Pignoo build() {
-        return new Pignoo(this.engine, this.dataSource, false);
-    }
-
     public <R> R run(Function<Pignoo, R> function) {
         try (Pignoo pignoo = new Pignoo(this.engine, this.dataSource, false)) {
             return function.apply(pignoo);
         }
     }
 
-    public void runTransaction(Consumer<Pignoo> function) {
+    public <R> R runTransaction(Function<Pignoo, R> function) {
         try (Pignoo pignoo = new Pignoo(this.engine, this.dataSource, true)) {
             try {
-                function.accept(pignoo);
+                return function.apply(pignoo);
             } catch (Exception e) {
                 pignoo.rollback();
                 throw e;

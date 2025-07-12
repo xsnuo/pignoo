@@ -41,6 +41,7 @@ public class Test01 {
             pigList.add(newPig);
             pigList.filter(Pig::getName, FMode.IS_NULL).getOne().setName("艾文");
             log.info(pigList.getAll().toString());
+            return null;
         });
     }
 }
