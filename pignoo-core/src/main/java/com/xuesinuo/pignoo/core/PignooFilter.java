@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -20,79 +21,109 @@ public class PignooFilter<E> {
      * <p>
      * Filter conditions
      */
+    @AllArgsConstructor
+    @Getter
     public static enum FMode {
         /**
          * 等于
          * <p>
          * Equals
          */
-        EQ,
+        EQ("="),
         /**
          * 不等于
          * <p>
          * Not equals
          */
-        NOT_EQ,
+        NOT_EQ("!="),
         /**
          * 大于
          * <p>
          * Greater than
          */
-        GT,
+        GT(">"),
         /**
          * 小于
          * <p>
          * Less than
          */
-        LT,
+        LT("<"),
         /**
          * 大于等于
          * <p>
          * Greater than or equal to
          */
-        GE,
+        GE(">="),
         /**
          * 小于等于
          * <p>
          * Less than or equal to
          */
-        LE,
+        LE("<="),
         /**
          * 模糊查询
          * <p>
          * Fuzzy query
          */
-        LIKE,
+        LIKE("like"),
         /**
          * 模糊查询，反查询
          * <p>
          * Fuzzy query, reverse query
          */
-        NOT_LIKE,
+        NOT_LIKE("not like"),
         /**
          * 包含
          * <p>
          * Contains
          */
-        IN,
+        IN("in"),
         /**
          * 不包含
          * <p>
          * Not contains
          */
-        NOT_IN,
+        NOT_IN("not in"),
         /**
          * 为空
          * <p>
          * Is null
          */
-        IS_NULL,
+        IS_NULL("is null"),
         /**
          * 不为空
          * <p>
          * Is not null
          */
-        IS_NOT_NULL;
+        IS_NOT_NULL("is not null");
+
+        /**
+         * 筛选条件名称，可以用于代替枚举值，不区分大小写
+         * <p>
+         * Filter condition name, can be used to replace enum values, case-insensitive
+         */
+        private String name;
+
+        /**
+         * 名称映射成筛选条件枚举
+         * <p>
+         * Name mapping to filter condition enum
+         * 
+         * @param name 筛选条件名称
+         * @return 筛选条件枚举
+         */
+        public static FMode getFMode(String name) {
+            if (name == null) {
+                throw new IllegalArgumentException("Invalid FMode: null");
+            }
+            name = name.trim().toLowerCase();
+            for (FMode fMode : values()) {
+                if (fMode.getName().equalsIgnoreCase(name)) {
+                    return fMode;
+                }
+            }
+            throw new IllegalArgumentException("Invalid FMode: " + name);
+        }
     }
 
     /**
@@ -172,6 +203,15 @@ public class PignooFilter<E> {
     }
 
     /**
+     * 请参考{@link #build(Function, FMode, Object...)}
+     * <p>
+     * Please refer to {@link #build(Function, FMode, Object...)}
+     */
+    public static <E> PignooFilter<E> build(Function<E, ?> field, String mode, Object... values) {
+        return build(field, FMode.getFMode(mode), values);
+    }
+
+    /**
      * 构建一个空的PignooFilter实例
      * <p>
      * Build an empty PignooFilter instance
@@ -241,6 +281,15 @@ public class PignooFilter<E> {
     }
 
     /**
+     * 请参考{@link #and(Function, FMode, Object...)}
+     * <p>
+     * Please refer to {@link #and(Function, FMode, Object...)}
+     */
+    public PignooFilter<E> and(Function<E, ?> field, String mode, Object... values) {
+        return and(field, FMode.getFMode(mode), values);
+    }
+
+    /**
      * 现有条件上OR拼接下一个条件
      * <p>
      * OR concatenate the next condition on the existing condition
@@ -272,6 +321,15 @@ public class PignooFilter<E> {
         }
         filter.xor = XOR.AND;
         return this.or(filter);
+    }
+
+    /**
+     * 请参考{@link #or(Function, FMode, Object...)}
+     * <p>
+     * Please refer to {@link #or(Function, FMode, Object...)}
+     */
+    public PignooFilter<E> or(Function<E, ?> field, String mode, Object... values) {
+        return or(field, FMode.getFMode(mode), values);
     }
 
     /**

@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.xuesinuo.pignoo.core.Pignoo;
 import com.xuesinuo.pignoo.core.Pignoo.DatabaseEngine;
 import com.xuesinuo.pignoo.core.PignooFilter.FMode;
-import com.xuesinuo.pignoo.core.PignooSorter.SMode;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
 import com.xuesinuo.pignoo.demo.table.Pig;
 
@@ -52,8 +51,7 @@ public class Demo01_EasyStart {
     @Test
     public void delete() {
         var pigList = pignoo.getPignooList(Pig.class);
-        Pig pig = pigList.filter(Pig::getId, FMode.NOT_EQ, 1).sort(Pig::getId, SMode.MAX_FIRST).getOne();
-        pigList.removeByPk(pig);
+        pigList.filter(Pig::getId, FMode.EQ, 10).removeAll();
     }
 
     @Test

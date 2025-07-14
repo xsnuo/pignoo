@@ -143,6 +143,13 @@ public interface PignooList<E> {
     PignooList<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values);
 
     /**
+     * 请参考{@link #filter(Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
+     * <p>
+     * Please refer to {@link #filter(Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
+     */
+    PignooList<E> filter(Function<E, ?> field, String mode, Object... values);
+
+    /**
      * 过滤
      * <p>
      * Filter

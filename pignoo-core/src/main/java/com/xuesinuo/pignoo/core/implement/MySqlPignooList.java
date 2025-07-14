@@ -288,6 +288,11 @@ public class MySqlPignooList<E> implements PignooList<E> {
     }
 
     @Override
+    public PignooList<E> filter(Function<E, ?> field, String mode, Object... values) {
+        return filter(field, FMode.getFMode(mode), values);
+    }
+
+    @Override
     public PignooList<E> filter(PignooFilter<E> filter) {
         if (this.filter == null) {
             this.filter = filter;
@@ -551,4 +556,5 @@ public class MySqlPignooList<E> implements PignooList<E> {
         }
         return SqlExecuter.selectColumn(conn, sql.toString(), sqlParam.params, c);
     }
+
 }

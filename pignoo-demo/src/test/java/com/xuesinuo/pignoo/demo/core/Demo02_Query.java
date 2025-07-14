@@ -1,6 +1,8 @@
 package com.xuesinuo.pignoo.demo.core;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
@@ -10,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.xuesinuo.pignoo.core.Pignoo;
 import com.xuesinuo.pignoo.core.Pignoo.DatabaseEngine;
-import com.xuesinuo.pignoo.core.PignooFilter.FMode;
+import com.xuesinuo.pignoo.core.PignooSorter.SMode;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
 import com.xuesinuo.pignoo.demo.table.Pig;
 
@@ -30,19 +32,20 @@ public class Demo02_Query {
     public void filterModes() {
         var pigList = pignoo.getPignooList(Pig.class);
 
-        pigList.filter(Pig::getName, FMode.LIKE, "新猪报道%");
+        pigList.filter(Pig::getName, "like", "新猪报道%");
         System.out.println(pigList.getOne());// name like '新猪报道%'
 
-        pigList.filter(Pig::getWeight, FMode.GT, new BigDecimal("10"));
+        pigList.filter(Pig::getWeight, ">", new BigDecimal("10"));
         System.out.println(pigList.getOne());// name like '新猪报道%', and then weight > 10
     }
 
     @Test
     public void multiFilter() {
         var pigList = pignoo.getPignooList(Pig.class);
-        pigList.filter(Pig::getColor, FMode.LIKE, "%白%");
-        pigList.filter(f -> f.and(Pig::getWeight, FMode.GT, 10)
-                .or(Pig::getWeight, FMode.LT, 2));
+        pigList.filter(Pig::getColor, "like", "%白%");
+        pigList.filter(f -> f.or(Pig::getWeight, ">", 10).or(Pig::getWeight, "<", 2));
+        pigList.sort(Pig::getAge, SMode.MAX_FIRST);
+        pigList.sort(Pig::getWeight, SMode.MIN_FIRST);
         pigList.getOne();
     }
 }
