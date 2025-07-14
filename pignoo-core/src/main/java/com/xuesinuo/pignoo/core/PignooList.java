@@ -203,7 +203,7 @@ public interface PignooList<E> {
      *         <p>
      *         Number of affected entries
      */
-    long mixByPk(E e);
+    long mixById(E e);
 
     /**
      * 根据主键修改数据：完全替换
@@ -217,7 +217,7 @@ public interface PignooList<E> {
      *         <p>
      *         Number of affected entries
      */
-    long replaceByPk(E e);
+    long replaceById(E e);
 
     /**
      * 修改数据：混入不为NULL的属性
@@ -259,7 +259,7 @@ public interface PignooList<E> {
      *         <p>
      *         Number of affected entries
      */
-    long removeByPk(E e);
+    long removeById(E e);
 
     /**
      * 删除数据

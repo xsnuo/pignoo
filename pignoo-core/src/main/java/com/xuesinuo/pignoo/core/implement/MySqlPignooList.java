@@ -106,6 +106,10 @@ public class MySqlPignooList<E> implements PignooList<E> {
             return "IN";
         case NOT_IN:
             return "NOT IN";
+        case IS_NULL:
+            return "IS NULL";
+        case IS_NOT_NULL:
+            return "IS NOT NULL";
         default:
             return "";
         }
@@ -162,7 +166,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
                 throw new RuntimeException(filter.getMode() + " can not use " + valueCount + " values -> " +
                         this.entityMapper.tableName() + "." + this.entityMapper.getColumnByFunction(filter.getField()));
             }
-            if (values.size() > 0) {
+            if (values.size() >= filter.getMode().getMinCount()) {
                 thisSql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` " + fmodeToSql(filter.getMode()) + " ";
                 String paramSql = values.stream().map(p -> sqlParam.next(p)).collect(Collectors.joining(","));
                 if (filter.getMode() == FMode.IN || filter.getMode() == FMode.NOT_IN) {
@@ -174,7 +178,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
                 if (filter.getMode() == FMode.IN) {
                     thisSql = "(" + thisSql + (thisSql.isBlank() ? "" : "OR ") + "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL)";
                 } else if (filter.getMode() == FMode.NOT_IN) {
-                    thisSql = thisSql + (thisSql.isBlank() ? "" : "AND ") + "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NOT NULL ";
+                    // DO NOTHING
                 } else if (filter.getMode() == FMode.EQ) {
                     thisSql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL ";
                 } else if (filter.getMode() == FMode.NOT_EQ) {
@@ -182,6 +186,10 @@ public class MySqlPignooList<E> implements PignooList<E> {
                 } else {
                     throw new RuntimeException(filter.getMode() + " can not be NULL -> " +
                             this.entityMapper.tableName() + "." + this.entityMapper.getColumnByFunction(filter.getField()));
+                }
+            } else {
+                if (filter.getMode() == FMode.NOT_IN) {
+                    thisSql = "(" + thisSql + (thisSql.isBlank() ? "" : "OR ") + "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL)";
                 }
             }
         }
@@ -390,7 +398,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
     }
 
     @Override
-    public long mixByPk(E e) {
+    public long mixById(E e) {
         Object primaryKeyValue = null;
         try {
             primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
@@ -428,7 +436,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
     }
 
     @Override
-    public long replaceByPk(E e) {
+    public long replaceById(E e) {
         Object primaryKeyValue = null;
         try {
             primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
@@ -458,7 +466,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         sql.append("UPDATE ");
         sql.append("`" + entityMapper.tableName() + "` ");
         sql.append("SET ");
-        sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + params.get(column) == null ? "NULL" : sqlParam.next(params.get(column))).collect(Collectors.joining(",")) + " ");
+        sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + (params.get(column) == null ? "NULL" : sqlParam.next(params.get(column)))).collect(Collectors.joining(",")) + " ");
         sql.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
         return SqlExecuter.update(conn, sql.toString(), sqlParam.params);
     }
@@ -517,7 +525,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         sql.append("UPDATE ");
         sql.append("`" + entityMapper.tableName() + "` ");
         sql.append("SET ");
-        sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + params.get(column) == null ? "NULL" : sqlParam.next(params.get(column))).collect(Collectors.joining(",")) + " ");
+        sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + (params.get(column) == null ? "NULL" : sqlParam.next(params.get(column)))).collect(Collectors.joining(",")) + " ");
         if (filter != null) {
             sql.append("WHERE ");
             sql.append(filter2Sql(filter, sqlParam));
@@ -526,7 +534,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
     }
 
     @Override
-    public long removeByPk(E e) {
+    public long removeById(E e) {
         Object primaryKeyValue = null;
         try {
             primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);

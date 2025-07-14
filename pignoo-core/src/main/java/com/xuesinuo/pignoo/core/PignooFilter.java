@@ -83,7 +83,19 @@ public class PignooFilter<E> {
          * <p>
          * Not contains
          */
-        NOT_IN("not in", 1, Integer.MAX_VALUE);
+        NOT_IN("not in", 1, Integer.MAX_VALUE),
+        /**
+         * 为空
+         * <p>
+         * Is null
+         */
+        IS_NULL("is null", 0, 0),
+        /**
+         * 不为空
+         * <p>
+         * Is not null
+         */
+        IS_NOT_NULL("is not null", 0, 0);
 
         /**
          * 筛选条件名称，可以用于代替枚举值，不区分大小写
@@ -119,11 +131,8 @@ public class PignooFilter<E> {
                 throw new RuntimeException("Invalid FMode: null");
             }
             name = name.trim().toLowerCase();
-            if (name.equals("=")) {
-                return EQ;
-            }
             for (FMode fMode : values()) {
-                if (fMode.getName().equalsIgnoreCase(name)) {
+                if (fMode.getName().equals(name)) {
                     return fMode;
                 }
             }
@@ -197,11 +206,7 @@ public class PignooFilter<E> {
         pignooFilter.mode = mode;
         pignooFilter.values = new ArrayList<>();
         for (Object value : values) {
-            if (value instanceof Collection) {
-                pignooFilter.values.addAll((Collection<?>) value);
-            } else {
-                pignooFilter.values.add(value);
-            }
+            addInCollection(pignooFilter.values, value);
         }
         pignooFilter.xor = XOR.AND;
         return pignooFilter;
@@ -275,11 +280,7 @@ public class PignooFilter<E> {
         filter.mode = mode;
         filter.values = new ArrayList<>();
         for (Object value : values) {
-            if (value instanceof Collection) {
-                filter.values.addAll((Collection<?>) value);
-            } else {
-                filter.values.add(value);
-            }
+            addInCollection(filter.values, value);
         }
         filter.xor = XOR.AND;
         return this.and(filter);
@@ -318,11 +319,7 @@ public class PignooFilter<E> {
         filter.mode = mode;
         filter.values = new ArrayList<>();
         for (Object value : values) {
-            if (value instanceof Collection) {
-                filter.values.addAll((Collection<?>) value);
-            } else {
-                filter.values.add(value);
-            }
+            addInCollection(filter.values, value);
         }
         filter.xor = XOR.AND;
         return this.or(filter);
@@ -375,5 +372,68 @@ public class PignooFilter<E> {
         orFilter.otherPignooFilterList.add(this);
         orFilter.otherPignooFilterList.add(filter);
         return orFilter;
+    }
+
+    /**
+     * 添加一个值到集合中，如果值是集合，则将值中的所有元素添加到集合中
+     * <p>
+     * Add a value to the collection, if the value is a collection, add all elements in the value to the collection
+     * 
+     * @param collection 集合
+     * @param value      添加到集合中的值
+     */
+    private static void addInCollection(Collection<Object> collection, Object value) {
+        if (value instanceof Iterable) {
+            for (var item : (Iterable<?>) value) {
+                collection.add(item);
+            }
+        } else if (value instanceof Object[]) {
+            Object[] array = (Object[]) value;
+            for (var item : array) {
+                collection.add(item);
+            }
+        } else if (value instanceof byte[]) {
+            byte[] array = (byte[]) value;
+            for (var item : array) {
+                collection.add(item);
+            }
+        } else if (value instanceof short[]) {
+            short[] array = (short[]) value;
+            for (var item : array) {
+                collection.add(item);
+            }
+        } else if (value instanceof int[]) {
+            int[] array = (int[]) value;
+            for (var item : array) {
+                collection.add(item);
+            }
+        } else if (value instanceof long[]) {
+            long[] array = (long[]) value;
+            for (var item : array) {
+                collection.add(item);
+            }
+        } else if (value instanceof float[]) {
+            float[] array = (float[]) value;
+            for (var item : array) {
+                collection.add(item);
+            }
+        } else if (value instanceof double[]) {
+            double[] array = (double[]) value;
+            for (var item : array) {
+                collection.add(item);
+            }
+        } else if (value instanceof char[]) {
+            char[] array = (char[]) value;
+            for (var item : array) {
+                collection.add(item);
+            }
+        } else if (value instanceof boolean[]) {
+            boolean[] array = (boolean[]) value;
+            for (var item : array) {
+                collection.add(item);
+            }
+        } else {
+            collection.add(value);
+        }
     }
 }

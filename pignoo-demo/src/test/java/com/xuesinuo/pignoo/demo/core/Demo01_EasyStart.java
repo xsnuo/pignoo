@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.xuesinuo.pignoo.core.Pignoo;
 import com.xuesinuo.pignoo.core.Pignoo.DatabaseEngine;
-import com.xuesinuo.pignoo.core.PignooFilter.FMode;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
 import com.xuesinuo.pignoo.demo.table.Pig;
 
@@ -23,15 +22,15 @@ public class Demo01_EasyStart {
 
     public Pignoo pignoo;
 
-    public Demo01_EasyStart(@Autowired DataSource dataBase) {
-        pignoo = new BasePignoo(DatabaseEngine.MySQL, dataBase, false);
+    public Demo01_EasyStart(@Autowired DataSource dataSource) {
+        pignoo = new BasePignoo(DatabaseEngine.MySQL, dataSource, false);
     }
 
     @Test
     public void add() {
         var pigList = pignoo.getPignooList(Pig.class);
         Pig pig = new Pig();
-        pig.setName("新猪报道" + System.currentTimeMillis());
+        pig.setName("新猪报道");
         pig.setWeight(new BigDecimal("10.2"));
         pig.setAge(2);
         pig.setColor("白");
@@ -42,22 +41,22 @@ public class Demo01_EasyStart {
     @Test
     public void update() {
         var pigList = pignoo.getPignooList(Pig.class);
-        Pig pig = pigList.filter(Pig::getId, FMode.EQ, 1).getOne();
+        Pig pig = pigList.filter(Pig::getId, "==", 1).getOne();
         if (pig != null) {
-            pig.setName("猪猪改名" + System.currentTimeMillis());
+            pig.setName("小猪改名");
         }
     }
 
     @Test
     public void delete() {
         var pigList = pignoo.getPignooList(Pig.class);
-        pigList.filter(Pig::getId, FMode.EQ, 10).removeAll();
+        pigList.filter(Pig::getId, "==", 10).removeAll();
     }
 
     @Test
     public void query() {
         var pigList = pignoo.getPignooList(Pig.class);
-        List<Pig> pigs = pigList.filter(Pig::getName, FMode.LIKE, "新猪报道%").get(0, 10);
+        List<Pig> pigs = pigList.filter(Pig::getId, "==", 1).getAll();
         System.out.println(pigs);
     }
 }
