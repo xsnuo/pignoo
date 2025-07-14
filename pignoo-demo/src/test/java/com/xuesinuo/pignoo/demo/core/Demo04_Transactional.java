@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.xuesinuo.pignoo.core.Gru;
+import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.Pignoo.DatabaseEngine;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
 import com.xuesinuo.pignoo.demo.table.Pig;
@@ -29,7 +30,10 @@ public class Demo04_Transactional {
      */
     @Test
     public void noTransactional() {
-        try (BasePignoo pignoo = new BasePignoo(DatabaseEngine.MySQL, dataSource, false)) {// jdk7的try-with-resources语法，会自动关闭pignoo
+        PignooConfig config = new PignooConfig();
+        config.setEngine(DatabaseEngine.MySQL);// 可选配置，不填写就会自动识别，增加数据库访问开销
+        config.setUseTransaction(false);
+        try (BasePignoo pignoo = new BasePignoo(dataSource, config)) {// jdk7的try-with-resources语法，会自动关闭pignoo
             var pigList = pignoo.getPignooList(Pig.class);
             Pig pig = new Pig();
             pig.setName("新的小猪");
@@ -45,18 +49,20 @@ public class Demo04_Transactional {
      */
     @Test
     public void nativeTransactional() {
-        try (BasePignoo pignoo = new BasePignoo(DatabaseEngine.MySQL, dataSource, true)) {// jdk7的try-with-resources语法，会自动关闭pignoo
+        PignooConfig config = new PignooConfig();
+        config.setEngine(DatabaseEngine.MySQL);
+        config.setUseTransaction(true);
+        try (BasePignoo pignoo = new BasePignoo(dataSource, config)) {
             try {
                 var pigList = pignoo.getPignooList(Pig.class);
                 Pig pig = new Pig();
                 pig.setName("新的小猪");
                 pig = pigList.add(pig);
                 pig.setAge(2);
-                // 关闭pignoo时，会自动提交
                 // 如果需要，rollback()可以写在任何地方，手动控制
             } catch (Exception e) {
-                pignoo.rollback(); // 手动调用回滚，一般情况，遇到异常回滚，否则提交
+                pignoo.rollback(); // 一般情况，遇到异常回滚，否则退出外层try时自动提交
             }
-        }
+        } // 关闭pignoo时，会自动提交
     }
 }

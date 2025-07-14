@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.xuesinuo.pignoo.core.Pignoo;
-import com.xuesinuo.pignoo.core.Pignoo.DatabaseEngine;
 import com.xuesinuo.pignoo.core.PignooSorter.SMode;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
 import com.xuesinuo.pignoo.demo.table.Pig;
@@ -21,7 +20,7 @@ public class Demo03_Update {
     public Pignoo pignoo;
 
     public Demo03_Update(@Autowired DataSource dataSource) {
-        pignoo = new BasePignoo(DatabaseEngine.MySQL, dataSource, false);
+        pignoo = new BasePignoo(dataSource);
     }
 
     /**

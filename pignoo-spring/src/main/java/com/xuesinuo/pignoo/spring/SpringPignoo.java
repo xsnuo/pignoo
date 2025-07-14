@@ -9,6 +9,7 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.xuesinuo.pignoo.core.Pignoo;
+import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooList;
 import com.xuesinuo.pignoo.core.implement.MySqlPignooList;
 
@@ -31,15 +32,16 @@ public class SpringPignoo implements Pignoo {
     private final DataSource dataSource;// 数据库连接
 
     /**
-     * @param engine     数据库引擎，如果为NULL，将读取数据库配置，建议传入减少数据库访问
-     *                   <p>
-     *                   Database engine, if NULL, read the database configuration, it is recommended to pass in to reduce database access
      * 
      * @param dataSource 数据源
      *                   <p>
      *                   Data source
+     * @param config     配置
+     *                   <p>
+     *                   Configuration
      */
-    public SpringPignoo(DatabaseEngine engine, DataSource dataSource) {
+    public SpringPignoo(DataSource dataSource, PignooConfig config) {
+        DatabaseEngine engine = config.getEngine();
         if (engine == null) {
             try (Connection conn = dataSource.getConnection()) {
                 engine = DatabaseEngine.getDatabaseEngineByConnection(conn);

@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import com.xuesinuo.pignoo.core.Pignoo;
+import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooList;
 
 /**
@@ -20,7 +21,7 @@ public class BasePignoo implements Pignoo {
 
     private final Connection conn;// 数据库连接
 
-    private final boolean useJdbcTransaction;// 是否使用JDBC事务
+    private final boolean useTransaction;// 是否使用JDBC事务
 
     private final boolean connAutoCommit;// 原本的conn是否自动提交
 
@@ -29,18 +30,33 @@ public class BasePignoo implements Pignoo {
     private boolean hasClosed = false;// 是否已经关闭
 
     /**
-     *
-     * @param engine             数据库引擎，如果为NULL，将读取数据库配置，建议传入减少数据库访问
-     *                           <p>
-     *                           Database engine, if NULL, read the database configuration, it is recommended to pass in to reduce database access
-     * @param dataSource         数据源
-     *                           <p>
-     *                           Data source
-     * @param useJdbcTransaction 是否使用JDBC事务
-     *                           <p>
-     *                           Whether to use JDBC transaction
+     * 
+     * @param dataSource 数据源
+     *                   <p>
+     *                   Data source
      */
-    public BasePignoo(DatabaseEngine engine, DataSource dataSource, boolean useJdbcTransaction) {
+    public BasePignoo(DataSource dataSource) {
+        this(dataSource, null);
+    }
+
+    /**
+     *
+     * @param dataSource   数据源
+     *                     <p>
+     *                     Data source
+     * @param pignooConfig 配置
+     *                     <p>
+     *                     Configuration
+     */
+    public BasePignoo(DataSource dataSource, PignooConfig pignooConfig) {
+        DatabaseEngine engine = null;
+        boolean useTransaction = false;
+        if (pignooConfig != null) {
+            engine = pignooConfig.getEngine();
+            if (pignooConfig.getUseTransaction() != null) {
+                useTransaction = pignooConfig.getUseTransaction();
+            }
+        }
         if (dataSource == null) {
             throw new RuntimeException("Unknow dataSource");
         }
@@ -54,26 +70,26 @@ public class BasePignoo implements Pignoo {
             }
             this.engine = engine;
             this.connAutoCommit = conn.getAutoCommit();
-            if (useJdbcTransaction) {
+            if (useTransaction) {
                 conn.setAutoCommit(false);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        this.useJdbcTransaction = useJdbcTransaction;
+        this.useTransaction = useTransaction;
     }
 
     @Override
     public <E> PignooList<E> getPignooList(Class<E> c) {
         switch (engine) {
         case MySQL:
-            return new MySqlPignooList<E>(this, conn, useJdbcTransaction, c);
+            return new MySqlPignooList<E>(this, conn, useTransaction, c);
         }
         throw new RuntimeException("Unknow database engine");
     }
 
     public void rollback() {
-        if (!useJdbcTransaction) {
+        if (!useTransaction) {
             throw new RuntimeException("Can not rollback, because JDBC-Transaction is not used");
         }
         if (hasRollbacked) {
@@ -93,7 +109,7 @@ public class BasePignoo implements Pignoo {
             return;
         }
         hasClosed = true;
-        if (useJdbcTransaction) {
+        if (useTransaction) {
             if (!hasRollbacked) {
                 try {
                     conn.commit();

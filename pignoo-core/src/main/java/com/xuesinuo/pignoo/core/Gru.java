@@ -31,14 +31,15 @@ public class Gru {
 
     /**
      * 
-     * @param engine     数据库引擎，如果为NULL，将读取数据库配置，建议传入减少数据库访问
-     *                   <p>
-     *                   Database engine, if NULL, read the database configuration, it is recommended to pass in to reduce database access
      * @param dataSource 数据源
      *                   <p>
      *                   Data source
+     * @param config     配置
+     *                   <p>
+     *                   Configuration
      */
-    public Gru(DatabaseEngine engine, DataSource dataSource) {
+    public Gru(DataSource dataSource, PignooConfig config) {
+        DatabaseEngine engine = config.getEngine();
         if (engine == null) {
             try (Connection conn = dataSource.getConnection()) {
                 engine = DatabaseEngine.getDatabaseEngineByConnection(conn);
@@ -70,7 +71,10 @@ public class Gru {
      *         Custom return value
      */
     public <R> R run(Function<Pignoo, R> function) {
-        try (BasePignoo pignoo = new BasePignoo(this.engine, this.dataSource, false)) {
+        PignooConfig config = new PignooConfig();
+        config.setEngine(this.engine);
+        config.setUseTransaction(false);
+        try (BasePignoo pignoo = new BasePignoo(this.dataSource, config)) {
             return function.apply(pignoo);
         }
     }
@@ -91,7 +95,10 @@ public class Gru {
      *         Custom return value
      */
     public <R> R runTransaction(Function<Pignoo, R> function) {
-        try (BasePignoo pignoo = new BasePignoo(this.engine, this.dataSource, true)) {
+        PignooConfig config = new PignooConfig();
+        config.setEngine(this.engine);
+        config.setUseTransaction(false);
+        try (BasePignoo pignoo = new BasePignoo(this.dataSource, config)) {
             try {
                 return function.apply(pignoo);
             } catch (Exception e) {

@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.xuesinuo.pignoo.core.Pignoo;
 import com.xuesinuo.pignoo.core.PignooList;
-import com.xuesinuo.pignoo.core.Pignoo.DatabaseEngine;
 import com.xuesinuo.pignoo.core.PignooFilter.FMode;
 import com.xuesinuo.pignoo.core.PignooSorter.SMode;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
@@ -27,7 +26,7 @@ public class Demo02_Query {
     public Pignoo pignoo;
 
     public Demo02_Query(@Autowired DataSource dataSource) {
-        pignoo = new BasePignoo(DatabaseEngine.MySQL, dataSource, false);
+        pignoo = new BasePignoo(dataSource);
     }
 
     /**
