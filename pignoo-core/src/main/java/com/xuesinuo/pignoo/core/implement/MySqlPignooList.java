@@ -139,7 +139,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
                     first = false;
                 }
                 for (PignooFilter<E> childFilter : filter.getOtherPignooFilterList()) {
-                    String appedSql = filter2Sql(childFilter, sqlParam);
+                    String appedSql = filter2Sql(childFilter, sqlParam).trim();
                     if (appedSql != null && !appedSql.isBlank()) {
                         sql += (first ? "" : "AND ") + appedSql + " ";
                         first = false;
@@ -169,10 +169,12 @@ public class MySqlPignooList<E> implements PignooList<E> {
             if (values.size() >= filter.getMode().getMinCount()) {
                 thisSql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` " + fmodeToSql(filter.getMode()) + " ";
                 String paramSql = values.stream().map(p -> sqlParam.next(p)).collect(Collectors.joining(","));
-                if (filter.getMode() == FMode.IN || filter.getMode() == FMode.NOT_IN) {
-                    paramSql = "(" + paramSql + ")";
+                if (!paramSql.isBlank()) {
+                    if (filter.getMode() == FMode.IN || filter.getMode() == FMode.NOT_IN) {
+                        paramSql = "(" + paramSql + ")";
+                    }
+                    thisSql += paramSql + " ";
                 }
-                thisSql += paramSql + " ";
             }
             if (hasNull) {
                 if (filter.getMode() == FMode.IN) {
