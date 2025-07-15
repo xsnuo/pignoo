@@ -97,7 +97,7 @@ public interface Pignoo extends AutoCloseable {
      *            Entity type
      * @return PignooList
      */
-    public <E> PignooList<E> getPignooList(Class<E> c);
+    public <E> PignooList<E> getList(Class<E> c);
 
     /**
      * 连接是否已经关闭

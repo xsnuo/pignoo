@@ -58,7 +58,7 @@ public class SpringPignoo implements Pignoo {
     }
 
     @Override
-    public <E> PignooList<E> getPignooList(Class<E> c) {
+    public <E> PignooList<E> getList(Class<E> c) {
         switch (engine) {
         case MySQL:
             return new MySqlPignooList<E>(this, DataSourceUtils.getConnection(dataSource), TransactionSynchronizationManager.isActualTransactionActive(), c);

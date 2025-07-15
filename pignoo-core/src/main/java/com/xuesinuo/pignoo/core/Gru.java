@@ -2,6 +2,7 @@ package com.xuesinuo.pignoo.core;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.sql.DataSource;
@@ -94,13 +95,13 @@ public class Gru {
      *         <p>
      *         Custom return value
      */
-    public <R> R runTransaction(Function<Pignoo, R> function) {
+    public void runTransaction(Consumer<Pignoo> function) {
         PignooConfig config = new PignooConfig();
         config.setEngine(this.engine);
         config.setUseTransaction(true);
         try (BasePignoo pignoo = new BasePignoo(this.dataSource, config)) {
             try {
-                return function.apply(pignoo);
+                function.accept(pignoo);
             } catch (Exception e) {
                 pignoo.rollback();
                 throw e;

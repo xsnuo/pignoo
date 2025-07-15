@@ -6,6 +6,7 @@ import com.xuesinuo.pignoo.core.annotation.Column;
 import com.xuesinuo.pignoo.core.annotation.PrimaryKey;
 import com.xuesinuo.pignoo.core.annotation.Table;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Table("pig")

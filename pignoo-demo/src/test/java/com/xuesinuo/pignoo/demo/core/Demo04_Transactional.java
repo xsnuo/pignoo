@@ -34,7 +34,7 @@ public class Demo04_Transactional {
         config.setEngine(DatabaseEngine.MySQL);// 可选配置，不填写就会自动识别，增加数据库访问开销
         config.setUseTransaction(false);
         try (BasePignoo pignoo = new BasePignoo(dataSource, config)) {// jdk7的try-with-resources语法，会自动关闭pignoo
-            var pigList = pignoo.getPignooList(Pig.class);
+            var pigList = pignoo.getList(Pig.class);
             Pig pig = new Pig();
             pig.setName("新的小猪");
             pig = pigList.add(pig);
@@ -54,7 +54,7 @@ public class Demo04_Transactional {
         config.setUseTransaction(true);
         try (BasePignoo pignoo = new BasePignoo(dataSource, config)) {
             try {
-                var pigList = pignoo.getPignooList(Pig.class);
+                var pigList = pignoo.getList(Pig.class);
                 Pig pig = new Pig();
                 pig.setName("新的小猪");
                 pig = pigList.add(pig);

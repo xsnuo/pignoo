@@ -34,7 +34,7 @@ public class Demo02_Query {
      */
     @Test
     public void filters() {
-        PignooList<Pig> pigList = pignoo.getPignooList(Pig.class);
+        PignooList<Pig> pigList = pignoo.getList(Pig.class);
 
         pigList.filter(Pig::getName, "like", "新猪报道%");
         pigList.getAll();// name like '新猪报道%'
@@ -47,7 +47,7 @@ public class Demo02_Query {
      * 使用List的赋值，可以生成多个List分别使用
      */
     public void useCopy() {
-        PignooList<Pig> list1 = pignoo.getPignooList(Pig.class);
+        PignooList<Pig> list1 = pignoo.getList(Pig.class);
         list1.filter(Pig::getAge, ">", 10);
         PignooList<Pig> list2 = list1.copy();
         list1.filter(Pig::getId, "<=", 10);
@@ -68,7 +68,7 @@ public class Demo02_Query {
      */
     @Test
     public void multiFilter() {
-        PignooList<Pig> pigList = pignoo.getPignooList(Pig.class);
+        PignooList<Pig> pigList = pignoo.getList(Pig.class);
         pigList.sort(Pig::getAge, SMode.MAX_FIRST);// 先按年龄降序排序
         pigList.filter(Pig::getColor, "like", "%黑%");// 【单条件筛选】仅保留了名字中包含黑字的
         pigList.filter(f -> f.or(Pig::getWeight, ">", 10).or(Pig::getWeight, "<", 2));// 【组合筛选】在前一步的基础上，保留了重量大于10或小于2的
@@ -81,7 +81,7 @@ public class Demo02_Query {
      */
     @Test
     public void filterMode4Enum() {
-        PignooList<Pig> pigList = pignoo.getPignooList(Pig.class);
+        PignooList<Pig> pigList = pignoo.getList(Pig.class);
         /*
          * 各类查询条件
          */
@@ -128,7 +128,7 @@ public class Demo02_Query {
      */
     @Test
     public void filterMode4String() {
-        PignooList<Pig> list = pignoo.getPignooList(Pig.class);
+        PignooList<Pig> list = pignoo.getList(Pig.class);
 
         list = list.filter(Pig::getAge, "==", 1)// “list = ”赋值是不必要的
                 .filter(Pig::getAge, "!=", 1)
@@ -150,7 +150,7 @@ public class Demo02_Query {
      */
     @Test
     public void getSome() {
-        PignooList<Pig> pigList = pignoo.getPignooList(Pig.class);
+        PignooList<Pig> pigList = pignoo.getList(Pig.class);
         pigList.filter(Pig::getId, ">", 10);
 
         pigList.get(5, 10);// id>10的数据，跳过前5个，查询10个
@@ -164,7 +164,7 @@ public class Demo02_Query {
      */
     @Test
     public void getSum() {
-        PignooList<Pig> pigList = pignoo.getPignooList(Pig.class);
+        PignooList<Pig> pigList = pignoo.getList(Pig.class);
         System.out.println(pigList.size());// 求总数
         System.out.println(pigList.sum(Pig::getWeight, BigDecimal.class));// 求和
         System.out.println(pigList.avg(Pig::getAge, Integer.class));// 求平均
