@@ -10,9 +10,9 @@
   <description>pignoo is a simple jdbc tool.</description>
   <packaging>pom</packaging>
 
-  <url>https://github.com/xuesinuo/pignoo</url>
+  <url>https://gitee.com/xue_da_nuo/pignoo</url>
   <organization>
-    <name>Xuesinuo</name>
+    <name>xuesinuo</name>
     <url>https://www.xuesinuo.com</url>
   </organization>
 
@@ -22,16 +22,15 @@
   </modules>
 
   <properties>
-    <java.version>11</java.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <com.xuesinuo.pignoo>0.1.0</com.xuesinuo.pignoo>
+    <java.version>21</java.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <com.xuesinuo.pignoo>0.1.0</com.xuesinuo.pignoo>
-    <!-- Javadoc 编码配置 -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
-  <!-- 开源许可证配置 -->
+  <!-- 开源许可证 -->
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -40,23 +39,23 @@
     </license>
   </licenses>
 
-  <!-- 开发者信息（请替换为实际信息） -->
+  <!-- 开发者信息 -->
   <developers>
     <developer>
-      <id>your-github-id</id>
-      <name>Your Name</name>
-      <email>your.email@example.com</email>
-      <url>https://github.com/your-github-id</url>
-      <organization>Xuesinuo</organization>
+      <id>xuesinuo</id>
+      <name>xuesinuo</name>
+      <email>nayukiminace@163.com</email>
+      <url>https://gitee.com/xue_da_nuo/pignoo</url>
+      <organization>xuesinuo</organization>
       <organizationUrl>https://www.xuesinuo.com</organizationUrl>
     </developer>
   </developers>
 
   <!-- SCM 配置（请替换为实际仓库地址） -->
   <scm>
-    <connection>scm:git:https://github.com/xuesinuo/pignoo.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com:xuesinuo/pignoo.git</developerConnection>
-    <url>https://github.com/xuesinuo/pignoo</url>
+    <connection>scm:git:https://gitee.com/xue_da_nuo/pignoo.git</connection>
+    <developerConnection>scm:git:ssh://git@gitee.com:xue_da_nuo/pignoo.git</developerConnection>
+    <url>https://gitee.com/xue_da_nuo/pignoo</url>
   </scm>
 
   <dependencyManagement>
@@ -128,15 +127,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
           <version>3.0.1</version>
-          <executions>
-            <execution>
-              <id>sign-artifacts</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>sign</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
 
         <!-- Nexus 发布插件（用于上传到 Maven 中央库） -->
@@ -147,19 +137,21 @@
           <configuration>
             <serverId>ossrh</serverId>
             <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            <autoReleaseAfterClose>false</autoReleaseAfterClose>
           </configuration>
-          <executions>
-            <execution>
-              <id>default-deploy</id>
-              <phase>deploy</phase>
-              <goals>
-                <goal>deploy</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
       </plugins>
     </pluginManagement>
   </build>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 </project>
