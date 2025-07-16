@@ -2,7 +2,7 @@
 
 Pignoo是一个应对大部分小型Java项目的轻量JDBC框架。
 
-Pignoo目标是将数据库操作转变成Java的List操作，使用者犹如操作内存一般操作数据库内容，完全数据库操作思路。
+Pignoo目标是将数据库操作转变成Java的List操作，使用者犹如操作内存一般操作数据库内容，完成数据库操作思路。
 
 来看几个案例：
 
@@ -23,7 +23,7 @@ public class Pig {
 ```java
 public class Test {
     private static DataSource dataSource;// 通过任何形式构建好数据源，比如HikariCP、DBCP...
-    private Pignoo pignoo = new BasePignoo(Test.dataSource);// 使用数据源，可以构建一个Pignoo实例，我们就同它来操作数据库
+    private Pignoo pignoo = new BasePignoo(Test.dataSource);// 使用数据源，可以构建一个Pignoo实例，我们就用它来操作数据库
 
     public void test() {
         PignooList<Pig> pigList = pignoo.getList(Pig.class);
@@ -40,7 +40,7 @@ public class Test {
 }
 ```
 
-上面已经是一个引入Pignoo后，完整的JDBC案例，在此基础上，你只需要构建出所需的DataSource，不再需要任何多余的代码，就可以完成数据库操作。
+上面已经是一个引入Pignoo后，完整的JDBC案例，在此基础上，你还需要额外构建出所需的DataSource，就不再需要做其他事，完成数据库操作。
 
 可以看出，Pignoo的数据库操作，完全符合Java操作List的思路，虽然舍弃了很多SQL的高级功能，但是在小型项目中，这很实用。如果你觉得这种操作数据的方式还不错，认真看完我给出的demo项目，防止到一些坑。
 
