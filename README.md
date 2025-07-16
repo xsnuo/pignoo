@@ -59,17 +59,31 @@ Pignoo的目标：准确性 > 易用性 > 性能。在功能准确的前提下�
 
 Pignoo是基于**标准JavaBean**、**JDBC**、**DataSource**、**Slf4j**、**SpringAOP**的：
 
-- 标准JavaBean：Pignoo操作的数据必须都是标准的JavaBean对象，推荐Lombok的@Data注解。否则会映射失败。
+- 标准JavaBean：Pignoo操作的数据必须都是标准的JavaBean对象，推荐Lombok的@Data注解。
 - JDBC：目前还没有考虑兼容Reactive访问方式，一切的根基还是传统JDBC。
 - DataSource：Pignoo不提供DataSource的构建，需要使用者提供一个DataSource，当然推荐DataSource可以是通过连接池构建的。
 - Slf4j：Pignoo的日志是基于Slf4j的，例如输出com.xuesinuo.pignoo下的debug日志可以看到SQL执行情况。
 - SpringAOP：Pignoo中用到了CGLIB动态代理，SpringAOP作为优秀的AOP框架，Pignoo基于它实现的动态代理。
+- JDK17：目前版本基于SpringAOP6.2.8，所以需要最低JDK17的支持。但其实Pignoo没有用到很新的特性。如果你很需要，可以issue+邮件来催促降低JDK版本。
+
+## 不要以SQL操作的眼光看待Pignoo
+
+在使用PignooList时，请按照使用List的操作直觉来使用它。我来举一个例子：
+
+```java
+    pignoo.getList(Pig.class)
+        .sort(Pig::getId, SMode.MIN_FIRST);// 按照ID从小到大排序
+        .sort(Pig::getName, SMode.MIN_FIRST);// 按照Name字典序从前到后排序
+        .getAll();// 查询最终结果是：先按Name字典序排序，同名时再按ID从小到大排序
+```
+
+如果你还是在用SQL思路看待问题，你会认为上面代码是“先按ID排序，再按Name排序”。但设想一下，你如果是用同样的方式`.stream()`操作List，第二次排序时候，会将第一次的排序结果打乱！PignooList也是这个思路，最终结果会优先最后指定的排序规则。
 
 ## 动态代理用在哪里
 
 Pignoo中，有个很关键的设计思路：用List与对象的操作取代数据库操作。为了实现这个构想，从PignooList中取出的每个对象，都会增加一层代理，代理监听setter方法并执行SQL操作，从而达到对象操作等于数据操作的效果。这也是Pignoo牺牲性能，换取易用性的提现。
 
-Pignoo对象的**作用域**外，setter的代理操作会失效。方便将对象传出Pignoo作用范围后，再做其他set操作，不会影响数据库。
+Pignoo的**作用域**外，setter的代理操作会失效。方便将对象传出Pignoo作用范围后，再做其他set操作，不会影响数据库。
 
 ## 为啥叫Pignoo
 
