@@ -86,7 +86,7 @@ public class Demo02_Query {
          * 各类查询条件
          */
         pigList.filter(Pig::getAge, FMode.EQ, 1);// 相等，只能跟1个参数
-        pigList.filter(Pig::getAge, FMode.NOT_EQ, 1);// 不相等，只能跟1个参数
+        pigList.filter(Pig::getAge, FMode.NE, 1);// 不相等，只能跟1个参数
         pigList.filter(Pig::getAge, FMode.GT, 1);// 大于，只能跟1个参数
         pigList.filter(Pig::getAge, FMode.LT, 1);// 小于，只能跟1个参数
         pigList.filter(Pig::getAge, FMode.GE, 1);// 大于等于，只能跟1个参数
@@ -109,10 +109,10 @@ public class Demo02_Query {
          */
         Integer id = null;
         pigList.filter(Pig::getId, FMode.EQ, id);// 相等，支持null
-        pigList.filter(Pig::getId, FMode.NOT_EQ, id);// 不相等，支持null
-        // pigList.filter(Pig::getId, FMode.EQ, null);// 不可直接赋值null，JRE会提示警告：null无法做为可变数组入参，建议使用IS_NULL、IS_NOT_NULL
-        pigList.filter(Pig::getId, FMode.IS_NULL);
-        pigList.filter(Pig::getId, FMode.IS_NOT_NULL);
+        pigList.filter(Pig::getId, FMode.NE, id);// 不相等，支持null
+        // pigList.filter(Pig::getId, FMode.EQ, null);// 不可直接赋值null，JRE会提示警告：null无法做为可变数组入参，建议使用NULL、NOT_NULL
+        pigList.filter(Pig::getId, FMode.NULL);
+        pigList.filter(Pig::getId, FMode.NOT_NULL);
 
         pigList.getAll();
     }

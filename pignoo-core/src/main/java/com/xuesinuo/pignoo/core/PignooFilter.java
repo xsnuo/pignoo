@@ -35,7 +35,7 @@ public class PignooFilter<E> {
          * <p>
          * Not equals
          */
-        NOT_EQ("!=", 1, 1),
+        NE("!=", 1, 1),
         /**
          * 大于
          * <p>
@@ -89,13 +89,13 @@ public class PignooFilter<E> {
          * <p>
          * Is null
          */
-        IS_NULL("is null", 0, 0),
+        NULL("is null", 0, 0),
         /**
          * 不为空
          * <p>
          * Is not null
          */
-        IS_NOT_NULL("is not null", 0, 0);
+        NOT_NULL("is not null", 0, 0);
 
         /**
          * 筛选条件名称，可以用于代替枚举值，不区分大小写
