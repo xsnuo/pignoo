@@ -88,7 +88,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         switch (fmode) {
         case EQ:
             return "=";
-        case NOT_EQ:
+        case NE:
             return "!=";
         case GT:
             return ">";
@@ -106,9 +106,9 @@ public class MySqlPignooList<E> implements PignooList<E> {
             return "IN";
         case NOT_IN:
             return "NOT IN";
-        case IS_NULL:
+        case NULL:
             return "IS NULL";
-        case IS_NOT_NULL:
+        case NOT_NULL:
             return "IS NOT NULL";
         default:
             return "";
@@ -156,7 +156,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
             Collection<Object> values = filter.getValues().stream().filter(p -> p != null).toList();
             int valueCount = values.size();
             boolean hasNull = false;
-            if (filter.getMode() == FMode.IN || filter.getMode() == FMode.NOT_IN || filter.getMode() == FMode.EQ || filter.getMode() == FMode.NOT_EQ) {
+            if (filter.getMode() == FMode.IN || filter.getMode() == FMode.NOT_IN || filter.getMode() == FMode.EQ || filter.getMode() == FMode.NE) {
                 if (filter.getValues().size() != valueCount) {
                     valueCount += 1;
                     hasNull = true;
@@ -183,7 +183,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
                     // DO NOTHING
                 } else if (filter.getMode() == FMode.EQ) {
                     thisSql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL ";
-                } else if (filter.getMode() == FMode.NOT_EQ) {
+                } else if (filter.getMode() == FMode.NE) {
                     thisSql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NOT NULL ";
                 } else {
                     throw new RuntimeException(filter.getMode() + " can not be NULL -> " +

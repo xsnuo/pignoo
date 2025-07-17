@@ -59,7 +59,7 @@ Pignoo的目标：准确性 > 易用性 > 性能。在功能准确的前提下�
 
 Pignoo是基于**标准JavaBean**、**JDBC**、**DataSource**、**Slf4j**、**SpringAOP**的：
 
-- 标准JavaBean：Pignoo操作的数据必须都是标准的JavaBean对象，推荐Lombok的@Data注解。
+- 标准JavaBean：Pignoo操作的数据必须都是标准的JavaBean对象，推荐Lombok的@Data注解。否则会映射失败。
 - JDBC：目前还没有考虑兼容Reactive访问方式，一切的根基还是传统JDBC。
 - DataSource：Pignoo不提供DataSource的构建，需要使用者提供一个DataSource，当然推荐DataSource可以是通过连接池构建的。
 - Slf4j：Pignoo的日志是基于Slf4j的，例如输出com.xuesinuo.pignoo下的debug日志可以看到SQL执行情况。
@@ -132,19 +132,12 @@ v0.1.0注意事项：
 
 ## 开发计划
 
-- v0.1.1
-  - 当事务中使用getOne查询时，改用主键加“写锁”
-  - 优化SQL拼接性能
-  - 调整Filter实现架构，优化性能
-- v0.2.0
-  - 增加一个表结构识别器，自动将代码中的实体映射成表
-- 其他可能的扩展（任重而道远，具体做到哪一步，看实际需要吧...）
-  - 兼容更多SQL方言
-  - 可选择是否使用代理，如果不使用代理，将对象“放入”List时视为插入或更新操作
-  - 将Pignoo融入Spring的事务管理，且给出默认的Boot-Pignoo-Starter
-  - 支持更多SQL功能
-    - 实体嵌套，表关联
-    - 联合主键
-    - 无主键
-    - 其他
-  - 兼容Reactive访问方式（Vert.x - API）
+- 兼容更多SQL方言
+- 可选择是否使用代理，如果不使用代理，将对象“放入”List时视为插入或更新操作
+- 将Pignoo融入Spring的事务管理，且给出默认的Boot-Pignoo-Starter
+- 支持更多SQL功能
+  - 实体嵌套，表关联
+  - 联合主键
+  - 无主键
+  - 其他
+- 兼容Reactive访问方式（Vert.x - API）

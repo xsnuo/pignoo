@@ -35,7 +35,7 @@ public class PignooFilter<E> {
          * <p>
          * Not equals
          */
-        NOT_EQ("!=", 1, 1),
+        NE("!=", 1, 1),
         /**
          * 大于
          * <p>
@@ -89,13 +89,13 @@ public class PignooFilter<E> {
          * <p>
          * Is null
          */
-        IS_NULL("is null", 0, 0),
+        NULL("is null", 0, 0),
         /**
          * 不为空
          * <p>
          * Is not null
          */
-        IS_NOT_NULL("is not null", 0, 0);
+        NOT_NULL("is not null", 0, 0);
 
         /**
          * 筛选条件名称，可以用于代替枚举值，不区分大小写
@@ -235,24 +235,6 @@ public class PignooFilter<E> {
      */
     public static <E> PignooFilter<E> build(Class<E> c) {
         PignooFilter<E> pignooFilter = new PignooFilter<>();
-        return pignooFilter;
-    }
-
-    /**
-     * 构建一个PignooFilter实例，各属性相等的条件
-     * <p>
-     * Build a PignooFilter instance, equal conditions for all attributes
-     *
-     * @param e 实体
-     *          <p>
-     *          Entity
-     * @return PignooFilter实例
-     *         <p>
-     *         PignooFilter instance
-     */
-    public static <E> PignooFilter<E> build(E e) {
-        PignooFilter<E> pignooFilter = new PignooFilter<>();
-        // TODO 各属性相等的条件
         return pignooFilter;
     }
 
