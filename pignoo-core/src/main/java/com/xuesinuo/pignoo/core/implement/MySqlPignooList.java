@@ -47,22 +47,28 @@ public class MySqlPignooList<E> implements PignooList<E> {
         this.inTransaction = inTransaction;
         this.c = c;
         this.entityMapper = EntityMapper.build(c);
-        this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, entity) -> {
+        this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, e) -> {
             if (pignoo.hasClosed()) {
                 return;
             }
+            Object primaryKeyValue = null;
+            try {
+                primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
+            } catch (IllegalAccessException | InvocationTargetException ex) {
+                throw new RuntimeException("Primary key is not found " + e, ex);
+            }
+            if (primaryKeyValue == null) {
+                throw new RuntimeException("Primary key can not be NULL " + e);
+            }
+            SqlParam sqlParam = new SqlParam();
             StringBuilder sql = new StringBuilder("");
             sql.append("UPDATE ");
             sql.append("`" + entityMapper.tableName() + "` ");
             sql.append("SET ");
-            sql.append("`" + entityMapper.columns().get(index) + "` = ? ");
+            sql.append("`" + entityMapper.columns().get(index) + "` = " + (arg == null ? "NULL" : sqlParam.next(arg)) + " ");
             sql.append("WHERE ");
-            sql.append("`" + entityMapper.primaryKeyColumn() + "` = ? ");
-            try {
-                SqlExecuter.update(conn, sql.toString(), Map.of(0, arg, 1, entityMapper.primaryKeyGetter().invoke(entity)));
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+            sql.append("`" + entityMapper.primaryKeyColumn() + "` = " + sqlParam.next(primaryKeyValue) + " ");
+            SqlExecuter.update(conn, sql.toString(), sqlParam.params);
         });
     }
 

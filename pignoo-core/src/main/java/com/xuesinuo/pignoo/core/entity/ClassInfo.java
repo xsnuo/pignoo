@@ -35,6 +35,9 @@ public class ClassInfo<E> {
 
     public ClassInfo(Class<E> c) {
         Table tableAnn = c.getAnnotation(Table.class);
+        if (tableAnn == null) {
+            throw new RuntimeException("Entity " + c.getName() + " missing @Table");
+        }
         this.tableName = tableAnn.value();
         try {
             constructor = c.getDeclaredConstructor();
@@ -47,6 +50,9 @@ public class ClassInfo<E> {
                 PrimaryKey primaryKeyAnn = field.getAnnotation(PrimaryKey.class);
                 Column columnAnn = field.getAnnotation(Column.class);
                 this.autoPrimaryKey = primaryKeyAnn.auto();
+                if (this.primaryKeyField != null) {
+                    throw new RuntimeException("Entity " + c.getName() + " can't has more than one @PrimaryKey");
+                }
                 this.primaryKeyField = field;
                 this.primaryKeyColumn = columnAnn.value();
                 Method[] getterSetter = this.fields2GetterSetter(c, field);
@@ -62,6 +68,9 @@ public class ClassInfo<E> {
                 this.getterNames.add(getterSetter[0].getName());
                 this.setterNames.add(getterSetter[1].getName());
             }
+        }
+        if (this.primaryKeyField == null) {
+            throw new RuntimeException("Entity " + c.getName() + " missing @PrimaryKey");
         }
     }
 
