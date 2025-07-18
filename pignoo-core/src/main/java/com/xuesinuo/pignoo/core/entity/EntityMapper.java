@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import com.xuesinuo.pignoo.core.config.AnnotationMode;
 import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
+import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
 
 /**
  * 实体映射器，启动包很类信息、getter方法与属性名的映射器
@@ -22,16 +23,17 @@ public class EntityMapper<E> {
     private FunctionNameGetter<E> functionNameGetter;
     private static final ConcurrentHashMap<Class<?>, EntityMapper<?>> cache = new ConcurrentHashMap<>();
 
-    private EntityMapper(Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode) {
-        this.classInfo = new ClassInfo<>(c, annotationMode, annotationMixMode);
+    private EntityMapper(Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode, PrimaryKeyNamingConvention primaryKeyNamingConvention, Boolean autoPrimaryKey) {
+        this.classInfo = new ClassInfo<>(c, annotationMode, annotationMixMode, primaryKeyNamingConvention, autoPrimaryKey);
         this.functionNameGetter = new FunctionNameGetter<>(c);
     }
 
     @SuppressWarnings("unchecked")
-    public static <E> EntityMapper<E> build(Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode) {
+    public static <E> EntityMapper<E> build(Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode, PrimaryKeyNamingConvention primaryKeyNamingConvention,
+            Boolean autoPrimaryKey) {
         EntityMapper<E> mapper = (EntityMapper<E>) cache.get(c);
         if (mapper == null) {
-            mapper = new EntityMapper<>(c, annotationMode, annotationMixMode);
+            mapper = new EntityMapper<>(c, annotationMode, annotationMixMode, primaryKeyNamingConvention, autoPrimaryKey);
             cache.put(c, mapper);
         }
         return mapper;

@@ -10,6 +10,7 @@ import com.xuesinuo.pignoo.core.annotation.Column;
 import com.xuesinuo.pignoo.core.annotation.PrimaryKey;
 import com.xuesinuo.pignoo.core.annotation.Table;
 import com.xuesinuo.pignoo.core.config.AnnotationMode;
+import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
 import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
 
 /**
@@ -35,7 +36,7 @@ public class ClassInfo<E> {
     protected List<String> getterNames = new ArrayList<>();
     protected List<String> setterNames = new ArrayList<>();
 
-    public ClassInfo(Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode) {
+    public ClassInfo(Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode, PrimaryKeyNamingConvention primaryKeyNamingConvention, Boolean autoPrimaryKey) {
         if (annotationMode == null) {
             annotationMode = AnnotationMode.MIX;
         }
@@ -130,7 +131,28 @@ public class ClassInfo<E> {
             }
         }
         if (this.primaryKeyField == null) {
-            throw new RuntimeException("Entity " + c.getName() + " missing @PrimaryKey");
+            String pkName;
+            if (primaryKeyNamingConvention != null) {
+                pkName = primaryKeyNamingConvention.naming(tableName, c.getSimpleName());
+            } else {
+                pkName = PrimaryKeyNamingConvention.DEFAULT.naming(tableName, c.getSimpleName());
+            }
+            if (pkName == null || pkName.isBlank()) {
+                throw new RuntimeException("Entity " + c.getName() + " PrimaryKey not found");
+            }
+            int indexOfPk = this.columns.indexOf(pkName);
+            if (indexOfPk < 0) {
+                throw new RuntimeException("Entity " + c.getName() + " PrimaryKey not found");
+            }
+            this.primaryKeyColumn = pkName;
+            if (autoPrimaryKey == null) {
+                this.autoPrimaryKey = true;
+            } else {
+                this.autoPrimaryKey = autoPrimaryKey;
+            }
+            this.primaryKeyField = this.fields.get(indexOfPk);
+            this.primaryKeyGetter = this.getters.get(indexOfPk);
+            this.primaryKeySetter = this.setters.get(indexOfPk);
         }
     }
 

@@ -18,6 +18,7 @@ import com.xuesinuo.pignoo.core.PignooSorter;
 import com.xuesinuo.pignoo.core.SqlExecuter;
 import com.xuesinuo.pignoo.core.config.AnnotationMode;
 import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
+import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
 import com.xuesinuo.pignoo.core.PignooFilter.FMode;
 import com.xuesinuo.pignoo.core.PignooFilter.XOR;
 import com.xuesinuo.pignoo.core.PignooSorter.SMode;
@@ -44,15 +45,20 @@ public class MySqlPignooList<E> implements PignooList<E> {
     private PignooFilter<E> filter;
     private PignooSorter<E> sorter;
     private final EntityProxyFactory<E> entityProxyFactory;
+    private final PrimaryKeyNamingConvention primaryKeyNamingConvention;
+    private final Boolean autoPrimaryKey;
 
-    public MySqlPignooList(Pignoo pignoo, Connection conn, boolean inTransaction, Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode) {
+    public MySqlPignooList(Pignoo pignoo, Connection conn, boolean inTransaction, Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode,
+            PrimaryKeyNamingConvention primaryKeyNamingConvention, Boolean autoPrimaryKey) {
         this.pignoo = pignoo;
         this.conn = conn;
         this.inTransaction = inTransaction;
         this.c = c;
         this.annotationMode = annotationMode;
         this.annotationMixMode = annotationMixMode;
-        this.entityMapper = EntityMapper.build(c, annotationMode, annotationMixMode);
+        this.primaryKeyNamingConvention = primaryKeyNamingConvention;
+        this.autoPrimaryKey = autoPrimaryKey;
+        this.entityMapper = EntityMapper.build(c, annotationMode, annotationMixMode, primaryKeyNamingConvention, autoPrimaryKey);
         this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, e) -> {
             if (pignoo.hasClosed()) {
                 return;
@@ -80,7 +86,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
 
     @Override
     public PignooList<E> copy() {
-        MySqlPignooList<E> pignooList = new MySqlPignooList<>(pignoo, conn, inTransaction, c, annotationMode, annotationMixMode);
+        MySqlPignooList<E> pignooList = new MySqlPignooList<>(pignoo, conn, inTransaction, c, annotationMode, annotationMixMode, primaryKeyNamingConvention, autoPrimaryKey);
         pignooList.filter = PignooFilter.copy(filter);
         pignooList.sorter = PignooSorter.copy(sorter);
         return pignooList;

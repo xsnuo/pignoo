@@ -11,6 +11,7 @@ import com.xuesinuo.pignoo.core.PignooList;
 import com.xuesinuo.pignoo.core.config.AnnotationMode;
 import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
 import com.xuesinuo.pignoo.core.config.DatabaseEngine;
+import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
 
 /**
  * 基础的Pignoo实现
@@ -32,9 +33,13 @@ public class BasePignoo implements Pignoo {
 
     private boolean hasClosed = false;// 是否已经关闭
 
-    private final AnnotationMode annotationMode;
+    private final AnnotationMode annotationMode;// 使用注解的方式
 
-    private final AnnotationMixMode annotationMixMode;
+    private final AnnotationMixMode annotationMixMode;// 混用注解的方式
+
+    private final PrimaryKeyNamingConvention primaryKeyNamingConvention;// 主键命名规则
+
+    private final Boolean autoPrimaryKey;// 是否自动生成主键
 
     /**
      * 
@@ -60,9 +65,13 @@ public class BasePignoo implements Pignoo {
         AnnotationMixMode annotationMixMode = null;
         DatabaseEngine engine = null;
         boolean useTransaction = false;
+        PrimaryKeyNamingConvention primaryKeyNamingConvention = null;
+        Boolean autoPrimaryKey = null;
         if (pignooConfig != null) {
             annotationMode = pignooConfig.getAnnotationMode();
             annotationMixMode = pignooConfig.getAnnotationMixMode();
+            primaryKeyNamingConvention = pignooConfig.getPrimaryKeyNamingConvention();
+            autoPrimaryKey = pignooConfig.getAutoPrimaryKey();
             engine = pignooConfig.getEngine();
             if (pignooConfig.getUseTransaction() != null) {
                 useTransaction = pignooConfig.getUseTransaction();
@@ -90,6 +99,8 @@ public class BasePignoo implements Pignoo {
         }
         this.annotationMode = annotationMode;
         this.annotationMixMode = annotationMixMode;
+        this.primaryKeyNamingConvention = primaryKeyNamingConvention;
+        this.autoPrimaryKey = autoPrimaryKey;
         this.useTransaction = useTransaction;
     }
 
@@ -97,7 +108,7 @@ public class BasePignoo implements Pignoo {
     public <E> PignooList<E> getList(Class<E> c) {
         switch (engine) {
         case MySQL:
-            return new MySqlPignooList<E>(this, conn, useTransaction, c, annotationMode, annotationMixMode);
+            return new MySqlPignooList<E>(this, conn, useTransaction, c, annotationMode, annotationMixMode, primaryKeyNamingConvention, autoPrimaryKey);
         }
         throw new RuntimeException("Unknow database engine");
     }

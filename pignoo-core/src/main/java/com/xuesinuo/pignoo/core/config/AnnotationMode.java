@@ -42,16 +42,16 @@ public enum AnnotationMode {
      */
     public static enum AnnotationMixMode {
         /**
-         * 【默认】类名等于表名，属性名等于列名
+         * 类名等于表名，属性名等于列名
          * <p>
-         * [Default] The class name is equal to the table name, and the attribute name is equal to the column name.
+         * The class name is equal to the table name, and the attribute name is equal to the column name.
          */
         SAME,
 
         /**
-         * Java使用驼峰命名，数据库使用蛇形命名（下划线命名）
+         * 【默认】Java使用驼峰命名，数据库使用蛇形命名（下划线命名）
          * <p>
-         * Java uses camel naming, and the database uses snake naming (underscore naming).
+         * [Default] Java uses camel naming, and the database uses snake naming (underscore naming).
          * <p>
          * 这要求JavaBean的命名必须要规范，否则可能出现解析错误
          * <p>

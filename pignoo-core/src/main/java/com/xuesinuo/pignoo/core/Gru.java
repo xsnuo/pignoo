@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import com.xuesinuo.pignoo.core.config.AnnotationMode;
 import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
 import com.xuesinuo.pignoo.core.config.DatabaseEngine;
+import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
 
 /**
@@ -33,6 +34,8 @@ public class Gru {
     private final DataSource dataSource;// 数据源
     private final AnnotationMode annotationMode;
     private final AnnotationMixMode annotationMixMode;
+    private final PrimaryKeyNamingConvention primaryKeyNamingConvention;
+    private final Boolean autoPrimaryKey;
 
     /**
      * 
@@ -71,6 +74,8 @@ public class Gru {
         this.dataSource = dataSource;
         this.annotationMode = config.getAnnotationMode();
         this.annotationMixMode = config.getAnnotationMixMode();
+        this.primaryKeyNamingConvention = config.getPrimaryKeyNamingConvention();
+        this.autoPrimaryKey = config.getAutoPrimaryKey();
     }
 
     /**
@@ -104,6 +109,8 @@ public class Gru {
         config.setUseTransaction(false);
         config.setAnnotationMode(this.annotationMode);
         config.setAnnotationMixMode(this.annotationMixMode);
+        config.setPrimaryKeyNamingConvention(this.primaryKeyNamingConvention);
+        config.setAutoPrimaryKey(this.autoPrimaryKey);
         try (BasePignoo pignoo = new BasePignoo(this.dataSource, config)) {
             return function.apply(pignoo);
         }
@@ -130,6 +137,8 @@ public class Gru {
         config.setUseTransaction(true);
         config.setAnnotationMode(this.annotationMode);
         config.setAnnotationMixMode(this.annotationMixMode);
+        config.setPrimaryKeyNamingConvention(this.primaryKeyNamingConvention);
+        config.setAutoPrimaryKey(this.autoPrimaryKey);
         try (BasePignoo pignoo = new BasePignoo(this.dataSource, config)) {
             try {
                 function.accept(pignoo);
