@@ -30,7 +30,7 @@ public class Demo01_EasyStart {
         var pigList = pignoo.getList(Pig.class);
         Pig pig = new Pig();
         pig.setName("新猪报道");
-        pig.setWeight(new BigDecimal("10.2"));
+        pig.setWeiGht(new BigDecimal("10.2"));
         pig.setAge(2);
         pig.setColor("白");
         pig = pigList.add(pig);

@@ -1,11 +1,5 @@
 package com.xuesinuo.pignoo.core;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 /**
  * Pignoo - 小黄人语的“无聊”。《卑鄙的我3》中小黄人们高呼“Pignoo”抗议格活过于无聊
  * <p>
@@ -36,53 +30,6 @@ import lombok.Getter;
  * @since 0.1.0
  */
 public interface Pignoo extends AutoCloseable {
-
-    /**
-     * 数据库引擎
-     * <p>
-     * Database engine
-     */
-    @AllArgsConstructor
-    @Getter
-    public static enum DatabaseEngine {
-        MySQL("mysql");
-
-        /**
-         * 数据库引擎名称，全小写
-         * <p>
-         * Database engine name, all lowercase
-         */
-        private String name;
-
-        /**
-         * 根据名称获取数据库引擎
-         * <p>
-         * Get database engine by name
-         */
-        public static DatabaseEngine getDatabaseEngineByName(String name) {
-            if (name == null || name.isEmpty()) {
-                return null;
-            }
-            for (DatabaseEngine engine : DatabaseEngine.values()) {
-                if (name.toLowerCase().contains(engine.getName())) {
-                    return engine;
-                }
-            }
-            return null;
-        }
-
-        /**
-         * 根据数据库连接获取数据库引擎
-         * <p>
-         * Get database engine by connection
-         */
-        public static DatabaseEngine getDatabaseEngineByConnection(Connection conn) throws SQLException {
-            if (conn == null || conn.getMetaData() == null) {
-                return null;
-            }
-            return getDatabaseEngineByName(conn.getMetaData().getDatabaseProductName());
-        }
-    }
 
     /**
      * 获取一个PignooList实例，这是Pignoo的最核心用法

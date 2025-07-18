@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.xuesinuo.pignoo.core.Gru;
 import com.xuesinuo.pignoo.core.PignooConfig;
-import com.xuesinuo.pignoo.core.Pignoo.DatabaseEngine;
+import com.xuesinuo.pignoo.core.config.DatabaseEngine;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
 import com.xuesinuo.pignoo.demo.table.Pig;
 

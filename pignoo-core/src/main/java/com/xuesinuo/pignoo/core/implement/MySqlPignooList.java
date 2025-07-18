@@ -16,6 +16,8 @@ import com.xuesinuo.pignoo.core.PignooFilter;
 import com.xuesinuo.pignoo.core.PignooList;
 import com.xuesinuo.pignoo.core.PignooSorter;
 import com.xuesinuo.pignoo.core.SqlExecuter;
+import com.xuesinuo.pignoo.core.config.AnnotationMode;
+import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
 import com.xuesinuo.pignoo.core.PignooFilter.FMode;
 import com.xuesinuo.pignoo.core.PignooFilter.XOR;
 import com.xuesinuo.pignoo.core.PignooSorter.SMode;
@@ -36,17 +38,21 @@ public class MySqlPignooList<E> implements PignooList<E> {
     private final Connection conn;
     private final boolean inTransaction;
     private final Class<E> c;
+    private final AnnotationMode annotationMode;
+    private final AnnotationMixMode annotationMixMode;
     private final EntityMapper<E> entityMapper;
     private PignooFilter<E> filter;
     private PignooSorter<E> sorter;
     private final EntityProxyFactory<E> entityProxyFactory;
 
-    public MySqlPignooList(Pignoo pignoo, Connection conn, boolean inTransaction, Class<E> c) {
+    public MySqlPignooList(Pignoo pignoo, Connection conn, boolean inTransaction, Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode) {
         this.pignoo = pignoo;
         this.conn = conn;
         this.inTransaction = inTransaction;
         this.c = c;
-        this.entityMapper = EntityMapper.build(c);
+        this.annotationMode = annotationMode;
+        this.annotationMixMode = annotationMixMode;
+        this.entityMapper = EntityMapper.build(c, annotationMode, annotationMixMode);
         this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, e) -> {
             if (pignoo.hasClosed()) {
                 return;
@@ -74,7 +80,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
 
     @Override
     public PignooList<E> copy() {
-        MySqlPignooList<E> pignooList = new MySqlPignooList<>(pignoo, conn, inTransaction, c);
+        MySqlPignooList<E> pignooList = new MySqlPignooList<>(pignoo, conn, inTransaction, c, annotationMode, annotationMixMode);
         pignooList.filter = PignooFilter.copy(filter);
         pignooList.sorter = PignooSorter.copy(sorter);
         return pignooList;

@@ -7,7 +7,9 @@ import java.util.function.Function;
 
 import javax.sql.DataSource;
 
-import com.xuesinuo.pignoo.core.Pignoo.DatabaseEngine;
+import com.xuesinuo.pignoo.core.config.AnnotationMode;
+import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
+import com.xuesinuo.pignoo.core.config.DatabaseEngine;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
 
 /**
@@ -29,6 +31,8 @@ import com.xuesinuo.pignoo.core.implement.BasePignoo;
 public class Gru {
     private final DatabaseEngine engine;// 数据库引擎
     private final DataSource dataSource;// 数据源
+    private final AnnotationMode annotationMode;
+    private final AnnotationMixMode annotationMixMode;
 
     /**
      * 
@@ -40,6 +44,12 @@ public class Gru {
      *                   Configuration
      */
     public Gru(DataSource dataSource, PignooConfig config) {
+        if (config == null) {
+            config = new PignooConfig();
+        }
+        if (dataSource == null) {
+            throw new RuntimeException("DataSource Error: DataSource is null");
+        }
         DatabaseEngine engine = config.getEngine();
         try (Connection conn = dataSource.getConnection()) {
             if (conn == null) {
@@ -59,6 +69,18 @@ public class Gru {
         }
         this.engine = engine;
         this.dataSource = dataSource;
+        this.annotationMode = config.getAnnotationMode();
+        this.annotationMixMode = config.getAnnotationMixMode();
+    }
+
+    /**
+     * @param dataSource 数据源
+     *                   <p>
+     *                   Data source
+     * @since 0.2.0
+     */
+    public Gru(DataSource dataSource) {
+        this(dataSource, new PignooConfig());
     }
 
     /**
@@ -80,6 +102,8 @@ public class Gru {
         PignooConfig config = new PignooConfig();
         config.setEngine(this.engine);
         config.setUseTransaction(false);
+        config.setAnnotationMode(this.annotationMode);
+        config.setAnnotationMixMode(this.annotationMixMode);
         try (BasePignoo pignoo = new BasePignoo(this.dataSource, config)) {
             return function.apply(pignoo);
         }
@@ -104,6 +128,8 @@ public class Gru {
         PignooConfig config = new PignooConfig();
         config.setEngine(this.engine);
         config.setUseTransaction(true);
+        config.setAnnotationMode(this.annotationMode);
+        config.setAnnotationMixMode(this.annotationMixMode);
         try (BasePignoo pignoo = new BasePignoo(this.dataSource, config)) {
             try {
                 function.accept(pignoo);

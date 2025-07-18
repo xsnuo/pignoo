@@ -9,6 +9,8 @@ import java.util.List;
 import com.xuesinuo.pignoo.core.annotation.Column;
 import com.xuesinuo.pignoo.core.annotation.PrimaryKey;
 import com.xuesinuo.pignoo.core.annotation.Table;
+import com.xuesinuo.pignoo.core.config.AnnotationMode;
+import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
 
 /**
  * 解析实体类
@@ -33,12 +35,32 @@ public class ClassInfo<E> {
     protected List<String> getterNames = new ArrayList<>();
     protected List<String> setterNames = new ArrayList<>();
 
-    public ClassInfo(Class<E> c) {
+    public ClassInfo(Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode) {
+        if (annotationMode == null) {
+            annotationMode = AnnotationMode.MIX;
+        }
+        if (annotationMixMode == null) {
+            annotationMixMode = AnnotationMixMode.CAMEL_TO_SNAKE;
+        }
         Table tableAnn = c.getAnnotation(Table.class);
-        if (tableAnn == null) {
+        if (annotationMode == AnnotationMode.MUST && tableAnn == null) {
             throw new RuntimeException("Entity " + c.getName() + " missing @Table");
         }
-        this.tableName = tableAnn.value();
+        if (tableAnn != null && (tableAnn.value() == null || tableAnn.value().isBlank())) {
+            throw new RuntimeException("Entity " + c.getName() + " @Table value can not be empty");
+        }
+        if (tableAnn != null) {
+            this.tableName = tableAnn.value();
+        } else if (annotationMode == AnnotationMode.MIX) {
+            if (annotationMixMode == AnnotationMixMode.SAME) {
+                this.tableName = c.getSimpleName();
+            } else if (annotationMixMode == AnnotationMixMode.CAMEL_TO_SNAKE) {
+                this.tableName = camel2Underline(c.getSimpleName());
+            }
+        }
+        if (this.tableName == null || this.tableName.isBlank()) {
+            throw new RuntimeException("Entity " + c.getName() + " read table name failed");
+        }
         try {
             constructor = c.getDeclaredConstructor();
         } catch (NoSuchMethodException | SecurityException e) {
@@ -46,22 +68,60 @@ public class ClassInfo<E> {
         }
         Field[] classFields = c.getDeclaredFields();
         for (Field field : classFields) {
-            if (field.isAnnotationPresent(PrimaryKey.class) && field.isAnnotationPresent(Column.class)) {
+            if (field.isAnnotationPresent(PrimaryKey.class)) {
                 PrimaryKey primaryKeyAnn = field.getAnnotation(PrimaryKey.class);
                 Column columnAnn = field.getAnnotation(Column.class);
+                if (columnAnn == null && annotationMode == AnnotationMode.MUST) {
+                    throw new RuntimeException("Entity " + c.getName() + " the primaryKey missing @Column");
+                }
+                if (columnAnn != null && (columnAnn.value() == null || columnAnn.value().isBlank())) {
+                    throw new RuntimeException("Entity " + c.getName() + " the primaryKey @Column value can not be empty");
+                }
+                if (columnAnn != null) {
+                    this.primaryKeyColumn = columnAnn.value();
+                } else if (annotationMode == AnnotationMode.MIX) {
+                    if (annotationMixMode == AnnotationMixMode.SAME) {
+                        this.primaryKeyColumn = field.getName();
+                    } else if (annotationMixMode == AnnotationMixMode.CAMEL_TO_SNAKE) {
+                        this.primaryKeyColumn = camel2Underline(field.getName());
+                    }
+                }
+                if (this.primaryKeyColumn == null || this.primaryKeyColumn.isBlank()) {
+                    throw new RuntimeException("Entity " + c.getName() + " read primaryKey column name failed");
+                }
                 this.autoPrimaryKey = primaryKeyAnn.auto();
                 if (this.primaryKeyField != null) {
                     throw new RuntimeException("Entity " + c.getName() + " can't has more than one @PrimaryKey");
+                } else {
+                    this.primaryKeyField = field;
                 }
-                this.primaryKeyField = field;
-                this.primaryKeyColumn = columnAnn.value();
                 Method[] getterSetter = this.fields2GetterSetter(c, field);
                 this.primaryKeyGetter = getterSetter[0];
                 this.primaryKeySetter = getterSetter[1];
             }
-            if (field.isAnnotationPresent(Column.class)) {
-                fields.add(field);
-                columns.add(field.getAnnotation(Column.class).value());
+            if (field.isAnnotationPresent(Column.class) || annotationMode == AnnotationMode.MIX) {
+                this.fields.add(field);
+                Column columnAnn = field.getAnnotation(Column.class);
+                String columnName = null;
+                if (columnAnn == null && annotationMode == AnnotationMode.MUST) {
+                    throw new RuntimeException("Entity " + c.getName() + "#" + field.getName() + " missing @Column");
+                }
+                if (columnAnn != null && (columnAnn.value() == null || columnAnn.value().isBlank())) {
+                    throw new RuntimeException("Entity " + c.getName() + "#" + field.getName() + " @Column value can not be empty");
+                }
+                if (columnAnn != null) {
+                    columnName = columnAnn.value();
+                } else if (annotationMode == AnnotationMode.MIX) {
+                    if (annotationMixMode == AnnotationMixMode.SAME) {
+                        columnName = field.getName();
+                    } else if (annotationMixMode == AnnotationMixMode.CAMEL_TO_SNAKE) {
+                        columnName = camel2Underline(field.getName());
+                    }
+                }
+                if (columnName == null || columnName.isBlank()) {
+                    throw new RuntimeException("Entity " + c.getName() + "#" + field.getName() + " read column name failed");
+                }
+                this.columns.add(columnName);
                 Method[] getterSetter = this.fields2GetterSetter(c, field);
                 this.getters.add(getterSetter[0]);
                 this.setters.add(getterSetter[1]);
@@ -91,17 +151,32 @@ public class ClassInfo<E> {
         Method getter;
         try {
             getter = c.getMethod(getterName);
-        } catch (Exception e) {
-            e.printStackTrace();
-            getter = null;
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new RuntimeException("Entity " + c.getName() + " read getter failed", e);
         }
         Method setter;
         try {
             setter = c.getMethod(setterName, field.getType());
-        } catch (Exception e) {
-            e.printStackTrace();
-            setter = null;
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new RuntimeException("Entity " + c.getName() + " read setter failed", e);
         }
         return new Method[] { getter, setter };
+    }
+
+    private String camel2Underline(String str) {
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for (char c : str.toCharArray()) {
+            if (i++ == 0) {
+                sb.append(Character.toLowerCase(c));
+            } else {
+                if (Character.isUpperCase(c)) {
+                    sb.append("_").append(Character.toLowerCase(c));
+                } else {
+                    sb.append(c);
+                }
+            }
+        }
+        return sb.toString();
     }
 }

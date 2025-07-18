@@ -8,6 +8,9 @@ import javax.sql.DataSource;
 import com.xuesinuo.pignoo.core.Pignoo;
 import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooList;
+import com.xuesinuo.pignoo.core.config.AnnotationMode;
+import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
+import com.xuesinuo.pignoo.core.config.DatabaseEngine;
 
 /**
  * 基础的Pignoo实现
@@ -29,6 +32,10 @@ public class BasePignoo implements Pignoo {
 
     private boolean hasClosed = false;// 是否已经关闭
 
+    private final AnnotationMode annotationMode;
+
+    private final AnnotationMixMode annotationMixMode;
+
     /**
      * 
      * @param dataSource 数据源
@@ -49,9 +56,13 @@ public class BasePignoo implements Pignoo {
      *                     Configuration
      */
     public BasePignoo(DataSource dataSource, PignooConfig pignooConfig) {
+        AnnotationMode annotationMode = null;
+        AnnotationMixMode annotationMixMode = null;
         DatabaseEngine engine = null;
         boolean useTransaction = false;
         if (pignooConfig != null) {
+            annotationMode = pignooConfig.getAnnotationMode();
+            annotationMixMode = pignooConfig.getAnnotationMixMode();
             engine = pignooConfig.getEngine();
             if (pignooConfig.getUseTransaction() != null) {
                 useTransaction = pignooConfig.getUseTransaction();
@@ -77,6 +88,8 @@ public class BasePignoo implements Pignoo {
             this.close();
             throw new RuntimeException(e);
         }
+        this.annotationMode = annotationMode;
+        this.annotationMixMode = annotationMixMode;
         this.useTransaction = useTransaction;
     }
 
@@ -84,7 +97,7 @@ public class BasePignoo implements Pignoo {
     public <E> PignooList<E> getList(Class<E> c) {
         switch (engine) {
         case MySQL:
-            return new MySqlPignooList<E>(this, conn, useTransaction, c);
+            return new MySqlPignooList<E>(this, conn, useTransaction, c, annotationMode, annotationMixMode);
         }
         throw new RuntimeException("Unknow database engine");
     }
