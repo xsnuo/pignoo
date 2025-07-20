@@ -17,15 +17,10 @@ Pignoo目标是将数据库操作转变成Java的List操作，使用者犹如操
 来看几个案例：
 
 ```java
-@AllArgsConstructor// Lombok - 全参数构造，可选
+@AllArgsConstructor// Lombok - 全参数构造，不必须，只是为了Demo更简洁
 @Data// Lombok - 标准JavaBean，Bean是必须的，但可以不使用Lombok
-@Table("pig")
 public class Pig {
-    @Column("id")
-    @PrimaryKey(auto = true)
     private Long id;
-
-    @Column("name")
     private String name;
 }
 ```

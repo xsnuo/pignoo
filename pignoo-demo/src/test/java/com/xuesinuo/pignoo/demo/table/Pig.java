@@ -14,5 +14,5 @@ public class Pig {
 
     private String color;
 
-    private BigDecimal weiGht;
+    private BigDecimal pigWeight;
 }

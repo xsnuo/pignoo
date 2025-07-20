@@ -1,6 +1,5 @@
 package com.xuesinuo.pignoo.demo.core;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,8 +38,8 @@ public class Demo02_Query {
         pigList.filter(Pig::getName, "like", "新猪报道%");
         pigList.getAll();// name like '新猪报道%'
 
-        pigList.filter(Pig::getWeiGht, ">", new BigDecimal("10"));
-        pigList.getAll();// name like '新猪报道%', and then weight > 10
+        pigList.filter(Pig::getId, ">", 10L);
+        pigList.getAll();// name like '新猪报道%', and then id > 10
     }
 
     /**
@@ -71,8 +70,8 @@ public class Demo02_Query {
         PignooList<Pig> pigList = pignoo.getList(Pig.class);
         pigList.sort(Pig::getAge, SMode.MAX_FIRST);// 先按年龄降序排序
         pigList.filter(Pig::getColor, "like", "%黑%");// 【单条件筛选】仅保留了名字中包含黑字的
-        pigList.filter(f -> f.or(Pig::getWeiGht, ">", 10).or(Pig::getWeiGht, "<", 2));// 【组合筛选】在前一步的基础上，保留了重量大于10或小于2的
-        pigList.sort(Pig::getWeiGht, SMode.MIN_FIRST);// 再按体重升序排序，这时候排序完，年龄就不一定是降序了，因为这一步仅按体重排序！体重相同的猪之间还是会按照先前的年龄排序。
+        pigList.filter(f -> f.or(Pig::getId, ">", 10).or(Pig::getId, "<", 2));// 【组合筛选】在前一步的基础上，保留了id大于10或小于2的
+        pigList.sort(Pig::getId, SMode.MIN_FIRST);// 再按id升序排序，这时候排序完，年龄就不一定是降序了，因为这一步仅按id排序！id相同的猪之间还是会按照先前的年龄排序。
         pigList.getAll();
     }
 
@@ -166,7 +165,7 @@ public class Demo02_Query {
     public void getSum() {
         PignooList<Pig> pigList = pignoo.getList(Pig.class);
         System.out.println(pigList.size());// 求总数
-        System.out.println(pigList.sum(Pig::getWeiGht, BigDecimal.class));// 求和
+        System.out.println(pigList.sum(Pig::getId, Long.class));// 求和
         System.out.println(pigList.avg(Pig::getAge, Integer.class));// 求平均
 
         pigList.filter(Pig::getId, ">", 3);
