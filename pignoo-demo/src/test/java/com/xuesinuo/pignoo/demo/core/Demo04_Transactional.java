@@ -10,6 +10,7 @@ import com.xuesinuo.pignoo.core.Gru;
 import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.config.DatabaseEngine;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
+import com.xuesinuo.pignoo.core.implement.TransactionPignoo;
 import com.xuesinuo.pignoo.demo.table.Pig;
 
 /**
@@ -32,7 +33,6 @@ public class Demo04_Transactional {
     public void noTransactional() {
         PignooConfig config = new PignooConfig();
         config.setEngine(DatabaseEngine.MySQL);// 可选配置，不填写就会自动识别，增加数据库访问开销
-        config.setUseTransaction(false);
         try (BasePignoo pignoo = new BasePignoo(dataSource, config)) {// jdk7的try-with-resources语法，会自动关闭pignoo
             var pigList = pignoo.getList(Pig.class);
             Pig pig = new Pig();
@@ -51,8 +51,7 @@ public class Demo04_Transactional {
     public void nativeTransactional() {
         PignooConfig config = new PignooConfig();
         config.setEngine(DatabaseEngine.MySQL);
-        config.setUseTransaction(true);
-        try (BasePignoo pignoo = new BasePignoo(dataSource, config)) {
+        try (TransactionPignoo pignoo = new TransactionPignoo(dataSource, config)) {
             try {
                 var pigList = pignoo.getList(Pig.class);
                 Pig pig = new Pig();

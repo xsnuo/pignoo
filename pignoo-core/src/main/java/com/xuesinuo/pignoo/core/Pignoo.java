@@ -47,9 +47,9 @@ public interface Pignoo extends AutoCloseable {
     public <E> PignooList<E> getList(Class<E> c);
 
     /**
-     * 连接是否已经关闭
+     * 是否已经关闭退出Pignoo作用域
      * <p>
-     * Whether the connection has been closed
+     * Whether to close and exit the Pignoo scope
      */
-    public boolean hasClosed();
+    public boolean closed();
 }

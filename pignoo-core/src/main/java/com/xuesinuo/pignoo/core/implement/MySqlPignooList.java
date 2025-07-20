@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.xuesinuo.pignoo.core.Pignoo;
@@ -36,7 +37,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
     private static final SqlExecuter SqlExecuter = SimpleJdbcSqlExecuter.getInstance();
 
     private final Pignoo pignoo;
-    private final Connection conn;
+    private final Supplier<Connection> connGetter;
     private final boolean inTransaction;
     private final Class<E> c;
     private final AnnotationMode annotationMode;
@@ -48,11 +49,11 @@ public class MySqlPignooList<E> implements PignooList<E> {
     private final PrimaryKeyNamingConvention primaryKeyNamingConvention;
     private final Boolean autoPrimaryKey;
 
-    public MySqlPignooList(Pignoo pignoo, Connection conn, boolean inTransaction, Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode,
+    public MySqlPignooList(Pignoo pignoo, Supplier<Connection> connGetter, boolean inTransaction, Class<E> c, AnnotationMode annotationMode, AnnotationMixMode annotationMixMode,
             PrimaryKeyNamingConvention primaryKeyNamingConvention, Boolean autoPrimaryKey) {
         this.pignoo = pignoo;
-        this.conn = conn;
         this.inTransaction = inTransaction;
+        this.connGetter = connGetter;
         this.c = c;
         this.annotationMode = annotationMode;
         this.annotationMixMode = annotationMixMode;
@@ -60,7 +61,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         this.autoPrimaryKey = autoPrimaryKey;
         this.entityMapper = EntityMapper.build(c, annotationMode, annotationMixMode, primaryKeyNamingConvention, autoPrimaryKey);
         this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, e) -> {
-            if (pignoo.hasClosed()) {
+            if (pignoo.closed()) {
                 return;
             }
             Object primaryKeyValue = null;
@@ -80,13 +81,13 @@ public class MySqlPignooList<E> implements PignooList<E> {
             sql.append("`" + entityMapper.columns().get(index) + "` = " + (arg == null ? "NULL" : sqlParam.next(arg)) + " ");
             sql.append("WHERE ");
             sql.append("`" + entityMapper.primaryKeyColumn() + "` = " + sqlParam.next(primaryKeyValue) + " ");
-            SqlExecuter.update(conn, sql.toString(), sqlParam.params);
+            SqlExecuter.update(connGetter, inTransaction, sql.toString(), sqlParam.params);
         });
     }
 
     @Override
     public PignooList<E> copy() {
-        MySqlPignooList<E> pignooList = new MySqlPignooList<>(pignoo, conn, inTransaction, c, annotationMode, annotationMixMode, primaryKeyNamingConvention, autoPrimaryKey);
+        MySqlPignooList<E> pignooList = new MySqlPignooList<>(pignoo, connGetter, inTransaction, c, annotationMode, annotationMixMode, primaryKeyNamingConvention, autoPrimaryKey);
         pignooList.filter = PignooFilter.copy(filter);
         pignooList.sorter = PignooSorter.copy(sorter);
         return pignooList;
@@ -245,7 +246,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
             sql.append(sorter2Sql(sorter));
         }
         sql.append("LIMIT 1 ");
-        E e = SqlExecuter.selectOne(conn, sql.toString(), sqlParam.params, c);
+        E e = SqlExecuter.selectOne(connGetter, inTransaction, sql.toString(), sqlParam.params, c);
         if (e != null && inTransaction) {
             StringBuilder sql2 = new StringBuilder("");
             SqlParam sqlParam2 = new SqlParam();
@@ -264,7 +265,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
             sql2.append("`" + entityMapper.tableName() + "` ");
             sql2.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam2.next(primaryKeyValue) + " ");
             sql2.append("FOR UPDATE ");
-            e = SqlExecuter.selectOne(conn, sql2.toString(), sqlParam2.params, c);
+            e = SqlExecuter.selectOne(connGetter, inTransaction, sql2.toString(), sqlParam2.params, c);
         }
         return entityProxyFactory.build(e);
     }
@@ -288,7 +289,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         if (inTransaction) {
             sql.append("FOR UPDATE ");
         }
-        List<E> eList = SqlExecuter.selectList(conn, sql.toString(), sqlParam.params, c);
+        List<E> eList = SqlExecuter.selectList(connGetter, inTransaction, sql.toString(), sqlParam.params, c);
         return entityProxyFactory.build(eList);
     }
 
@@ -312,7 +313,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         if (inTransaction) {
             sql.append("FOR UPDATE ");
         }
-        List<E> eList = SqlExecuter.selectList(conn, sql.toString(), sqlParam.params, c);
+        List<E> eList = SqlExecuter.selectList(connGetter, inTransaction, sql.toString(), sqlParam.params, c);
         return entityProxyFactory.build(eList);
     }
 
@@ -326,7 +327,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
             sql.append("WHERE ");
             sql.append(filter2Sql(filter, sqlParam));
         }
-        Long size = SqlExecuter.selectColumn(conn, sql.toString(), sqlParam.params, Long.class);
+        Long size = SqlExecuter.selectColumn(connGetter, inTransaction, sql.toString(), sqlParam.params, Long.class);
         return size == null ? 0L : size;
     }
 
@@ -411,7 +412,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         sql.append("(" + params.values().stream().map(value -> sqlParam.next(value)).collect(Collectors.joining(",")) + ") ");
         Object primaryKeyValue = null;
         if (entityMapper.autoPrimaryKey()) {
-            primaryKeyValue = SqlExecuter.insert(conn, sql.toString(), sqlParam.params, c);
+            primaryKeyValue = SqlExecuter.insert(connGetter, inTransaction, sql.toString(), sqlParam.params, c);
         } else {
             try {
                 primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
@@ -421,7 +422,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
             if (primaryKeyValue == null) {
                 throw new RuntimeException("Primary key can not be NULL " + e);
             }
-            SqlExecuter.update(conn, sql.toString(), sqlParam.params);
+            SqlExecuter.update(connGetter, inTransaction, sql.toString(), sqlParam.params);
         }
 
         StringBuilder sql2 = new StringBuilder("");
@@ -431,7 +432,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         sql2.append("FROM ");
         sql2.append("`" + entityMapper.tableName() + "` ");
         sql2.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam2.next(primaryKeyValue) + " ");
-        e = SqlExecuter.selectOne(conn, sql2.toString(), sqlParam2.params, c);
+        e = SqlExecuter.selectOne(connGetter, inTransaction, sql2.toString(), sqlParam2.params, c);
         return entityProxyFactory.build(e);
     }
 
@@ -470,7 +471,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         sql.append("SET ");
         sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + sqlParam.next(params.get(column))).collect(Collectors.joining(",")) + " ");
         sql.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
-        return SqlExecuter.update(conn, sql.toString(), sqlParam.params);
+        return SqlExecuter.update(connGetter, inTransaction, sql.toString(), sqlParam.params);
     }
 
     @Override
@@ -506,7 +507,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         sql.append("SET ");
         sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + (params.get(column) == null ? "NULL" : sqlParam.next(params.get(column)))).collect(Collectors.joining(",")) + " ");
         sql.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
-        return SqlExecuter.update(conn, sql.toString(), sqlParam.params);
+        return SqlExecuter.update(connGetter, inTransaction, sql.toString(), sqlParam.params);
     }
 
     @Override
@@ -538,7 +539,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
             sql.append("WHERE ");
             sql.append(filter2Sql(filter, sqlParam));
         }
-        return SqlExecuter.update(conn, sql.toString(), sqlParam.params);
+        return SqlExecuter.update(connGetter, inTransaction, sql.toString(), sqlParam.params);
     }
 
     @Override
@@ -568,7 +569,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
             sql.append("WHERE ");
             sql.append(filter2Sql(filter, sqlParam));
         }
-        return SqlExecuter.update(conn, sql.toString(), sqlParam.params);
+        return SqlExecuter.update(connGetter, inTransaction, sql.toString(), sqlParam.params);
     }
 
     @Override
@@ -588,7 +589,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
         sql.append("`" + entityMapper.tableName() + "` ");
         sql.append("WHERE ");
         sql.append("`" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
-        return SqlExecuter.update(conn, sql.toString(), sqlParam.params);
+        return SqlExecuter.update(connGetter, inTransaction, sql.toString(), sqlParam.params);
     }
 
     @Override
@@ -601,7 +602,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
             sql.append("WHERE ");
             sql.append(filter2Sql(filter, sqlParam));
         }
-        return SqlExecuter.update(conn, sql.toString(), sqlParam.params);
+        return SqlExecuter.update(connGetter, inTransaction, sql.toString(), sqlParam.params);
     }
 
     @Override
@@ -614,7 +615,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
             sql.append("WHERE ");
             sql.append(filter2Sql(filter, sqlParam));
         }
-        return SqlExecuter.selectColumn(conn, sql.toString(), sqlParam.params, c);
+        return SqlExecuter.selectColumn(connGetter, inTransaction, sql.toString(), sqlParam.params, c);
     }
 
     @Override
@@ -627,7 +628,7 @@ public class MySqlPignooList<E> implements PignooList<E> {
             sql.append("WHERE ");
             sql.append(filter2Sql(filter, sqlParam));
         }
-        return SqlExecuter.selectColumn(conn, sql.toString(), sqlParam.params, c);
+        return SqlExecuter.selectColumn(connGetter, inTransaction, sql.toString(), sqlParam.params, c);
     }
 
 }

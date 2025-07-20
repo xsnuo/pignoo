@@ -20,11 +20,17 @@ import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
  * @author xuesinuo
  * @since 0.1.0
  */
-public class BasePignoo implements Pignoo {
+public class TransactionPignoo implements Pignoo {
 
     private final DatabaseEngine engine;// 数据库引擎
 
     private final DataSource dataSource;// 数据源
+
+    private Connection conn;// 数据库连接
+
+    private boolean connAutoCommit;// 原本的conn是否自动提交
+
+    private boolean hasRollbacked = false;// 是否已经回滚
 
     private boolean hasClosed = false;// 是否已经关闭
 
@@ -42,7 +48,7 @@ public class BasePignoo implements Pignoo {
      *                   <p>
      *                   Data source
      */
-    public BasePignoo(DataSource dataSource) {
+    public TransactionPignoo(DataSource dataSource) {
         this(dataSource, null);
     }
 
@@ -55,7 +61,7 @@ public class BasePignoo implements Pignoo {
      *                     <p>
      *                     Configuration
      */
-    public BasePignoo(DataSource dataSource, PignooConfig pignooConfig) {
+    public TransactionPignoo(DataSource dataSource, PignooConfig pignooConfig) {
         AnnotationMode annotationMode = null;
         AnnotationMixMode annotationMixMode = null;
         DatabaseEngine engine = null;
@@ -73,9 +79,11 @@ public class BasePignoo implements Pignoo {
         }
         this.dataSource = dataSource;
         if (engine == null) {
-            try (Connection conn = dataSource.getConnection()) {
-                engine = DatabaseEngine.getDatabaseEngineByConnection(conn);
+            try {
+                this.getConnection();
+                engine = DatabaseEngine.getDatabaseEngineByConnection(this.conn);
             } catch (SQLException e) {
+                this.close();
                 throw new RuntimeException(e);
             }
         }
@@ -89,13 +97,24 @@ public class BasePignoo implements Pignoo {
         this.autoPrimaryKey = autoPrimaryKey;
     }
 
+    private synchronized Connection getConnection() {
+        if (this.conn != null) {
+            return this.conn;
+        }
+        try {
+            this.conn = dataSource.getConnection();
+            this.connAutoCommit = this.conn.getAutoCommit();
+            this.conn.setAutoCommit(false);
+        } catch (SQLException e) {
+            this.close();
+            throw new RuntimeException(e);
+        }
+        return this.conn;
+    }
+
     private Supplier<Connection> connGetter() {
         return () -> {
-            try {
-                return this.dataSource.getConnection();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            return this.getConnection();
         };
     }
 
@@ -103,18 +122,50 @@ public class BasePignoo implements Pignoo {
     public <E> PignooList<E> getList(Class<E> c) {
         switch (engine) {
         case MySQL:
-            return new MySqlPignooList<E>(this, connGetter(), false, c, annotationMode, annotationMixMode, primaryKeyNamingConvention, autoPrimaryKey);
+            return new MySqlPignooList<E>(this, connGetter(), true, c, annotationMode, annotationMixMode, primaryKeyNamingConvention, autoPrimaryKey);
         }
         throw new RuntimeException("Unknow database engine");
     }
 
+    public void rollback() {
+        if (hasRollbacked) {
+            return;
+        }
+        try {
+            conn.rollback();
+            hasRollbacked = true;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
-    public void close() {
-        this.hasClosed = true;
+    public synchronized void close() {
+        if (hasClosed) {
+            return;
+        }
+        hasClosed = true;
+        if (!hasRollbacked) {
+            try {
+                conn.commit();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            if (connAutoCommit != conn.getAutoCommit()) {
+                conn.setAutoCommit(connAutoCommit);
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public boolean closed() {
-        return this.hasClosed;
+        return hasClosed;
     }
 }

@@ -12,6 +12,7 @@ import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
 import com.xuesinuo.pignoo.core.config.DatabaseEngine;
 import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
+import com.xuesinuo.pignoo.core.implement.TransactionPignoo;
 
 /**
  * 格鲁（Gru） - 小黄人的主人
@@ -106,7 +107,6 @@ public class Gru {
     public <R> R run(Function<Pignoo, R> function) {
         PignooConfig config = new PignooConfig();
         config.setEngine(this.engine);
-        config.setUseTransaction(false);
         config.setAnnotationMode(this.annotationMode);
         config.setAnnotationMixMode(this.annotationMixMode);
         config.setPrimaryKeyNamingConvention(this.primaryKeyNamingConvention);
@@ -134,12 +134,11 @@ public class Gru {
     public void runTransaction(Consumer<Pignoo> function) {
         PignooConfig config = new PignooConfig();
         config.setEngine(this.engine);
-        config.setUseTransaction(true);
         config.setAnnotationMode(this.annotationMode);
         config.setAnnotationMixMode(this.annotationMixMode);
         config.setPrimaryKeyNamingConvention(this.primaryKeyNamingConvention);
         config.setAutoPrimaryKey(this.autoPrimaryKey);
-        try (BasePignoo pignoo = new BasePignoo(this.dataSource, config)) {
+        try (TransactionPignoo pignoo = new TransactionPignoo(this.dataSource, config)) {
             try {
                 function.accept(pignoo);
             } catch (Exception e) {

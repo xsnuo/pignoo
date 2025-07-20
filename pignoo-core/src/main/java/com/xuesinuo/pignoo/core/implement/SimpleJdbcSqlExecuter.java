@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.xuesinuo.pignoo.core.SqlExecuter;
 import com.xuesinuo.pignoo.core.entity.EntityMapper;
@@ -30,23 +31,27 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
     }
 
     @Override
-    public <E> E selectOne(Connection conn, String sql, Map<Integer, Object> params, Class<E> c) {
+    public <E> E selectOne(Supplier<Connection> connGetter, boolean inTransaction, String sql, Map<Integer, Object> params, Class<E> c) {
         log.debug(sql);
         log.debug(params.toString());
         EntityMapper<E> mapper = EntityMapper.build(c);
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-                ps.setObject(entry.getKey() + 1, entry.getValue());
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    E entity = mapper.buildEntity();
-                    for (int i = 0; i < mapper.columns().size(); i++) {
-                        String columnName = mapper.columns().get(i);
-                        Object columnValue = rs.getObject(columnName, mapper.fields().get(i).getType());
-                        mapper.setters().get(i).invoke(entity, columnValue);
+        Connection conn = null;
+        try {
+            conn = connGetter.get();
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                for (Map.Entry<Integer, Object> entry : params.entrySet()) {
+                    ps.setObject(entry.getKey() + 1, entry.getValue());
+                }
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        E entity = mapper.buildEntity();
+                        for (int i = 0; i < mapper.columns().size(); i++) {
+                            String columnName = mapper.columns().get(i);
+                            Object columnValue = rs.getObject(columnName, mapper.fields().get(i).getType());
+                            mapper.setters().get(i).invoke(entity, columnValue);
+                        }
+                        return entity;
                     }
-                    return entity;
                 }
             }
         } catch (Exception e) {
@@ -57,29 +62,55 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
                 ex = new RuntimeException(e);
             }
             throw ex;
+        } finally {
+            if (!inTransaction && conn != null) {
+                Exception e = null;
+                try {
+                    if (conn.getAutoCommit() == false) {
+                        conn.commit();
+                    }
+                } catch (Exception ex) {
+                    log.error("Connection commit error", ex);
+                    e = ex;
+                } finally {
+                    try {
+                        conn.close();
+                    } catch (Exception ex) {
+                        log.error("Connection close error", ex);
+                        e = ex;
+                    }
+                }
+                if (e != null) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
         return null;
     }
 
     @Override
-    public <E> List<E> selectList(Connection conn, String sql, Map<Integer, Object> params, Class<E> c) {
+    public <E> List<E> selectList(Supplier<Connection> connGetter, boolean inTransaction, String sql, Map<Integer, Object> params, Class<E> c) {
         log.debug(sql);
         log.debug(params.toString());
         EntityMapper<E> mapper = EntityMapper.build(c);
         ArrayList<E> list = new ArrayList<>();
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-                ps.setObject(entry.getKey() + 1, entry.getValue());
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    E entity = mapper.buildEntity();
-                    for (int i = 0; i < mapper.columns().size(); i++) {
-                        String columnName = mapper.columns().get(i);
-                        Object columnValue = rs.getObject(columnName, mapper.fields().get(i).getType());
-                        mapper.setters().get(i).invoke(entity, columnValue);
+        Connection conn = null;
+        try {
+            conn = connGetter.get();
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                for (Map.Entry<Integer, Object> entry : params.entrySet()) {
+                    ps.setObject(entry.getKey() + 1, entry.getValue());
+                }
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        E entity = mapper.buildEntity();
+                        for (int i = 0; i < mapper.columns().size(); i++) {
+                            String columnName = mapper.columns().get(i);
+                            Object columnValue = rs.getObject(columnName, mapper.fields().get(i).getType());
+                            mapper.setters().get(i).invoke(entity, columnValue);
+                        }
+                        list.add(entity);
                     }
-                    list.add(entity);
                 }
             }
         } catch (Exception e) {
@@ -90,49 +121,46 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
                 ex = new RuntimeException(e);
             }
             throw ex;
+        } finally {
+            if (!inTransaction && conn != null) {
+                Exception e = null;
+                try {
+                    if (conn.getAutoCommit() == false) {
+                        conn.commit();
+                    }
+                } catch (Exception ex) {
+                    log.error("Connection commit error", ex);
+                    e = ex;
+                } finally {
+                    try {
+                        conn.close();
+                    } catch (Exception ex) {
+                        log.error("Connection close error", ex);
+                        e = ex;
+                    }
+                }
+                if (e != null) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
         return list;
     }
 
     @Override
-    public <R> R selectColumn(Connection conn, String sql, Map<Integer, Object> params, Class<R> c) {
+    public <R> R selectColumn(Supplier<Connection> connGetter, boolean inTransaction, String sql, Map<Integer, Object> params, Class<R> c) {
         log.debug(sql);
         log.debug(params.toString());
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-                ps.setObject(entry.getKey() + 1, entry.getValue());
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    return rs.getObject(1, c);
+        Connection conn = null;
+        try {
+            conn = connGetter.get();
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                for (Map.Entry<Integer, Object> entry : params.entrySet()) {
+                    ps.setObject(entry.getKey() + 1, entry.getValue());
                 }
-            }
-        } catch (Exception e) {
-            RuntimeException ex;
-            if (e instanceof RuntimeException) {
-                ex = (RuntimeException) e;
-            } else {
-                ex = new RuntimeException(e);
-            }
-            throw ex;
-        }
-        return null;
-    }
-
-    @Override
-    public <R> Object insert(Connection conn, String sql, Map<Integer, Object> params, Class<R> c) {
-        log.debug(sql);
-        log.debug(params.toString());
-        Object primaryKeyValue = null;
-        try (PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-                ps.setObject(entry.getKey() + 1, entry.getValue());
-            }
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected > 0) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        primaryKeyValue = rs.getObject(1);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        return rs.getObject(1, c);
                     }
                 }
             }
@@ -144,20 +172,53 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
                 ex = new RuntimeException(e);
             }
             throw ex;
+        } finally {
+            if (!inTransaction && conn != null) {
+                Exception e = null;
+                try {
+                    if (conn.getAutoCommit() == false) {
+                        conn.commit();
+                    }
+                } catch (Exception ex) {
+                    log.error("Connection commit error", ex);
+                    e = ex;
+                } finally {
+                    try {
+                        conn.close();
+                    } catch (Exception ex) {
+                        log.error("Connection close error", ex);
+                        e = ex;
+                    }
+                }
+                if (e != null) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
-        return primaryKeyValue;
+        return null;
     }
 
     @Override
-    public long update(Connection conn, String sql, Map<Integer, Object> params) {
+    public <R> Object insert(Supplier<Connection> connGetter, boolean inTransaction, String sql, Map<Integer, Object> params, Class<R> c) {
         log.debug(sql);
         log.debug(params.toString());
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-                ps.setObject(entry.getKey() + 1, entry.getValue());
+        Object primaryKeyValue = null;
+        Connection conn = null;
+        try {
+            conn = connGetter.get();
+            try (PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                for (Map.Entry<Integer, Object> entry : params.entrySet()) {
+                    ps.setObject(entry.getKey() + 1, entry.getValue());
+                }
+                int rowsAffected = ps.executeUpdate();
+                if (rowsAffected > 0) {
+                    try (ResultSet rs = ps.getGeneratedKeys()) {
+                        if (rs.next()) {
+                            primaryKeyValue = rs.getObject(1);
+                        }
+                    }
+                }
             }
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected;
         } catch (Exception e) {
             RuntimeException ex;
             if (e instanceof RuntimeException) {
@@ -166,6 +227,76 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
                 ex = new RuntimeException(e);
             }
             throw ex;
+        } finally {
+            if (!inTransaction && conn != null) {
+                Exception e = null;
+                try {
+                    if (conn.getAutoCommit() == false) {
+                        conn.commit();
+                    }
+                } catch (Exception ex) {
+                    log.error("Connection commit error", ex);
+                    e = ex;
+                } finally {
+                    try {
+                        conn.close();
+                    } catch (Exception ex) {
+                        log.error("Connection close error", ex);
+                        e = ex;
+                    }
+                }
+                if (e != null) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return primaryKeyValue;
+    }
+
+    @Override
+    public long update(Supplier<Connection> connGetter, boolean inTransaction, String sql, Map<Integer, Object> params) {
+        log.debug(sql);
+        log.debug(params.toString());
+        Connection conn = null;
+        try {
+            conn = connGetter.get();
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                for (Map.Entry<Integer, Object> entry : params.entrySet()) {
+                    ps.setObject(entry.getKey() + 1, entry.getValue());
+                }
+                int rowsAffected = ps.executeUpdate();
+                return rowsAffected;
+            }
+        } catch (Exception e) {
+            RuntimeException ex;
+            if (e instanceof RuntimeException) {
+                ex = (RuntimeException) e;
+            } else {
+                ex = new RuntimeException(e);
+            }
+            throw ex;
+        } finally {
+            if (!inTransaction && conn != null) {
+                Exception e = null;
+                try {
+                    if (conn.getAutoCommit() == false) {
+                        conn.commit();
+                    }
+                } catch (Exception ex) {
+                    log.error("Connection commit error", ex);
+                    e = ex;
+                } finally {
+                    try {
+                        conn.close();
+                    } catch (Exception ex) {
+                        log.error("Connection close error", ex);
+                        e = ex;
+                    }
+                }
+                if (e != null) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
