@@ -69,7 +69,7 @@ Pignoo是基于**标准JavaBean**、**JDBC**、**DataSource**、**Slf4j**、**Sp
 - DataSource：Pignoo不提供DataSource的构建，需要使用者提供一个DataSource，当然推荐DataSource可以是通过连接池构建的。
 - Slf4j：Pignoo的日志是基于Slf4j的，例如输出com.xuesinuo.pignoo下的debug日志可以看到SQL执行情况。
 - SpringAOP：Pignoo中用到了CGLIB动态代理，SpringAOP作为优秀的AOP框架，Pignoo基于它实现的动态代理。
-- JDK17：目前版本基于SpringAOP6.2.8，所以需要最低JDK17的支持。但其实Pignoo没有用到很新的特性。如果你很需要，可以issue+邮件来催促降低JDK版本。
+- JDK21：其实Pignoo没有用到很新的特性。如果你很需要，可以issue+邮件来催促降低JDK版本。
 
 ## 不要以SQL操作的眼光看待Pignoo
 
