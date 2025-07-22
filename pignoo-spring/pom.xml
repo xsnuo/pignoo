@@ -7,15 +7,11 @@
   <artifactId>pignoo-spring</artifactId>
   <name>pignoo-spring</name>
   <description>pignoo-spring is a plug-in for using pignoo in SpringIoC</description>
-
-  <!-- 项目信息 -->
   <url>https://gitee.com/xue_da_nuo/pignoo</url>
   <organization>
     <name>xuesinuo</name>
     <url>https://www.xuesinuo.com</url>
   </organization>
-
-  <!-- 开源许可证 -->
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -23,8 +19,6 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-
-  <!-- 开发者信息 -->
   <developers>
     <developer>
       <id>xuesinuo</id>
@@ -35,8 +29,6 @@
       <organizationUrl>https://www.xuesinuo.com</organizationUrl>
     </developer>
   </developers>
-
-  <!-- SCM 配置 -->
   <scm>
     <connection>scm:git:https://gitee.com/xue_da_nuo/pignoo.git</connection>
     <developerConnection>scm:git:ssh://git@gitee.com:xue_da_nuo/pignoo.git</developerConnection>
@@ -46,26 +38,26 @@
   <parent>
     <groupId>com.xuesinuo</groupId>
     <artifactId>pignoo</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>com.xuesinuo</groupId>
       <artifactId>pignoo-core</artifactId>
-      <version>${com.xuesinuo.pignoo.version}</version>
+      <version>0.2.2</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
       <version>6.2.8</version>
     </dependency>
-    <!-- <dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-nop</artifactId>
       <version>1.7.36</version>
       <scope>provided</scope>
-    </dependency> -->
+    </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -76,31 +68,22 @@
 
   <build>
     <plugins>
-      <!-- 源码插件配置 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
       </plugin>
-
-      <!-- Javadoc 插件配置 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
-
-      <!-- GPG 签名执行 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
       </plugin>
-
-      <!-- 部署插件 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
       </plugin>
-
-      <!-- central.sonatype新平台 -->
       <plugin>
         <groupId>org.sonatype.central</groupId>
         <artifactId>central-publishing-maven-plugin</artifactId>
