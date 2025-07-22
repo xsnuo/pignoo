@@ -133,7 +133,6 @@ public class TransactionPignoo implements Pignoo {
             return;
         }
         hasClosed = true;
-        conn = null;
         dataSource = null;
         if (!hasRollbacked) {
             try {
@@ -151,6 +150,8 @@ public class TransactionPignoo implements Pignoo {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            conn = null;
         }
     }
 
