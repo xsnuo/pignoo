@@ -121,7 +121,7 @@ public class BasePignoo implements Pignoo {
     public <E> PignooReader<E> reader(Class<E> c) {
         switch (this.config.getEngine()) {
         case MySQL:
-            return new MySqlPignooReadOnlyList<E>(this, connGetter, connCloser, false, c, this.config);
+            return new MySqlPignooReader<E>(this, connGetter, connCloser, false, c, this.config);
         }
         throw new RuntimeException("Unknow database engine");
     }

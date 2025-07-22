@@ -14,7 +14,7 @@ import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooWriter;
 import com.xuesinuo.pignoo.core.PignooReader;
 import com.xuesinuo.pignoo.core.implement.MySqlPignooWriter;
-import com.xuesinuo.pignoo.core.implement.MySqlPignooReadOnlyList;
+import com.xuesinuo.pignoo.core.implement.MySqlPignooReader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -105,7 +105,7 @@ public class SpringPignooItem implements Pignoo {
     public <E> PignooReader<E> reader(Class<E> c) {
         switch (this.config.getEngine()) {
         case MySQL:
-            return new MySqlPignooReadOnlyList<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
+            return new MySqlPignooReader<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
         }
         throw new RuntimeException("Unknow database engine");
     }

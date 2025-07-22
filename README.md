@@ -8,7 +8,7 @@ Pignoo是一个应对大部分小型Java项目的轻量JDBC框架。
 <dependency>
     <groupId>com.xuesinuo</groupId>
     <artifactId>pignoo-core</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.3</version>
 </dependency>
 ```
 
@@ -31,7 +31,7 @@ public class Test {
     private Pignoo pignoo = new BasePignoo(Test.dataSource);// 使用数据源，可以构建一个Pignoo实例，我们就用它来操作数据库
 
     public void test() {
-        PignooWriter<Pig> pigList = pignoo.getList(Pig.class);
+        PignooWriter<Pig> pigList = pignoo.writer(Pig.class);
         List<Pig> pigs = pigList.getAll();// 查询
         System.out.println(pigs);
 
@@ -76,7 +76,7 @@ Pignoo是基于**标准JavaBean**、**JDBC**、**DataSource**、**Slf4j**、**Sp
 在使用PignooWriter时，请按照使用List的操作直觉来使用它。我来举一个例子：
 
 ```java
-    pignoo.getList(Pig.class)
+    pignoo.writer(Pig.class)
         .sort(Pig::getId, SMode.MIN_FIRST);// 按照ID从小到大排序
         .sort(Pig::getName, SMode.MIN_FIRST);// 按照Name字典序从前到后排序
         .getAll();// 查询最终结果是：先按Name字典序排序，同名时再按ID从小到大排序
@@ -103,13 +103,31 @@ Pignoo - 小黄人语的“无聊”。《卑鄙的我3》中小黄人们高呼�
 
 ```java
     List<Pig> pigList = gru.run(pignoo -> {// 非事务操作
-        return pignoo.getList(Pig.class).getAll();
+        return pignoo.reader(Pig.class).getAll();
     });
 
     gru.runTransaction(pignoo -> {// 事务操作
-        pignoo.getList(Pig.class).getOne().setName("新名字");
+        pignoo.writer(Pig.class).getOne().setName("新名字");
     });
 ```
+
+## v0.2.3
+
+做出如下更新：
+
+- 将PignooList更名为PignooWriter
+- 将读操作拆分成为PignooReader接口，与PignooWriter做分离
+- PignooReader的直接实现为只读的
+  - 里面没有写操作
+  - 获取到的对象也不做代理：只读场景允许在内存中随意编辑对象，不影响数据库
+  - 读操作允许在事务中，但不在数据库加写锁
+- PignooWriter继承PignooReader的读操作，对读取的结果做代理
+
+## v0.2.2
+
+做出如下更新：
+
+- 将BasePignoo改为单Connection实例的模式
 
 ## v0.2.1
 

@@ -1,7 +1,6 @@
 
 package com.xuesinuo.pignoo.core.implement;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +28,7 @@ import com.xuesinuo.pignoo.core.entity.SqlParam;
  * @author xuesinuo
  * @since 0.2.3
  */
-public class MySqlPignooReadOnlyList<E> implements PignooReader<E> {
+public class MySqlPignooReader<E> implements PignooReader<E> {
 
     protected static final SqlExecuter sqlExecuter = SimpleJdbcSqlExecuter.getInstance();
 
@@ -43,7 +42,7 @@ public class MySqlPignooReadOnlyList<E> implements PignooReader<E> {
     protected PignooSorter<E> sorter;
     protected final PignooConfig config;
 
-    public MySqlPignooReadOnlyList(Pignoo pignoo, Supplier<Connection> connGetter, Consumer<Connection> connCloser, boolean inTransaction, Class<E> c, PignooConfig config) {
+    public MySqlPignooReader(Pignoo pignoo, Supplier<Connection> connGetter, Consumer<Connection> connCloser, boolean inTransaction, Class<E> c, PignooConfig config) {
         this.pignoo = pignoo;
         this.inTransaction = inTransaction;
         this.connGetter = connGetter;
@@ -63,7 +62,7 @@ public class MySqlPignooReadOnlyList<E> implements PignooReader<E> {
 
     @Override
     public PignooReader<E> copyReader() {
-        MySqlPignooReadOnlyList<E> pignooWriter = new MySqlPignooReadOnlyList<>(pignoo, connGetter, connCloser, inTransaction, c, config);
+        MySqlPignooReader<E> pignooWriter = new MySqlPignooReader<>(pignoo, connGetter, connCloser, inTransaction, c, config);
         pignooWriter.filter = PignooFilter.copy(filter);
         pignooWriter.sorter = PignooSorter.copy(sorter);
         return pignooWriter;
@@ -213,26 +212,6 @@ public class MySqlPignooReadOnlyList<E> implements PignooReader<E> {
         }
         sql.append("LIMIT 1 ");
         E e = sqlExecuter.selectOne(connGetter, connCloser, sql.toString(), sqlParam.params, c);
-        if (e != null && inTransaction) {
-            StringBuilder sql2 = new StringBuilder("");
-            SqlParam sqlParam2 = new SqlParam();
-            Object primaryKeyValue = null;
-            try {
-                primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
-            } catch (IllegalAccessException | InvocationTargetException ex) {
-                throw new RuntimeException("Primary key is not found " + e, ex);
-            }
-            if (primaryKeyValue == null) {
-                throw new RuntimeException("Primary key is null " + e);
-            }
-            sql2.append("SELECT ");
-            sql2.append(entityMapper.columns().stream().map(column -> "`" + column + "`").collect(Collectors.joining(",")) + " ");
-            sql2.append("FROM ");
-            sql2.append("`" + entityMapper.tableName() + "` ");
-            sql2.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam2.next(primaryKeyValue) + " ");
-            sql2.append("FOR UPDATE ");
-            e = sqlExecuter.selectOne(connGetter, connCloser, sql2.toString(), sqlParam2.params, c);
-        }
         return e;
     }
 
@@ -251,9 +230,6 @@ public class MySqlPignooReadOnlyList<E> implements PignooReader<E> {
         if (sorter != null) {
             sql.append("ORDER BY ");
             sql.append(sorter2Sql(sorter));
-        }
-        if (inTransaction) {
-            sql.append("FOR UPDATE ");
         }
         List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.params, c);
         return eList;
@@ -276,9 +252,6 @@ public class MySqlPignooReadOnlyList<E> implements PignooReader<E> {
             sql.append(sorter2Sql(sorter));
         }
         sql.append("LIMIT " + offset + "," + limit + " ");
-        if (inTransaction) {
-            sql.append("FOR UPDATE ");
-        }
         List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.params, c);
         return eList;
     }

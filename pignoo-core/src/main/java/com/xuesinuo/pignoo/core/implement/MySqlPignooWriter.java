@@ -26,7 +26,7 @@ import com.xuesinuo.pignoo.core.entity.SqlParam;
  * @author xuesinuo
  * @since 0.1.0
  */
-public class MySqlPignooWriter<E> extends MySqlPignooReadOnlyList<E> implements PignooWriter<E> {
+public class MySqlPignooWriter<E> extends MySqlPignooReader<E> implements PignooWriter<E> {
 
     private final EntityProxyFactory<E> entityProxyFactory;
 
