@@ -1,6 +1,5 @@
 package com.xuesinuo.pignoo.core;
 
-import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -28,155 +27,7 @@ import java.util.function.Function;
  * @author xuesinuo
  * @since 0.1.0
  */
-public interface PignooList<E> {
-
-    /**
-     * 复制一个List（保持当前的查询条件）
-     * <p>
-     * Copy a List (keep the current query conditions)
-     * 
-     * @return 复制后的List
-     *         <p>
-     *         The copied List
-     */
-    PignooList<E> copy();
-
-    /**
-     * 获取表中的第一条数据
-     * <p>
-     * Get the first data in the table
-     * 
-     * @return 第一条数据，可能为null
-     *         <p>
-     *         The first data, may be null
-     */
-    E getOne();
-
-    /**
-     * 获取列表
-     * <p>
-     * Get the list
-     * 
-     * @return 列表
-     *         <p>
-     *         The list
-     */
-    List<E> getAll();
-
-    /**
-     * 获取部分List
-     * <p>
-     * Get a part of the list
-     * 
-     * @param offset 跳过条数
-     *               <p>
-     *               Number of entries to skip
-     * @param limit  获取条数
-     *               <p>
-     *               Number of entries to get
-     * @return 部分List
-     *         <p>
-     *         Part of the list
-     */
-    List<E> get(long offset, long count);
-
-    /**
-     * 获取List大小
-     * <p>
-     * Get the size of the list
-     * 
-     * @return 大小
-     *         <p>
-     *         The size
-     */
-    long size();
-
-    /**
-     * 排序
-     * <p>
-     * Sort
-     * 
-     * @param field 排序字段
-     *              <p>
-     *              Sorting field
-     * @param mode  排序方式
-     *              <p>
-     *              Sorting mode
-     * @return 排序后的List
-     *         <p>
-     *         The sorted list
-     */
-    PignooList<E> sort(Function<E, ?> field, PignooSorter.SMode mode);
-
-    /**
-     * 排序
-     * <p>
-     * Sort
-     * 
-     * @param sorter 排序器
-     *               <p>
-     *               Sorter
-     * @return 排序后的List
-     *         <p>
-     *         The sorted list
-     */
-    PignooList<E> sort(PignooSorter<E> sorter);
-
-    /**
-     * 过滤
-     * <p>
-     * Filter
-     * 
-     * @param field  过滤字段
-     *               <p>
-     *               Filtering field
-     * @param mode   过滤方式
-     *               <p>
-     *               Filtering mode
-     * @param values 过滤值
-     *               <p>
-     *               Filtering value
-     * @return 过滤后的List
-     *         <p>
-     *         The filtered list
-     */
-    PignooList<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values);
-
-    /**
-     * 请参考{@link #filter(Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
-     * <p>
-     * Please refer to {@link #filter(Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
-     */
-    PignooList<E> filter(Function<E, ?> field, String mode, Object... values);
-
-    /**
-     * 过滤
-     * <p>
-     * Filter
-     * 
-     * @param filter 过滤器
-     *               <p>
-     *               Filter
-     * @return 过滤后的List
-     *         <p>
-     *         The filtered list
-     */
-    PignooList<E> filter(PignooFilter<E> filter);
-
-    /**
-     * 过滤
-     * <p>
-     * Filter
-     * 
-     * @param filterBuilder 过滤器
-     *                      <p>
-     *                      Filter
-     * @return 过滤后的List
-     *         <p>
-     *         The filtered list
-     */
-    PignooList<E> filter(Function<PignooFilter<E>, PignooFilter<E>> filterBuilder);
-
+public interface PignooList<E> extends PignooReadList<E> {
     /**
      * 新增一条数据
      * <p>
@@ -272,37 +123,22 @@ public interface PignooList<E> {
      */
     long removeAll();
 
-    /**
-     * 求和
-     * <p>
-     * Sum
-     * 
-     * @param field 求和的字段
-     *              <p>
-     *              Field
-     * @param c     结果类型
-     *              <p>
-     *              Class of result
-     * @return 求和结果
-     *         <p>
-     *         result
-     */
-    <R> R sum(Function<E, R> field, Class<R> c);
+    @Override
+    PignooList<E> sort(Function<E, ?> field, PignooSorter.SMode mode);
 
-    /**
-     * 求平均
-     * <p>
-     * Avg
-     * 
-     * @param field 求平均的字段
-     *              <p>
-     *              Field
-     * @param c     结果类型
-     *              <p>
-     *              Class of result
-     * @return 求平均结果
-     *         <p>
-     *         result of avg
-     */
-    <R> R avg(Function<E, R> field, Class<R> c);
+    @Override
+    PignooList<E> sort(PignooSorter<E> sorter);
+
+    @Override
+    PignooList<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values);
+
+    @Override
+    PignooList<E> filter(Function<E, ?> field, String mode, Object... values);
+
+    @Override
+    PignooList<E> filter(PignooFilter<E> filter);
+
+    @Override
+    PignooList<E> filter(Function<PignooFilter<E>, PignooFilter<E>> filterBuilder);
+
 }

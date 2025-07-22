@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import com.xuesinuo.pignoo.core.Pignoo;
 import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooList;
+import com.xuesinuo.pignoo.core.PignooReadList;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -117,6 +118,15 @@ public class BasePignoo implements Pignoo {
     }
 
     @Override
+    public <E> PignooReadList<E> readList(Class<E> c) {
+        switch (this.config.getEngine()) {
+        case MySQL:
+            return new MySqlPignooReadOnlyList<E>(this, connGetter, connCloser, false, c, this.config);
+        }
+        throw new RuntimeException("Unknow database engine");
+    }
+
+    @Override
     public void close() {
         this.hasClosed = true;
         this.dataSource = null;
@@ -135,4 +145,5 @@ public class BasePignoo implements Pignoo {
     public boolean closed() {
         return this.hasClosed;
     }
+
 }

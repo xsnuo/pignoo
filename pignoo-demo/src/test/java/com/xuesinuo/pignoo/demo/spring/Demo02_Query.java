@@ -45,7 +45,7 @@ public class Demo02_Query {
     public void useCopy() {
         PignooList<Pig> list1 = pignoo.getList(Pig.class);
         list1.filter(Pig::getAge, ">", 10);
-        PignooList<Pig> list2 = list1.copy();
+        PignooList<Pig> list2 = list1.copyWriter();
         list1.filter(Pig::getId, "<=", 10);
         list2.filter(Pig::getId, ">", 10);
 

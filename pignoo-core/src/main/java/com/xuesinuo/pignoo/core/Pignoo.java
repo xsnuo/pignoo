@@ -35,9 +35,9 @@ package com.xuesinuo.pignoo.core;
 public interface Pignoo extends AutoCloseable {
 
     /**
-     * 获取一个PignooList实例，这是Pignoo的最核心用法
+     * 获取一个PignooList实例，PignooList中对象的操作会映射到数据库，这是Pignoo的最核心用法
      * <p>
-     * Get a PignooList instance, which is the most core usage of Pignoo
+     * Get a PignooList instance, the operation of the object in PignooList will be mapped to the database, which is the most core usage of Pignoo
      * 
      * @param <E> 实体类型
      *            <p>
@@ -48,6 +48,21 @@ public interface Pignoo extends AutoCloseable {
      * @return PignooList
      */
     public <E> PignooList<E> getList(Class<E> c);
+
+    /**
+     * 获取一个只读的PignooList实例，只读List操作不会映射到数据库
+     * <p>
+     * Get a read-only PignooList instance, the read-only List operation will not be mapped to the database
+     * 
+     * @param <E> 实体类型
+     *            <p>
+     *            Entity type
+     * @param c   实体类型
+     *            <p>
+     *            Entity type
+     * @return PignooList
+     */
+    public <E> PignooReadList<E> readList(Class<E> c);
 
     /**
      * 是否已经关闭退出Pignoo作用域

@@ -86,19 +86,19 @@ public class Demo03_Update {
         var pigList = pignoo.getList(Pig.class);
 
         // 按条件删
-        pigList.copy().filter(Pig::getId, "!=", 1L)
+        pigList.copyWriter().filter(Pig::getId, "!=", 1L)
                 .filter(Pig::getAge, ">", 5)
                 .removeAll();
 
         // 查询出一部分数据，再按ID删
-        var deletePigs = pigList.copy().filter(Pig::getId, "!=", 1L)
+        var deletePigs = pigList.copyWriter().filter(Pig::getId, "!=", 1L)
                 .sort(Pig::getId, SMode.MAX_FIRST)
                 .get(0, 2);
-        pigList.copy().filter(Pig::getId, "in", deletePigs.stream().map(Pig::getId).toList())
+        pigList.copyWriter().filter(Pig::getId, "in", deletePigs.stream().map(Pig::getId).toList())
                 .removeAll();
 
         // 同上面，删除时候通过直接传入的方式实体携带ID
-        pigList.copy().filter(Pig::getId, "!=", 1L)
+        pigList.copyWriter().filter(Pig::getId, "!=", 1L)
                 .sort(Pig::getId, SMode.MAX_FIRST)
                 .get(0, 2)
                 .stream().forEach(p -> {

@@ -12,7 +12,9 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import com.xuesinuo.pignoo.core.Pignoo;
 import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooList;
+import com.xuesinuo.pignoo.core.PignooReadList;
 import com.xuesinuo.pignoo.core.implement.MySqlPignooList;
+import com.xuesinuo.pignoo.core.implement.MySqlPignooReadOnlyList;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -100,6 +102,15 @@ public class SpringPignooItem implements Pignoo {
     }
 
     @Override
+    public <E> PignooReadList<E> readList(Class<E> c) {
+        switch (this.config.getEngine()) {
+        case MySQL:
+            return new MySqlPignooReadOnlyList<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
+        }
+        throw new RuntimeException("Unknow database engine");
+    }
+
+    @Override
     public void close() {
         this.hasClosed = true;
         this.dataSource = null;
@@ -109,4 +120,5 @@ public class SpringPignooItem implements Pignoo {
     public boolean closed() {
         return hasClosed;
     }
+
 }

@@ -11,6 +11,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import com.xuesinuo.pignoo.core.Pignoo;
 import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooList;
+import com.xuesinuo.pignoo.core.PignooReadList;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -91,11 +92,20 @@ public class SpringPignoo implements Pignoo {
 
     @Override
     public <E> PignooList<E> getList(Class<E> c) {
+        return this.getPignoo().getList(c);
+    }
+
+    @Override
+    public <E> PignooReadList<E> readList(Class<E> c) {
+        return this.getPignoo().readList(c);
+    }
+
+    private SpringPignooItem getPignoo() {
         if (this.hasClosed) {
             throw new RuntimeException("Pignoo-Spring has closed!");
         }
         boolean inTransaction = TransactionSynchronizationManager.isActualTransactionActive();
-        Pignoo pignoo = null;
+        SpringPignooItem pignoo = null;
         if (inTransaction) {
             synchronized (transactionPignooThreadLocal) {
                 Boolean flag = transactionPignooThreadLocalFlag.get();
@@ -116,7 +126,7 @@ public class SpringPignoo implements Pignoo {
             }
             pignoo = this.basePignoo;
         }
-        return pignoo.getList(c);
+        return pignoo;
     }
 
     public void closeSpringTransaction() {
