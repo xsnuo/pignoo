@@ -88,14 +88,45 @@ public class MySqlPignooWriter<E> extends MySqlPignooReader<E> implements Pignoo
 
     @Override
     public List<E> getAll() {
-        List<E> eList = super.getAll();
-        return entityProxyFactory.build(eList);
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT ");
+        sql.append(entityMapper.columns().stream().map(column -> "`" + column + "`").collect(Collectors.joining(",")) + " ");
+        sql.append("FROM ");
+        sql.append("`" + entityMapper.tableName() + "` ");
+        if (filter != null) {
+            sql.append("WHERE ");
+            sql.append(filter2Sql(filter, sqlParam));
+        }
+        if (sorter != null) {
+            sql.append("ORDER BY ");
+            sql.append(sorter2Sql(sorter));
+        }
+        sql.append("FOR UPDATE ");
+        List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+        return eList;
     }
 
     @Override
     public List<E> get(long offset, long limit) {
-        List<E> eList = super.get(offset, limit);
-        return entityProxyFactory.build(eList);
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT ");
+        sql.append(entityMapper.columns().stream().map(column -> "`" + column + "`").collect(Collectors.joining(",")) + " ");
+        sql.append("FROM ");
+        sql.append("`" + entityMapper.tableName() + "` ");
+        if (filter != null) {
+            sql.append("WHERE ");
+            sql.append(filter2Sql(filter, sqlParam));
+        }
+        if (sorter != null) {
+            sql.append("ORDER BY ");
+            sql.append(sorter2Sql(sorter));
+        }
+        sql.append("LIMIT " + offset + "," + limit + " ");
+        sql.append("FOR UPDATE ");
+        List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+        return eList;
     }
 
     @Override
