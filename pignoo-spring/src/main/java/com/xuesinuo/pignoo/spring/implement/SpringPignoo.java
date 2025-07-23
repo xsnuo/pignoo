@@ -27,7 +27,7 @@ import com.xuesinuo.pignoo.spring.config.PignooTransactionSynchronizationAdapter
  * <p>
  * When integrated into Spirng, just construct SpringPignoo correctly and inject it into the Spring container.
  * <p>
- * 
+ *
  * <pre>
  * // Example:
  * &#64;Configuration
@@ -38,9 +38,10 @@ import com.xuesinuo.pignoo.spring.config.PignooTransactionSynchronizationAdapter
  *     }
  * }
  * </pre>
- * 
+ *
  * @author xuesinuo
  * @since 0.2.1
+ * @version 0.2.1
  */
 @Slf4j
 public class SpringPignoo implements Pignoo {
@@ -58,7 +59,10 @@ public class SpringPignoo implements Pignoo {
     private boolean hasClosed = false;// 是否已经关闭
 
     /**
-     * 
+     * 构造器
+     * <p>
+     * Constructor
+     *
      * @param dataSource 数据源
      *                   <p>
      *                   Data source
@@ -68,6 +72,9 @@ public class SpringPignoo implements Pignoo {
     }
 
     /**
+     * 构造器
+     * <p>
+     * Constructor
      *
      * @param dataSource   数据源
      *                     <p>
@@ -106,11 +113,13 @@ public class SpringPignoo implements Pignoo {
         this.basePignoo = new SpringPignooItem(dataSource, pignooConfig, false);
     }
 
+    /** {@inheritDoc} */
     @Override
     public <E> PignooWriter<E> writer(Class<E> c) {
         return this.getPignoo().writer(c);
     }
 
+    /** {@inheritDoc} */
     @Override
     public <E> PignooReader<E> reader(Class<E> c) {
         return this.getPignoo().reader(c);
@@ -145,6 +154,11 @@ public class SpringPignoo implements Pignoo {
         return pignoo;
     }
 
+    /**
+     * 关闭Spring事务时的关闭资源规则
+     * <p>
+     * Close resource rules when closing Spring transactions
+     */
     public void closeSpringTransaction() {
         SpringPignooItem pignoo = transactionPignooThreadLocal.get();
         if (pignoo != null) {
@@ -156,6 +170,7 @@ public class SpringPignoo implements Pignoo {
         log.debug("Once Spring-Pignoo transaction finished!");
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() {
         this.basePignoo.close();
@@ -165,6 +180,7 @@ public class SpringPignoo implements Pignoo {
         log.warn("Spring-Pignoo closed! Please confirm that the SpringIoC container is also closed, otherwise this is an abnormal shutdown!");
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean closed() {
         return this.hasClosed;
