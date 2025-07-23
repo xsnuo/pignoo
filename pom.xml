@@ -88,11 +88,11 @@
               <goals>
                 <goal>jar</goal>
               </goals>
-              <configuration>
+              <!-- <configuration>
                 <additionalOptions>
                   <additionalOption>-Xdoclint:none</additionalOption>
                 </additionalOptions>
-              </configuration>
+              </configuration> -->
             </execution>
           </executions>
         </plugin>

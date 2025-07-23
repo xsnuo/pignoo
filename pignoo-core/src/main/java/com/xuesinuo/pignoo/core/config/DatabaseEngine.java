@@ -10,7 +10,7 @@ import lombok.Getter;
  * 数据库引擎
  * <p>
  * Database engine
- * 
+ *
  * @author xuesinuo
  * @version 0.1.0
  */
@@ -30,6 +30,13 @@ public enum DatabaseEngine {
      * 根据名称获取数据库引擎
      * <p>
      * Get database engine by name
+     * 
+     * @param name 数据库名称，允许大小写
+     *             <p>
+     *             Database name, allow uppercase and lowercase
+     * @return 数据库引擎枚举
+     *         <p>
+     *         Database engine enum
      */
     public static DatabaseEngine getDatabaseEngineByName(String name) {
         if (name == null || name.isEmpty()) {
@@ -47,6 +54,16 @@ public enum DatabaseEngine {
      * 根据数据库连接获取数据库引擎
      * <p>
      * Get database engine by connection
+     *
+     * @param conn 数据库连接
+     *             <p>
+     *             Database connection
+     * @return 数据库引擎枚举
+     *         <p>
+     *         Database engine enum
+     * @throws SQLException SQL异常
+     *                      <p>
+     *                      SQL exception
      */
     public static DatabaseEngine getDatabaseEngineByConnection(Connection conn) throws SQLException {
         if (conn == null || conn.getMetaData() == null) {

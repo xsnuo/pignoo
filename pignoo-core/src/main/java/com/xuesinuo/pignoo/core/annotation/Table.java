@@ -10,9 +10,10 @@ import java.lang.annotation.Target;
  * 标记一个实体类，映射到数据库表
  * <p>
  * Mark a entity class, mapping to a table in database
- * 
+ *
  * @author xuesinuo
  * @since 0.1.0
+ * @version 0.1.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

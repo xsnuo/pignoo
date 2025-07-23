@@ -18,9 +18,10 @@ import lombok.extern.slf4j.Slf4j;
  * 原生JDBC的{@SqlExecuter}实现
  * <p>
  * Naive JDBC {@SqlExecuter} implementation
- * 
+ *
  * @author xuesinuo
  * @since 0.1.0
+ * @version 0.1.0
  */
 @Slf4j
 public class SimpleJdbcSqlExecuter implements SqlExecuter {
@@ -29,10 +30,20 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
 
     private static final SimpleJdbcSqlExecuter instance = new SimpleJdbcSqlExecuter();
 
+    /**
+     * 单例的实现
+     * <p>
+     * Singleton implementation
+     * 
+     * @return SQL执行器
+     *         <p>
+     *         SQL executer
+     */
     public static SimpleJdbcSqlExecuter getInstance() {
         return instance;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <E> E selectOne(Supplier<Connection> connGetter, Consumer<Connection> connCloser, String sql, Map<Integer, Object> params, Class<E> c) {
         log.debug(sql);
@@ -73,6 +84,7 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
         return null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <E> List<E> selectList(Supplier<Connection> connGetter, Consumer<Connection> connCloser, String sql, Map<Integer, Object> params, Class<E> c) {
         log.debug(sql);
@@ -114,6 +126,7 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
         return list;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <R> R selectColumn(Supplier<Connection> connGetter, Consumer<Connection> connCloser, String sql, Map<Integer, Object> params, Class<R> c) {
         log.debug(sql);
@@ -147,6 +160,7 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
         return null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <R> Object insert(Supplier<Connection> connGetter, Consumer<Connection> connCloser, String sql, Map<Integer, Object> params, Class<R> c) {
         log.debug(sql);
@@ -184,6 +198,7 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
         return primaryKeyValue;
     }
 
+    /** {@inheritDoc} */
     @Override
     public long update(Supplier<Connection> connGetter, Consumer<Connection> connCloser, String sql, Map<Integer, Object> params) {
         log.debug(sql);

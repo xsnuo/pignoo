@@ -24,9 +24,10 @@ import com.xuesinuo.pignoo.core.config.DatabaseEngine;
  * 继续单线程下，单一数据库连接，允许多次使用连接，退出则关闭连接（返还连接池）
  * <p>
  * Continue to single thread, single database connection, allow multiple use of connections, exit to close the connection (return to the connection pool)
- * 
+ *
  * @author xuesinuo
  * @since 0.1.0
+ * @version 0.2.3
  */
 @Slf4j
 public class BasePignoo implements Pignoo {
@@ -40,7 +41,10 @@ public class BasePignoo implements Pignoo {
     private boolean hasClosed = false;// 是否已经关闭
 
     /**
-     * 
+     * 构造器，使用默认配置
+     * <p>
+     * Constructor， use default configuration
+     *
      * @param dataSource 数据源
      *                   <p>
      *                   Data source
@@ -50,6 +54,9 @@ public class BasePignoo implements Pignoo {
     }
 
     /**
+     * 构造器
+     * <p>
+     * Constructor
      *
      * @param dataSource   数据源
      *                     <p>
@@ -114,6 +121,7 @@ public class BasePignoo implements Pignoo {
         }
     };
 
+    /** {@inheritDoc} */
     @Override
     public <E> PignooWriter<E> writer(Class<E> c) {
         switch (this.config.getEngine()) {
@@ -123,6 +131,7 @@ public class BasePignoo implements Pignoo {
         throw new RuntimeException("Unknow database engine");
     }
 
+    /** {@inheritDoc} */
     @Override
     public <E> PignooReader<E> reader(Class<E> c) {
         switch (this.config.getEngine()) {
@@ -132,6 +141,7 @@ public class BasePignoo implements Pignoo {
         throw new RuntimeException("Unknow database engine");
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() {
         this.hasClosed = true;
@@ -147,6 +157,7 @@ public class BasePignoo implements Pignoo {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean closed() {
         return this.hasClosed;

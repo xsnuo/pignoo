@@ -56,7 +56,9 @@ public class Demo05_Gru {
                 Pig pig = new Pig();
                 pig.setName("应该被回滚掉的小猪");
                 writer.add(pig);
-                throw new RuntimeException("测试事务回滚");// 测试事务回滚
+                if (true) { // [!] gru使用了Consumer、Function重载，方法体以throw结尾编译器无法区分是Consumer还是Function
+                    throw new RuntimeException("测试事务回滚");// 测试事务回滚
+                }
             });
         } catch (Exception e) {
             e.printStackTrace();

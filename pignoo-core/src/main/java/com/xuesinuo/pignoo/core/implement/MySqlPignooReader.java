@@ -23,15 +23,21 @@ import com.xuesinuo.pignoo.core.entity.EntityMapper;
 import com.xuesinuo.pignoo.core.entity.SqlParam;
 
 /**
- * 基于MySQL语法实现的{@link PignooReader}
+ * 基于MySQL语法实现的{@link com.xuesinuo.pignoo.core.PignooReader}
  * <p>
- * A MySQL implementation of {@link PignooReader}
- * 
+ * A MySQL implementation of {@link com.xuesinuo.pignoo.core.PignooReader}
+ *
  * @author xuesinuo
  * @since 0.2.3
+ * @version 0.2.3
  */
 public class MySqlPignooReader<E> implements PignooReader<E> {
 
+    /**
+     * SQL执行器
+     * <p>
+     * SQL Executer
+     */
     protected static final SqlExecuter sqlExecuter = SimpleJdbcSqlExecuter.getInstance();
 
     protected final Pignoo pignoo;
@@ -44,6 +50,28 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
     protected PignooSorter<E> sorter;
     protected final PignooConfig config;
 
+    /**
+     * 构造器
+     * <p>
+     * Constructor
+     *
+     * @param pignoo        pignoo
+     * @param connGetter    获取连接函数
+     *                      <p>
+     *                      Connection Getter
+     * @param connCloser    关闭连接函数
+     *                      <p>
+     *                      Connection Closer
+     * @param inTransaction 是否在事务中
+     *                      <p>
+     *                      Whether in transaction
+     * @param c             实体类型
+     *                      <p>
+     *                      Entity type
+     * @param config        配置
+     *                      <p>
+     *                      Configuration
+     */
     public MySqlPignooReader(Pignoo pignoo, Supplier<Connection> connGetter, Consumer<Connection> connCloser, boolean inTransaction, Class<E> c, PignooConfig config) {
         this.pignoo = pignoo;
         this.inTransaction = inTransaction;
@@ -54,6 +82,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         this.entityMapper = EntityMapper.build(c, config);
     }
 
+    /** {@inheritDoc} */
     @Override
     public PignooWriter<E> copyWriter() {
         MySqlPignooWriter<E> pignooWriter = new MySqlPignooWriter<>(pignoo, connGetter, connCloser, inTransaction, c, config);
@@ -62,6 +91,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return pignooWriter;
     }
 
+    /** {@inheritDoc} */
     @Override
     public PignooReader<E> copyReader() {
         MySqlPignooReader<E> pignooWriter = new MySqlPignooReader<>(pignoo, connGetter, connCloser, inTransaction, c, config);
@@ -70,6 +100,18 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return pignooWriter;
     }
 
+    /**
+     * 操作符转SQL语句
+     * <p>
+     * Operator to SQL statement
+     *
+     * @param fmode 操作符枚举
+     *              <p>
+     *              Operator enumeration
+     * @return SQL语句
+     *         <p>
+     *         SQL statement
+     */
     protected String fmodeToSql(FMode fmode) {
         switch (fmode) {
         case EQ:
@@ -101,6 +143,18 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         }
     }
 
+    /**
+     * 排序方式转SQL语句
+     * <p>
+     * Sorter mode to SQL statement
+     *
+     * @param smode 排序方式
+     *              <p>
+     *              Sorter mode
+     * @return SQL语句
+     *         <p>
+     *         SQL statement
+     */
     protected String smodeToSql(SMode smode) {
         switch (smode) {
         case MIN_FIRST:
@@ -112,6 +166,21 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         }
     }
 
+    /**
+     * 过滤器转SQL语句（filter支持嵌套）
+     * <p>
+     * Filter to SQL statement (filter supports nesting)
+     *
+     * @param filter   过滤器
+     *                 <p>
+     *                 Filter
+     * @param sqlParam 参数拼接工具
+     *                 <p>
+     *                 Parameter concatenation tool
+     * @return SQL语句
+     *         <p>
+     *         SQL statement
+     */
     protected String filter2Sql(PignooFilter<E> filter, SqlParam sqlParam) {
         StringBuilder sql = new StringBuilder("");
         if (filter != null) {
@@ -136,6 +205,21 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return sql.toString();
     }
 
+    /**
+     * 单个过滤器转SQL语句
+     * <p>
+     * Single filter to SQL statement
+     *
+     * @param filter   单个过滤器
+     *                 <p>
+     *                 Single filter
+     * @param sqlParam 参数拼接工具
+     *                 <p>
+     *                 Parameter concatenation tool
+     * @return SQL语句
+     *         <p>
+     *         SQL statement
+     */
     protected String thisFilter2Sql(PignooFilter<E> filter, SqlParam sqlParam) {
         String sql = "";
         if (filter.getField() != null && filter.getMode() != null) {
@@ -184,6 +268,18 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return sql;
     }
 
+    /**
+     * 排序器转SQL语句
+     * <p>
+     * Sorter to SQL statement
+     *
+     * @param sorter 排序器
+     *               <p>
+     *               Sorter
+     * @return SQL语句
+     *         <p>
+     *         SQL statement
+     */
     protected String sorter2Sql(PignooSorter<E> sorter) {
         StringBuilder sql = new StringBuilder("");
         if (sorter != null) {
@@ -196,6 +292,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return sql.toString();
     }
 
+    /** {@inheritDoc} */
     @Override
     public E getOne() {
         StringBuilder sql = new StringBuilder("");
@@ -217,6 +314,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return e;
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<E> getAll() {
         StringBuilder sql = new StringBuilder("");
@@ -237,6 +335,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return eList;
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<E> get(long offset, long limit) {
         StringBuilder sql = new StringBuilder("");
@@ -258,6 +357,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return eList;
     }
 
+    /** {@inheritDoc} */
     @Override
     public long size() {
         StringBuilder sql = new StringBuilder("");
@@ -272,6 +372,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return size == null ? 0L : size;
     }
 
+    /** {@inheritDoc} */
     @Override
     public PignooReader<E> sort(Function<E, ?> field, PignooSorter.SMode mode) {
         if (this.sorter == null) {
@@ -282,6 +383,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return this;
     }
 
+    /** {@inheritDoc} */
     @Override
     public PignooReader<E> sort(PignooSorter<E> sorter) {
         if (this.sorter == null) {
@@ -292,6 +394,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return this;
     }
 
+    /** {@inheritDoc} */
     @Override
     public PignooReader<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values) {
         if (this.filter == null) {
@@ -302,11 +405,13 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return this;
     }
 
+    /** {@inheritDoc} */
     @Override
     public PignooReader<E> filter(Function<E, ?> field, String mode, Object... values) {
         return filter(field, FMode.getFMode(mode), values);
     }
 
+    /** {@inheritDoc} */
     @Override
     public PignooReader<E> filter(PignooFilter<E> filter) {
         if (this.filter == null) {
@@ -317,6 +422,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return this;
     }
 
+    /** {@inheritDoc} */
     @Override
     public PignooReader<E> filter(Function<PignooFilter<E>, PignooFilter<E>> filterBuilder) {
         PignooFilter<E> filter = new PignooFilter<>();
@@ -328,6 +434,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return this;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <R> R sum(Function<E, R> field, Class<R> c) {
         StringBuilder sql = new StringBuilder("");
@@ -341,6 +448,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
     }
 
+    /** {@inheritDoc} */
     @Override
     public <R> R avg(Function<E, R> field, Class<R> c) {
         StringBuilder sql = new StringBuilder("");
@@ -354,6 +462,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
         return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isReadOnly() {
         return true;

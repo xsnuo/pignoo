@@ -12,9 +12,10 @@ import lombok.Getter;
  * Pignoo的条件筛选器
  * <p>
  * Pignoo's filter
- * 
+ *
  * @author xuesinuo
  * @since 0.1.0
+ * @version 0.2.0
  */
 @Getter
 public class PignooFilter<E> {
@@ -165,6 +166,9 @@ public class PignooFilter<E> {
      * @param filter 要复制的PignooFilter实例
      *               <p>
      *               The PignooFilter instance to be copied
+     * @param <E>    过路器应用的实体类型
+     *               <p>
+     *               The entity type applied by the filter
      * @return 复制后的PignooFilter实例
      *         <p>
      *         The copied PignooFilter instance
@@ -198,6 +202,9 @@ public class PignooFilter<E> {
      * @param values 值
      *               <p>
      *               Value
+     * @param <E>    过路器应用的实体类型
+     *               <p>
+     *               The entity type applied by the filter
      * @return PignooFilter实例
      *         <p>
      *         PignooFilter instance
@@ -218,6 +225,22 @@ public class PignooFilter<E> {
      * 请参考{@link #build(Function, FMode, Object...)}
      * <p>
      * Please refer to {@link #build(Function, FMode, Object...)}
+     *
+     * @param field  字段（用Getter方法指代）
+     *               <p>
+     *               Field (use Getter method to refer)
+     * @param mode   筛选条件
+     *               <p>
+     *               Filter conditions
+     * @param values 值
+     *               <p>
+     *               Value
+     * @param <E>    过路器应用的实体类型
+     *               <p>
+     *               The entity type applied by the filter
+     * @return PignooFilter实例
+     *         <p>
+     *         PignooFilter instance
      */
     public static <E> PignooFilter<E> build(Function<E, ?> field, String mode, Object... values) {
         return build(field, FMode.getFMode(mode), values);
@@ -228,9 +251,12 @@ public class PignooFilter<E> {
      * <p>
      * Build an empty PignooFilter instance
      *
-     * @param c 实体类型
-     *          <p>
-     *          Entity type
+     * @param c   实体类型
+     *            <p>
+     *            Entity type
+     * @param <E> 过路器应用的实体类型
+     *            <p>
+     *            The entity type applied by the filter
      * @return PignooFilter实例
      *         <p>
      *         PignooFilter instance
@@ -274,6 +300,19 @@ public class PignooFilter<E> {
      * 请参考{@link #and(Function, FMode, Object...)}
      * <p>
      * Please refer to {@link #and(Function, FMode, Object...)}
+     *
+     * @param field  字段（用Getter方法指代）
+     *               <p>
+     *               Field (use Getter method to refer)
+     * @param mode   筛选条件
+     *               <p>
+     *               Filter conditions
+     * @param values 值
+     *               <p>
+     *               Value
+     * @return PignooFilter实例
+     *         <p>
+     *         PignooFilter instance
      */
     public PignooFilter<E> and(Function<E, ?> field, String mode, Object... values) {
         return and(field, FMode.getFMode(mode), values);
@@ -313,6 +352,19 @@ public class PignooFilter<E> {
      * 请参考{@link #or(Function, FMode, Object...)}
      * <p>
      * Please refer to {@link #or(Function, FMode, Object...)}
+     *
+     * @param field  字段（用Getter方法指代）
+     *               <p>
+     *               Field (use Getter method to refer)
+     * @param mode   筛选条件
+     *               <p>
+     *               Filter conditions
+     * @param values 值
+     *               <p>
+     *               Value
+     * @return PignooFilter实例
+     *         <p>
+     *         PignooFilter instance
      */
     public PignooFilter<E> or(Function<E, ?> field, String mode, Object... values) {
         return or(field, FMode.getFMode(mode), values);

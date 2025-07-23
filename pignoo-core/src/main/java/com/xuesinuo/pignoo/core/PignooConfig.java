@@ -11,9 +11,10 @@ import lombok.Data;
  * Pignoo的配置
  * <p>
  * Pignoo's configuration
- * 
+ *
  * @author xuesinuo
  * @since 0.1.0
+ * @version 0.2.1
  */
 @Data
 public class PignooConfig {
@@ -64,8 +65,9 @@ public class PignooConfig {
      * 复制一份配置文件
      * <p>
      * Copy a configuration file
-     * 
+     *
      * @version 0.2.1
+     * @return a {@link com.xuesinuo.pignoo.core.PignooConfig} object
      */
     public PignooConfig copy() {
         PignooConfig config = new PignooConfig();

@@ -10,9 +10,10 @@ import com.xuesinuo.pignoo.core.annotation.PrimaryKey;
  * 设置一个全局的主键命名规则，当没有{@link PrimaryKey}注解时，会按照这个规则查找主键
  * <p>
  * Set a global primary key naming rule, when there is no {@link PrimaryKey} annotation, it will find the primary key according to this rule
- * 
+ *
  * @author xuesinuo
  * @since 0.2.0
+ * @version 0.2.0
  */
 @FunctionalInterface
 public interface PrimaryKeyNamingConvention {
@@ -20,10 +21,16 @@ public interface PrimaryKeyNamingConvention {
      * 主键命名规则
      * <p>
      * PrimaryKey Naming Convention
-     * 
+     *
      * @param tableName 表名
+     *                  <p>
+     *                  Table Name
      * @param className 类名
+     *                  <p>
+     *                  Class Name
      * @return 主键名
+     *         <p>
+     *         PrimaryKey Name
      */
     String naming(String tableName, String className);
 
