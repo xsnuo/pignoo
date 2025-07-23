@@ -10,7 +10,7 @@ import lombok.Getter;
  * 注解使用方式
  * <p>
  * The annotation's mode.
- * 
+ *
  * @author xuesinuo
  * @version 0.2.0
  */

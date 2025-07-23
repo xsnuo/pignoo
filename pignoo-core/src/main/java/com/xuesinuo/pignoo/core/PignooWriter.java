@@ -23,16 +23,18 @@ import java.util.function.Function;
  * 特点4 - JavaBean代理：查询出的JavaBean会被代理，操作从List取出的JavaBean时，数据会保存到数据库
  * <p>
  * Features 4 - JavaBean proxy: The JavaBean queried will be proxied, and the data will be saved to the database when the JavaBean is operated from the List
- * 
+ *
+ * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
+ * @version 0.2.3
  */
 public interface PignooWriter<E> extends PignooReader<E> {
     /**
      * 新增一条数据
      * <p>
      * Add a data
-     * 
+     *
      * @param e 数据
      *          <p>
      *          Data
@@ -46,7 +48,7 @@ public interface PignooWriter<E> extends PignooReader<E> {
      * 根据主键修改数据：混入不为NULL的属性
      * <p>
      * Modify data by Primary-Key: mix in properties that are not NULL
-     * 
+     *
      * @param e 数据
      *          <p>
      *          Data
@@ -60,7 +62,7 @@ public interface PignooWriter<E> extends PignooReader<E> {
      * 根据主键修改数据：完全替换
      * <p>
      * Modify data by Primary-Key: completely replace
-     * 
+     *
      * @param e 数据
      *          <p>
      *          Data
@@ -74,7 +76,7 @@ public interface PignooWriter<E> extends PignooReader<E> {
      * 修改数据：混入不为NULL的属性
      * <p>
      * Modify data: mix in properties that are not NULL
-     * 
+     *
      * @param e 数据
      *          <p>
      *          Data
@@ -88,7 +90,7 @@ public interface PignooWriter<E> extends PignooReader<E> {
      * 修改数据：完全替换
      * <p>
      * Modify data: completely replace
-     * 
+     *
      * @param e 数据
      *          <p>
      *          Data
@@ -102,7 +104,7 @@ public interface PignooWriter<E> extends PignooReader<E> {
      * 根据主键删除数据
      * <p>
      * Delete data by Primary-Key
-     * 
+     *
      * @param e 含主键的实体
      *          <p>
      *          data with Primary-Key
@@ -116,28 +118,34 @@ public interface PignooWriter<E> extends PignooReader<E> {
      * 删除数据
      * <p>
      * Delete data
-     * 
+     *
      * @return 受影响条数
      *         <p>
      *         Number of affected entries
      */
     long removeAll();
 
+    /** {@inheritDoc} */
     @Override
     PignooWriter<E> sort(Function<E, ?> field, PignooSorter.SMode mode);
 
+    /** {@inheritDoc} */
     @Override
     PignooWriter<E> sort(PignooSorter<E> sorter);
 
+    /** {@inheritDoc} */
     @Override
     PignooWriter<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values);
 
+    /** {@inheritDoc} */
     @Override
     PignooWriter<E> filter(Function<E, ?> field, String mode, Object... values);
 
+    /** {@inheritDoc} */
     @Override
     PignooWriter<E> filter(PignooFilter<E> filter);
 
+    /** {@inheritDoc} */
     @Override
     PignooWriter<E> filter(Function<PignooFilter<E>, PignooFilter<E>> filterBuilder);
 

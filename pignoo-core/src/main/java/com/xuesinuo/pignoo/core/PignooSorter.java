@@ -8,9 +8,11 @@ import lombok.Getter;
  * Pignoo的排序器
  * <p>
  * Pignoo's sorter
- * 
+ *
+ * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
+ * @version 0.1.0
  */
 @Getter
 public class PignooSorter<E> {
@@ -36,6 +38,7 @@ public class PignooSorter<E> {
      * @param sorter 要复制的PignooSorter
      *               <p>
      *               The PignooSorter to be copied
+     * @param <E>    应用过滤器的实体类型
      * @return 复制后的PignooSorter
      *         <p>
      *         The copied PignooSorter
@@ -64,6 +67,7 @@ public class PignooSorter<E> {
      * @param mode  排序方式
      *              <p>
      *              Sorting mode
+     * @param <E>   应用过滤器的实体类型
      * @return 构建后的PignooSorter
      *         <p>
      *         The built PignooSorter

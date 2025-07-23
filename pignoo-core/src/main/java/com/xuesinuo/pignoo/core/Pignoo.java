@@ -13,13 +13,13 @@ package com.xuesinuo.pignoo.core;
  * <p>
  * A Pignoo instance is a Connection encapsulated from a DataSource, on top of which, Pignoo has its own unique data operation way
  * <p>
- * 如果使用Pignoo来管理事务的提交、回滚、关闭或返还连接，请使用{@link Gru}构建Pignoo实例
+ * 如果使用Pignoo来管理事务的提交、回滚、关闭或返还连接，请使用{@link com.xuesinuo.pignoo.core.Gru}构建Pignoo实例
  * <p>
- * If you use Pignoo to manage the commit, rollback, close or return the connection, please use {@link Gru} to build Pignoo instances
+ * If you use Pignoo to manage the commit, rollback, close or return the connection, please use {@link com.xuesinuo.pignoo.core.Gru} to build Pignoo instances
  * <p>
- * Pignoo是一个需要关闭的({@link AutoCloseable})，关闭Pignoo有两个主要的作用
+ * Pignoo是一个需要关闭的({@link java.lang.AutoCloseable})，关闭Pignoo有两个主要的作用
  * <p>
- * Pignoo is a need to close ({@link AutoCloseable}), closing Pignoo has two main roles
+ * Pignoo is a need to close ({@link java.lang.AutoCloseable}), closing Pignoo has two main roles
  * <p>
  * 1. 关闭Pignoo，会显式退出Pignoo的作用域，Pignoo产生的代理会失效
  * <p>
@@ -28,9 +28,10 @@ package com.xuesinuo.pignoo.core;
  * 2. 在事务环境，关闭Pignoo，会提交事务，并返还连接
  * <p>
  * 2. In the transaction environment, closing Pignoo will commit the transaction and return the connection
- * 
+ *
  * @author xuesinuo
  * @since 0.1.0
+ * @version 0.2.4
  */
 public interface Pignoo extends AutoCloseable {
 
@@ -38,7 +39,7 @@ public interface Pignoo extends AutoCloseable {
      * 获取一个PignooWriter实例，PignooWriter中对象的操作会映射到数据库，这是Pignoo的最核心用法
      * <p>
      * Get a PignooWriter instance, the operation of the object in PignooWriter will be mapped to the database, which is the most core usage of Pignoo
-     * 
+     *
      * @param <E> 实体类型
      *            <p>
      *            Entity type
@@ -53,7 +54,7 @@ public interface Pignoo extends AutoCloseable {
      * 获取一个只读的PignooWriter实例，只读List操作不会映射到数据库
      * <p>
      * Get a read-only PignooWriter instance, the read-only List operation will not be mapped to the database
-     * 
+     *
      * @param <E> 实体类型
      *            <p>
      *            Entity type
@@ -68,6 +69,8 @@ public interface Pignoo extends AutoCloseable {
      * 是否已经关闭退出Pignoo作用域
      * <p>
      * Whether to close and exit the Pignoo scope
+     *
+     * @return a boolean
      */
     public boolean closed();
 }

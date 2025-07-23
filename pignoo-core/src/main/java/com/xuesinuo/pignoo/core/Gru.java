@@ -23,16 +23,20 @@ import com.xuesinuo.pignoo.core.implement.TransactionPignoo;
  * Gru可以帮你合理利用DataSource，避免忘记提交、回滚、关闭或返还连接
  * <p>
  * Gru can help you use DataSource in a more reasonable way, avoiding forgetting to commit, rollback, close or return the connection
- * 
+ *
  * @author xuesinuo
  * @since 0.1.0
+ * @version 0.2.4
  */
 public class Gru {
     private final PignooConfig config;// Pignoo配置
     private final DataSource dataSource;// 数据源
 
     /**
-     * 
+     * Pignoo原生事务管理器：Gru，的构造器
+     * <p>
+     * Constructor of Pignoo native transaction manager: Gru
+     *
      * @param dataSource 数据源
      *                   <p>
      *                   Data source
@@ -72,6 +76,10 @@ public class Gru {
     }
 
     /**
+     * Pignoo原生事务管理器：Gru，的构造器。使用默认配置
+     * <p>
+     * Constructor of Pignoo native transaction manager: Gru. Use default configuration
+     *
      * @param dataSource 数据源
      *                   <p>
      *                   Data source
@@ -85,7 +93,7 @@ public class Gru {
      * 在非事务环境执行Pignoo
      * <p>
      * Execute Pignoo in a non-transactional environment
-     * 
+     *
      * @param <R>      自定义返回值类型
      *                 <p>
      *                 Custom return value type
@@ -103,10 +111,26 @@ public class Gru {
     }
 
     /**
+     * 在非事务环境执行Pignoo
+     * <p>
+     * Execute Pignoo in a non-transactional environment
+     *
+     * @param function 执行一段Pignoo方法
+     *                 <p>
+     *                 Execute a piece of Pignoo method
+     * @since 0.2.4
+     */
+    public void run(Consumer<Pignoo> function) {
+        try (BasePignoo pignoo = new BasePignoo(this.dataSource, this.config)) {
+            function.accept(pignoo);
+        }
+    }
+
+    /**
      * 在事务环境执行Pignoo
      * <p>
      * Execute Pignoo in a transactional environment
-     * 
+     *
      * @param <R>      自定义返回值类型
      *                 <p>
      *                 Custom return value type
@@ -116,6 +140,27 @@ public class Gru {
      * @return 自定义返回值
      *         <p>
      *         Custom return value
+     * @since 0.2.4
+     */
+    public <R> R runTransaction(Function<Pignoo, R> function) {
+        try (TransactionPignoo pignoo = new TransactionPignoo(this.dataSource, this.config)) {
+            try {
+                return function.apply(pignoo);
+            } catch (Exception e) {
+                pignoo.rollback();
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * 在事务环境执行Pignoo
+     * <p>
+     * Execute Pignoo in a transactional environment
+     *
+     * @param function 执行一段Pignoo方法
+     *                 <p>
+     *                 Execute a piece of Pignoo method
      */
     public void runTransaction(Consumer<Pignoo> function) {
         try (TransactionPignoo pignoo = new TransactionPignoo(this.dataSource, this.config)) {

@@ -17,9 +17,10 @@ import com.xuesinuo.pignoo.core.config.DatabaseEngine;
  * 基于JDBC事务的Pignoo实现
  * <p>
  * Pignoo implementation based on JDBC transaction
- * 
+ *
  * @author xuesinuo
  * @since 0.1.0
+ * @version 0.1.0
  */
 public class TransactionPignoo implements Pignoo {
 
@@ -36,7 +37,10 @@ public class TransactionPignoo implements Pignoo {
     private boolean hasClosed = false;// 是否已经关闭
 
     /**
-     * 
+     * 构造器，使用默认配置
+     * <p>
+     * Constructor, use default configuration
+     *
      * @param dataSource 数据源
      *                   <p>
      *                   Data source
@@ -46,6 +50,9 @@ public class TransactionPignoo implements Pignoo {
     }
 
     /**
+     * 构造器
+     * <p>
+     * Constructor
      *
      * @param dataSource   数据源
      *                     <p>
@@ -99,6 +106,7 @@ public class TransactionPignoo implements Pignoo {
 
     private Consumer<Connection> connCloser = (conn) -> {};
 
+    /** {@inheritDoc} */
     @Override
     public <E> PignooWriter<E> writer(Class<E> c) {
         switch (this.config.getEngine()) {
@@ -108,6 +116,7 @@ public class TransactionPignoo implements Pignoo {
         throw new RuntimeException("Unknow database engine");
     }
 
+    /** {@inheritDoc} */
     @Override
     public <E> PignooReader<E> reader(Class<E> c) {
         switch (this.config.getEngine()) {
@@ -117,6 +126,11 @@ public class TransactionPignoo implements Pignoo {
         throw new RuntimeException("Unknow database engine");
     }
 
+    /**
+     * 事务回滚
+     * <p>
+     * Transaction rollback
+     */
     public void rollback() {
         if (hasRollbacked) {
             return;
@@ -129,6 +143,7 @@ public class TransactionPignoo implements Pignoo {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public synchronized void close() {
         if (hasClosed) {
@@ -157,6 +172,7 @@ public class TransactionPignoo implements Pignoo {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean closed() {
         return hasClosed;

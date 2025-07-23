@@ -24,9 +24,10 @@ import com.xuesinuo.pignoo.core.config.DatabaseEngine;
  * Spring事务Pignoo实现
  * <p>
  * Spring transaction Pignoo implementation
- * 
+ *
  * @author xuesinuo
  * @since 0.2.1
+ * @version 0.2.1
  */
 @Slf4j
 public class SpringPignooItem implements Pignoo {
@@ -40,13 +41,17 @@ public class SpringPignooItem implements Pignoo {
     private boolean hasClosed = false;// 是否已经关闭
 
     /**
+     * 构造器
+     * <p>
+     * Constructor
      *
-     * @param dataSource   数据源
-     *                     <p>
-     *                     Data source
-     * @param pignooConfig 配置
-     *                     <p>
-     *                     Configuration
+     * @param dataSource    数据源
+     *                      <p>
+     *                      Data source
+     * @param pignooConfig  配置
+     *                      <p>
+     *                      Configuration
+     * @param inTransaction a boolean
      */
     protected SpringPignooItem(DataSource dataSource, PignooConfig pignooConfig, boolean inTransaction) {
         if (dataSource == null) {
@@ -92,6 +97,7 @@ public class SpringPignooItem implements Pignoo {
         DataSourceUtils.releaseConnection(conn, this.getDataSource());
     };
 
+    /** {@inheritDoc} */
     @Override
     public <E> PignooWriter<E> writer(Class<E> c) {
         switch (this.config.getEngine()) {
@@ -101,6 +107,7 @@ public class SpringPignooItem implements Pignoo {
         throw new RuntimeException("Unknow database engine");
     }
 
+    /** {@inheritDoc} */
     @Override
     public <E> PignooReader<E> reader(Class<E> c) {
         switch (this.config.getEngine()) {
@@ -110,12 +117,14 @@ public class SpringPignooItem implements Pignoo {
         throw new RuntimeException("Unknow database engine");
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() {
         this.hasClosed = true;
         this.dataSource = null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean closed() {
         return hasClosed;

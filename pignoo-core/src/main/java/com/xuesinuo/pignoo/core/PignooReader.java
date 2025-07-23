@@ -19,9 +19,11 @@ import java.util.function.Function;
  * 在事务中的只读查询不会形写锁
  * <p>
  * Read-only queries in transactions will not form write locks
- * 
+ *
+ * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.2.3
+ * @version 0.2.3
  */
 public interface PignooReader<E> {
 
@@ -29,7 +31,7 @@ public interface PignooReader<E> {
      * 复制一个读写List（保持当前的查询条件）
      * <p>
      * Copy a read-write List (keep the current query conditions)
-     * 
+     *
      * @return 复制后的List
      *         <p>
      *         The copied List
@@ -40,7 +42,7 @@ public interface PignooReader<E> {
      * 复制一个只读List（保持当前的查询条件）
      * <p>
      * Copy a read-only List (keep the current query conditions)
-     * 
+     *
      * @return 复制后的List
      *         <p>
      *         The copied List
@@ -51,7 +53,7 @@ public interface PignooReader<E> {
      * 当前PignooWriter是否只读
      * <p>
      * Whether the current PignooWriter is read-only
-     * 
+     *
      * @return 是否只读
      *         <p>
      *         Whether it is read-only
@@ -62,7 +64,7 @@ public interface PignooReader<E> {
      * 获取表中的第一条数据
      * <p>
      * Get the first data in the table
-     * 
+     *
      * @return 第一条数据，可能为null
      *         <p>
      *         The first data, may be null
@@ -73,7 +75,7 @@ public interface PignooReader<E> {
      * 获取列表
      * <p>
      * Get the list
-     * 
+     *
      * @return 列表
      *         <p>
      *         The list
@@ -84,11 +86,11 @@ public interface PignooReader<E> {
      * 获取部分List
      * <p>
      * Get a part of the list
-     * 
+     *
      * @param offset 跳过条数
      *               <p>
      *               Number of entries to skip
-     * @param limit  获取条数
+     * @param count  获取条数
      *               <p>
      *               Number of entries to get
      * @return 部分List
@@ -101,7 +103,7 @@ public interface PignooReader<E> {
      * 获取List大小
      * <p>
      * Get the size of the list
-     * 
+     *
      * @return 大小
      *         <p>
      *         The size
@@ -112,7 +114,7 @@ public interface PignooReader<E> {
      * 排序
      * <p>
      * Sort
-     * 
+     *
      * @param field 排序字段
      *              <p>
      *              Sorting field
@@ -129,7 +131,7 @@ public interface PignooReader<E> {
      * 排序
      * <p>
      * Sort
-     * 
+     *
      * @param sorter 排序器
      *               <p>
      *               Sorter
@@ -143,7 +145,7 @@ public interface PignooReader<E> {
      * 过滤
      * <p>
      * Filter
-     * 
+     *
      * @param field  过滤字段
      *               <p>
      *               Filtering field
@@ -163,6 +165,19 @@ public interface PignooReader<E> {
      * 请参考{@link #filter(Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
      * <p>
      * Please refer to {@link #filter(Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
+     *
+     * @param field  过滤字段
+     *               <p>
+     *               Filtering field
+     * @param mode   过滤方式
+     *               <p>
+     *               Filtering mode
+     * @param values 过滤值
+     *               <p>
+     *               Filtering value
+     * @return 过滤后的List
+     *         <p>
+     *         The filtered list
      */
     PignooReader<E> filter(Function<E, ?> field, String mode, Object... values);
 
@@ -170,7 +185,7 @@ public interface PignooReader<E> {
      * 过滤
      * <p>
      * Filter
-     * 
+     *
      * @param filter 过滤器
      *               <p>
      *               Filter
@@ -184,7 +199,7 @@ public interface PignooReader<E> {
      * 过滤
      * <p>
      * Filter
-     * 
+     *
      * @param filterBuilder 过滤器
      *                      <p>
      *                      Filter
@@ -198,11 +213,14 @@ public interface PignooReader<E> {
      * 求和
      * <p>
      * Sum
-     * 
+     *
      * @param field 求和的字段
      *              <p>
      *              Field
      * @param c     结果类型
+     *              <p>
+     *              Class of result
+     * @param <R>   结果类型
      *              <p>
      *              Class of result
      * @return 求和结果
@@ -215,11 +233,14 @@ public interface PignooReader<E> {
      * 求平均
      * <p>
      * Avg
-     * 
+     *
      * @param field 求平均的字段
      *              <p>
      *              Field
      * @param c     结果类型
+     *              <p>
+     *              Class of result
+     * @param <R>   结果类型
      *              <p>
      *              Class of result
      * @return 求平均结果
