@@ -102,7 +102,7 @@ Pignoo - 小黄人语的“无聊”。《卑鄙的我3》中小黄人们高呼�
 真的把Pignoo付诸于实践，代码大概是这样：
 
 ```java
-    List<Pig> writer = gru.run(pignoo -> {// 非事务操作
+    List<Pig> list = gru.run(pignoo -> {// 非事务操作
         return pignoo.reader(Pig.class).getAll();
     });
 
