@@ -17,6 +17,7 @@ import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
 /**
  * 解析实体类
  *
+ * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
  * @version 0.1.0
@@ -24,7 +25,6 @@ import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
 public class ClassInfo<E> {
     protected Constructor<E> constructor;
     protected String tableName;
-
     protected Boolean autoPrimaryKey;
     protected Field primaryKeyField;
     protected String primaryKeyColumn;

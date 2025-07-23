@@ -13,6 +13,7 @@ import lombok.Getter;
  * <p>
  * Pignoo's filter
  *
+ * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
  * @version 0.2.0

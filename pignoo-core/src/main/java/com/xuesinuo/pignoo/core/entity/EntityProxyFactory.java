@@ -13,6 +13,7 @@ import org.springframework.cglib.proxy.MethodProxy;
  * <p>
  * 每个查询结果Entity都会经过此工厂创建代理，代理调用setter方法时会同步更新数据库
  *
+ * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
  * @version 0.1.0

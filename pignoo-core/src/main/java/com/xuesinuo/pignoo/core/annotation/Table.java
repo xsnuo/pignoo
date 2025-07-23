@@ -21,6 +21,10 @@ import java.lang.annotation.Target;
 public @interface Table {
 
     /**
+     * 数据库表名
+     * <p>
+     * Database table name
+     * 
      * @return 数据库表名
      *         <p>
      *         Database table name

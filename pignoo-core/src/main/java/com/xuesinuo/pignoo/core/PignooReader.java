@@ -20,6 +20,7 @@ import java.util.function.Function;
  * <p>
  * Read-only queries in transactions will not form write locks
  *
+ * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.2.3
  * @version 0.2.3

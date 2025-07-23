@@ -14,6 +14,7 @@ import com.xuesinuo.pignoo.core.PignooConfig;
  * <p>
  * Entity Mapper, Map ClassInfo, Getter Method and Property Name
  *
+ * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
  * @version 0.1.0

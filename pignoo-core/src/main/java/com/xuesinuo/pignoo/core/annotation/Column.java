@@ -20,6 +20,10 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD })
 public @interface Column {
     /**
+     * 数据库列名
+     * <p>
+     * Database column name
+     * 
      * @return 数据库列名
      *         <p>
      *         Database column name

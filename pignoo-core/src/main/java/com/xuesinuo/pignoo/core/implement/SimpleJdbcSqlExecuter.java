@@ -15,9 +15,9 @@ import com.xuesinuo.pignoo.core.entity.EntityMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 原生JDBC的{@SqlExecuter}实现
+ * 原生JDBC的{@link com.xuesinuo.pignoo.core.SqlExecuter}实现
  * <p>
- * Naive JDBC {@SqlExecuter} implementation
+ * Naive JDBC {@link com.xuesinuo.pignoo.core.SqlExecuter} implementation
  *
  * @author xuesinuo
  * @since 0.1.0

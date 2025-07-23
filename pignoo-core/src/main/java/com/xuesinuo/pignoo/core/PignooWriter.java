@@ -24,6 +24,7 @@ import java.util.function.Function;
  * <p>
  * Features 4 - JavaBean proxy: The JavaBean queried will be proxied, and the data will be saved to the database when the JavaBean is operated from the List
  *
+ * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
  * @version 0.2.3

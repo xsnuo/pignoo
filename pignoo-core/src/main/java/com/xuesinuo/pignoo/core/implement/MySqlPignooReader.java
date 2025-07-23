@@ -27,6 +27,7 @@ import com.xuesinuo.pignoo.core.entity.SqlParam;
  * <p>
  * A MySQL implementation of {@link com.xuesinuo.pignoo.core.PignooReader}
  *
+ * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.2.3
  * @version 0.2.3

@@ -12,6 +12,7 @@ import org.springframework.cglib.proxy.MethodProxy;
  * <p>
  * 用于通过getter方法获取属性名
  *
+ * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
  * @version 0.1.0

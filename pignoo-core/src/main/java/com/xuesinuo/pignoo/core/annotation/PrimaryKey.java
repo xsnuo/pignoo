@@ -20,6 +20,10 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD })
 public @interface PrimaryKey {
     /**
+     * 是否自动生成
+     * <p>
+     * Whether to automatically generate
+     * 
      * @return 是否自动生成
      *         <p>
      *         Whether to automatically generate
