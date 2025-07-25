@@ -52,7 +52,7 @@ public class SpringPignoo implements Pignoo {
 
     private SpringPignooItem basePignoo;// 基础Pignoo，用于非事务操作
 
-    private final ThreadLocal<SpringPignooItem> transactionPignooThreadLocal = new ThreadLocal<>();// 事务Pignoo，每个线程分配一个
+    private final ThreadLocal<SpringPignooItem> transactionPignooThreadLocal = new ThreadLocal<>();// 事务Pignoo，每个线程分配一个（支持JTA）
 
     private boolean hasClosed = false;// 是否已经关闭
 
