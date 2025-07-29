@@ -109,8 +109,8 @@ public class Demo02_Query {
         reader.filter(Pig::getId, FMode.EQ, id);// 相等，支持null
         reader.filter(Pig::getId, FMode.NE, id);// 不相等，支持null
         // reader.filter(Pig::getId, FMode.EQ, null);// 不可直接赋值null，JRE会提示警告：null无法做为可变数组入参，建议使用NULL、NOT_NULL
-        reader.filter(Pig::getId, FMode.NULL);
-        reader.filter(Pig::getId, FMode.NOT_NULL);
+        reader.filter(Pig::getId, FMode.IS_NULL);
+        reader.filter(Pig::getId, FMode.IS_NOT_NULL);
 
         reader.getAll();
     }
