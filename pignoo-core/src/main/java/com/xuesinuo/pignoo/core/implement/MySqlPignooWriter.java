@@ -440,6 +440,20 @@ public class MySqlPignooWriter<E> extends MySqlPignooReader<E> implements Pignoo
 
     /** {@inheritDoc} */
     @Override
+    public PignooWriter<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Object... values) {
+        super.filter(condition, field, mode, values);
+        return this;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public PignooWriter<E> filter(Boolean condition, Function<E, ?> field, String mode, Object... values) {
+        super.filter(condition, field, mode, values);
+        return this;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public PignooWriter<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values) {
         super.filter(field, mode, values);
         return this;

@@ -142,9 +142,55 @@ public interface PignooReader<E> {
     PignooReader<E> sort(PignooSorter<E> sorter);
 
     /**
-     * 过滤
+     * 在满足条件后，单一条件过滤
      * <p>
-     * Filter
+     * Single condition filter after satisfying the condition
+     * 
+     * @param condition 条件：仅为True时使用此条件
+     *                  <p>
+     *                  Condition: use this condition only when it is True
+     * @param field     过滤字段
+     *                  <p>
+     *                  Filtering field
+     * @param mode      过滤方式
+     *                  <p>
+     *                  Filtering mode
+     * @param values    过滤值
+     *                  <p>
+     *                  Filtering value
+     * @return 过滤后的结果
+     *         <p>
+     *         The filtered result
+     */
+    PignooReader<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Object... values);
+
+    /**
+     * 请参考{@link #filter(Boolean, Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
+     * <p>
+     * Please refer to {@link #filter(Boolean, Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
+     * 
+     * @param condition 条件：仅为True时使用此条件
+     *                  <p>
+     *                  Condition: use this condition only when it is True
+     * @param field     过滤字段
+     *                  <p>
+     *                  Filtering field
+     * @param mode      过滤方式
+     *                  <p>
+     *                  Filtering mode
+     * @param values    过滤值
+     *                  <p>
+     *                  Filtering value
+     * @return 过滤后的结果
+     *         <p>
+     *         The filtered result
+     */
+    PignooReader<E> filter(Boolean condition, Function<E, ?> field, String mode, Object... values);
+
+    /**
+     * 单一条件过滤
+     * <p>
+     * Single condition filter
      *
      * @param field  过滤字段
      *               <p>
@@ -155,9 +201,9 @@ public interface PignooReader<E> {
      * @param values 过滤值
      *               <p>
      *               Filtering value
-     * @return 过滤后的List
+     * @return 过滤后的结果
      *         <p>
-     *         The filtered list
+     *         The filtered result
      */
     PignooReader<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values);
 
@@ -175,37 +221,37 @@ public interface PignooReader<E> {
      * @param values 过滤值
      *               <p>
      *               Filtering value
-     * @return 过滤后的List
+     * @return 过滤后的结果
      *         <p>
-     *         The filtered list
+     *         The filtered result
      */
     PignooReader<E> filter(Function<E, ?> field, String mode, Object... values);
 
     /**
-     * 过滤
+     * 最通用的过滤条件，使用PignooFilter嵌套，构建一个复杂的Filter后，应用它
      * <p>
-     * Filter
+     * The most general filter condition, use PignooFilter nesting, build a complex Filter, and apply it
      *
      * @param filter 过滤器
      *               <p>
      *               Filter
-     * @return 过滤后的List
+     * @return 过滤后的结果
      *         <p>
-     *         The filtered list
+     *         The filtered result
      */
     PignooReader<E> filter(PignooFilter<E> filter);
 
     /**
-     * 过滤
+     * 使用函数方式创建构造器，适合复杂度适中的过滤条件
      * <p>
-     * Filter
+     * Use the function method to create a constructor, suitable for moderate complexity filter conditions
      *
-     * @param filterBuilder 过滤器
+     * @param filterBuilder 过滤器构造函数
      *                      <p>
      *                      Filter
-     * @return 过滤后的List
+     * @return 过滤后的结果
      *         <p>
-     *         The filtered list
+     *         The filtered result
      */
     PignooReader<E> filter(Function<PignooFilter<E>, PignooFilter<E>> filterBuilder);
 

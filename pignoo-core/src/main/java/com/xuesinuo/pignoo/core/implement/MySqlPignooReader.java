@@ -2,6 +2,7 @@
 package com.xuesinuo.pignoo.core.implement;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -391,6 +392,24 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
             this.sorter = sorter;
         } else {
             this.sorter = this.sorter.then(sorter);
+        }
+        return this;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public PignooReader<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Object... values) {
+        if (condition != null && condition) {
+            return filter(field, mode, values);
+        }
+        return this;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public PignooReader<E> filter(Boolean condition, Function<E, ?> field, String mode, Object... values) {
+        if (condition != null && condition) {
+            return filter(field, mode, values);
         }
         return this;
     }
