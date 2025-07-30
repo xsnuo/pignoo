@@ -135,9 +135,9 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
             return "IN";
         case NOT_IN:
             return "NOT IN";
-        case NULL:
+        case IS_NULL:
             return "IS NULL";
-        case NOT_NULL:
+        case IS_NOT_NULL:
             return "IS NOT NULL";
         default:
             return "";
@@ -391,6 +391,24 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
             this.sorter = sorter;
         } else {
             this.sorter = this.sorter.then(sorter);
+        }
+        return this;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public PignooReader<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Object... values) {
+        if (condition != null && condition) {
+            return filter(field, mode, values);
+        }
+        return this;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public PignooReader<E> filter(Boolean condition, Function<E, ?> field, String mode, Object... values) {
+        if (condition != null && condition) {
+            return filter(field, mode, values);
         }
         return this;
     }

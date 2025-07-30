@@ -93,13 +93,13 @@ public class PignooFilter<E> {
          * <p>
          * Is null
          */
-        NULL("is null", 0, 0),
+        IS_NULL("is null", 0, 0),
         /**
          * 不为空
          * <p>
          * Is not null
          */
-        NOT_NULL("is not null", 0, 0);
+        IS_NOT_NULL("is not null", 0, 0);
 
         /**
          * 筛选条件名称，可以用于代替枚举值，不区分大小写

@@ -135,6 +135,14 @@ public interface PignooWriter<E> extends PignooReader<E> {
 
     /** {@inheritDoc} */
     @Override
+    PignooWriter<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Object... values);
+
+    /** {@inheritDoc} */
+    @Override
+    PignooWriter<E> filter(Boolean condition, Function<E, ?> field, String mode, Object... values);
+
+    /** {@inheritDoc} */
+    @Override
     PignooWriter<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values);
 
     /** {@inheritDoc} */
