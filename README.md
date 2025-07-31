@@ -10,7 +10,7 @@ Pignoo是一个应对大部分小型Java项目的轻量JDBC框架。
 <dependency>
     <groupId>com.xuesinuo</groupId>
     <artifactId>pignoo-core</artifactId>
-    <version>0.2.3</version>
+    <version>0.2.4</version>
 </dependency>
 ```
 
@@ -119,6 +119,13 @@ Pignoo - 小黄人语的“无聊”。《卑鄙的我3》中小黄人们高呼�
 
 - 增加了Gru的Consumer、Function重载
 - 完善了许多Java Doc
+- ById的更新方式也会应用条件筛选，也就是增加了筛选条件后的writer，如果要更新ID不满足筛选条件，则无法执行更新语句
+- demo升级springboot
+- FMode枚举做了一些更名
+- 过滤器增加if过滤功能
+- Link注解
+- Ignore注解
+- 调整项目结构
 
 ## v0.2.3
 
