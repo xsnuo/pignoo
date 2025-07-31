@@ -60,8 +60,9 @@ public class ClassInfo<E> {
             config.setAnnotationMixMode(AnnotationMixMode.CAMEL_TO_SNAKE);
         }
         Table tableAnn = c.getAnnotation(Table.class);
-        if (config.getAnnotationMode() == AnnotationMode.MUST && tableAnn == null) {
-            throw new RuntimeException("Entity " + c.getName() + " missing @Table");
+        Link linkAnn = c.getAnnotation(Link.class);
+        if (config.getAnnotationMode() == AnnotationMode.MUST && tableAnn == null && linkAnn == null) {
+            throw new RuntimeException("Entity " + c.getName() + " missing @Table or @Link");
         }
         if (tableAnn != null && (tableAnn.value() == null || tableAnn.value().isBlank())) {
             throw new RuntimeException("Entity " + c.getName() + " @Table value can not be empty");
@@ -75,7 +76,7 @@ public class ClassInfo<E> {
                 this.tableName = camel2Underline(c.getSimpleName());
             }
         }
-        if (this.tableName == null || this.tableName.isBlank()) {
+        if ((this.tableName == null || this.tableName.isBlank()) && linkAnn == null) {
             throw new RuntimeException("Entity " + c.getName() + " read table name failed");
         }
         try {
@@ -170,7 +171,6 @@ public class ClassInfo<E> {
             this.primaryKeyGetter = this.getters.get(indexOfPk);
             this.primaryKeySetter = this.setters.get(indexOfPk);
         }
-        Link linkAnn = c.getAnnotation(Link.class);
         if (linkAnn != null) {
             ClassInfo<?> linkClassInfo = new ClassInfo<>(linkAnn.value(), config);
             this.tableName = linkClassInfo.tableName;

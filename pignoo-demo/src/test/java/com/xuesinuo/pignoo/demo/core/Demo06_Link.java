@@ -10,7 +10,6 @@ import com.xuesinuo.pignoo.core.annotation.Link;
 import com.xuesinuo.pignoo.demo.table.Pig;
 
 import lombok.Data;
-import lombok.Getter;
 
 /**
  * Link用法可以在不考虑SQL要素的情况下，做表的部分列映射，适合用在包含blob之类大字段的表
