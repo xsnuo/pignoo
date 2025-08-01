@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  *
  * @author xuesinuo
  * @since 0.1.0
- * @version 0.1.0
+ * @version 0.3.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -21,13 +21,13 @@ import java.lang.annotation.Target;
 public @interface Table {
 
     /**
-     * 数据库表名
+     * 数据库表名。默认不填为""：只标记映射到数据库，命名规则按照配置规则
      * <p>
-     * Database table name
+     * Database table name。 Default is not filled with ""：only mark mapping to database, naming rules according to the configuration rules
      * 
      * @return 数据库表名
      *         <p>
      *         Database table name
      */
-    String value();
+    String value() default "";
 }

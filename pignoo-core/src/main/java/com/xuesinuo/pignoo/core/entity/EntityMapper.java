@@ -21,11 +21,13 @@ import com.xuesinuo.pignoo.core.PignooConfig;
  */
 public class EntityMapper<E> {
 
+    private final Class<E> c;
     private ClassInfo<E> classInfo;
     private FunctionNameGetter<E> functionNameGetter;
     private static final ConcurrentHashMap<Class<?>, EntityMapper<?>> cache = new ConcurrentHashMap<>();
 
     private EntityMapper(Class<E> c, PignooConfig config) {
+        this.c = c;
         this.classInfo = new ClassInfo<>(c, config);
         this.functionNameGetter = new FunctionNameGetter<>(c);
     }
@@ -77,9 +79,23 @@ public class EntityMapper<E> {
     public static <E> EntityMapper<E> build(Class<E> c) {
         EntityMapper<E> mapper = (EntityMapper<E>) cache.get(c);
         if (mapper == null) {
-            throw new RuntimeException("EntityMapper not found for " + c.getName());
+            throw new RuntimeException("EntityMapper not found for " + c.getName() + ", please use EntityMapper.build(Class<E> c, PignooConfig config) to init EntityMapper first.");
         }
         return mapper;
+    }
+
+    /**
+     * 获取JavaBean类型
+     * <p>
+     * Get JavaBean Type
+     * 
+     * @return JavaBean类型
+     *         <p>
+     *         JavaBean Type
+     * @since 0.3.0
+     */
+    public Class<E> getType() {
+        return c;
     }
 
     /**
@@ -137,6 +153,20 @@ public class EntityMapper<E> {
      */
     public List<Field> fields() {
         return classInfo.fields;
+    }
+
+    /**
+     * 主键的JavaBean属性
+     * <p>
+     * primary key JavaBean property
+     *
+     * @return 属性集合
+     *         <p>
+     *         properties
+     * @since 0.3.0
+     */
+    public Field primaryKeyField() {
+        return classInfo.primaryKeyField;
     }
 
     /**

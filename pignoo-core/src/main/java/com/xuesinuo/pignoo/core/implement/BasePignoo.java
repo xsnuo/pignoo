@@ -126,7 +126,7 @@ public class BasePignoo implements Pignoo {
     public <E> PignooWriter<E> writer(Class<E> c) {
         switch (this.config.getEngine()) {
         case MySQL:
-            return new MySqlPignooWriter<E>(this, connGetter, connCloser, false, c, this.config);
+            return new PignooWriter4Mysql<E>(this, connGetter, connCloser, false, c, this.config);
         }
         throw new RuntimeException("Unknow database engine");
     }
@@ -136,7 +136,7 @@ public class BasePignoo implements Pignoo {
     public <E> PignooReader<E> reader(Class<E> c) {
         switch (this.config.getEngine()) {
         case MySQL:
-            return new MySqlPignooReader<E>(this, connGetter, connCloser, false, c, this.config);
+            return new PignooReader4Mysql<E>(this, connGetter, connCloser, false, c, this.config);
         }
         throw new RuntimeException("Unknow database engine");
     }

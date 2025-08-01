@@ -13,8 +13,8 @@ import com.xuesinuo.pignoo.core.Pignoo;
 import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooWriter;
 import com.xuesinuo.pignoo.core.PignooReader;
-import com.xuesinuo.pignoo.core.implement.MySqlPignooWriter;
-import com.xuesinuo.pignoo.core.implement.MySqlPignooReader;
+import com.xuesinuo.pignoo.core.implement.PignooWriter4Mysql;
+import com.xuesinuo.pignoo.core.implement.PignooReader4Mysql;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -102,7 +102,7 @@ public class SpringPignooItem implements Pignoo {
     public <E> PignooWriter<E> writer(Class<E> c) {
         switch (this.config.getEngine()) {
         case MySQL:
-            return new MySqlPignooWriter<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
+            return new PignooWriter4Mysql<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
         }
         throw new RuntimeException("Unknow database engine");
     }
@@ -112,7 +112,7 @@ public class SpringPignooItem implements Pignoo {
     public <E> PignooReader<E> reader(Class<E> c) {
         switch (this.config.getEngine()) {
         case MySQL:
-            return new MySqlPignooReader<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
+            return new PignooReader4Mysql<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
         }
         throw new RuntimeException("Unknow database engine");
     }

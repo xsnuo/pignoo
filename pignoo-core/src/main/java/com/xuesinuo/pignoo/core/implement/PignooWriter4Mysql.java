@@ -24,13 +24,14 @@ import com.xuesinuo.pignoo.core.entity.SqlParam;
  * 基于MySQL语法实现的{@link com.xuesinuo.pignoo.core.PignooWriter}
  * <p>
  * A MySQL implementation of {@link com.xuesinuo.pignoo.core.PignooWriter}
+ * <p>
  *
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
- * @version 0.2.4
+ * @version 0.3.0
  */
-public class MySqlPignooWriter<E> extends MySqlPignooReader<E> implements PignooWriter<E> {
+public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements PignooWriter<E> {
 
     private final EntityProxyFactory<E> entityProxyFactory;
 
@@ -56,7 +57,7 @@ public class MySqlPignooWriter<E> extends MySqlPignooReader<E> implements Pignoo
      *                      <p>
      *                      Configuration
      */
-    public MySqlPignooWriter(Pignoo pignoo, Supplier<Connection> connGetter, Consumer<Connection> connCloser, boolean inTransaction, Class<E> c, PignooConfig config) {
+    public PignooWriter4Mysql(Pignoo pignoo, Supplier<Connection> connGetter, Consumer<Connection> connCloser, boolean inTransaction, Class<E> c, PignooConfig config) {
         super(pignoo, connGetter, connCloser, inTransaction, c, config);
 
         this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, e) -> {

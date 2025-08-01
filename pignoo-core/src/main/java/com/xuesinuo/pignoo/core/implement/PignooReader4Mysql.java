@@ -32,7 +32,7 @@ import com.xuesinuo.pignoo.core.entity.SqlParam;
  * @since 0.2.3
  * @version 0.2.3
  */
-public class MySqlPignooReader<E> implements PignooReader<E> {
+public class PignooReader4Mysql<E> implements PignooReader<E> {
 
     /**
      * SQL执行器
@@ -73,7 +73,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
      *                      <p>
      *                      Configuration
      */
-    public MySqlPignooReader(Pignoo pignoo, Supplier<Connection> connGetter, Consumer<Connection> connCloser, boolean inTransaction, Class<E> c, PignooConfig config) {
+    public PignooReader4Mysql(Pignoo pignoo, Supplier<Connection> connGetter, Consumer<Connection> connCloser, boolean inTransaction, Class<E> c, PignooConfig config) {
         this.pignoo = pignoo;
         this.inTransaction = inTransaction;
         this.connGetter = connGetter;
@@ -86,7 +86,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
     /** {@inheritDoc} */
     @Override
     public PignooWriter<E> copyWriter() {
-        MySqlPignooWriter<E> pignooWriter = new MySqlPignooWriter<>(pignoo, connGetter, connCloser, inTransaction, c, config);
+        PignooWriter4Mysql<E> pignooWriter = new PignooWriter4Mysql<>(pignoo, connGetter, connCloser, inTransaction, c, config);
         pignooWriter.filter = PignooFilter.copy(filter);
         pignooWriter.sorter = PignooSorter.copy(sorter);
         return pignooWriter;
@@ -95,7 +95,7 @@ public class MySqlPignooReader<E> implements PignooReader<E> {
     /** {@inheritDoc} */
     @Override
     public PignooReader<E> copyReader() {
-        MySqlPignooReader<E> pignooWriter = new MySqlPignooReader<>(pignoo, connGetter, connCloser, inTransaction, c, config);
+        PignooReader4Mysql<E> pignooWriter = new PignooReader4Mysql<>(pignoo, connGetter, connCloser, inTransaction, c, config);
         pignooWriter.filter = PignooFilter.copy(filter);
         pignooWriter.sorter = PignooSorter.copy(sorter);
         return pignooWriter;

@@ -65,16 +65,16 @@ public class ClassInfo<E> {
         if (config.getAnnotationMode() == AnnotationMode.MUST && tableAnn == null && linkAnn == null) {
             throw new RuntimeException("Entity " + c.getName() + " missing @Table or @Link");
         }
-        if (tableAnn != null && (tableAnn.value() == null || tableAnn.value().isBlank())) {
-            throw new RuntimeException("Entity " + c.getName() + " @Table value can not be empty");
-        }
         if (tableAnn != null) {
-            this.tableName = tableAnn.value();
-        } else if (config.getAnnotationMode() == AnnotationMode.MIX) {
-            if (config.getAnnotationMixMode() == AnnotationMixMode.SAME) {
-                this.tableName = c.getSimpleName();
-            } else if (config.getAnnotationMixMode() == AnnotationMixMode.CAMEL_TO_SNAKE) {
-                this.tableName = camel2Underline(c.getSimpleName());
+            this.tableName = tableAnn.value().trim();
+        }
+        if (this.tableName == null || this.tableName.isBlank()) {
+            if (config.getAnnotationMode() == AnnotationMode.MIX) {
+                if (config.getAnnotationMixMode() == AnnotationMixMode.SAME) {
+                    this.tableName = c.getSimpleName();
+                } else if (config.getAnnotationMixMode() == AnnotationMixMode.CAMEL_TO_SNAKE) {
+                    this.tableName = camel2Underline(c.getSimpleName());
+                }
             }
         }
         if ((this.tableName == null || this.tableName.isBlank()) && linkAnn == null) {

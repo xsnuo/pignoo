@@ -4,9 +4,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>pignoo-core</artifactId>
-  <name>pignoo-core</name>
-  <description>pignoo is a simple jdbc tool.</description>
+  <artifactId>pignoo-autodatabase</artifactId>
+  <name>pignoo-autodatabase</name>
+  <description>pignoo-autodatabase is a simple database builder for pignoo.</description>
   <url>https://gitee.com/xue_da_nuo/pignoo</url>
   <organization>
     <name>xuesinuo</name>
@@ -43,14 +43,18 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.xuesinuo</groupId>
+      <artifactId>pignoo-core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.7.36</version>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-aop</artifactId>
-      <version>6.2.8</version>
+      <groupId>io.github.classgraph</groupId>
+      <artifactId>classgraph</artifactId>
+      <version>4.8.181</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
