@@ -64,14 +64,27 @@ public class EntityScaner {
             } else {
                 classInfo4GraphList = scanResult.getAllClasses();
             }
-            for (ClassInfo classInfo4Graph : classInfo4GraphList) {
-                Class<?> entityClass = classInfo4Graph.loadClass();
-                EntityMapper<?> mapper = null;
-                mapper = EntityMapper.build(entityClass, pignooConfig);
-                entityMappers.add(mapper);
-                log.info("[Pignoo-scan] class: {}, table-name: {}", entityClass.getName(), mapper.tableName());
-            }
+            classInfo4GraphList.stream()
+                    .filter(classInfo -> isPublicClass(classInfo) || isStaticInnerClass(classInfo))// 只识别public静态内部类和public普通类
+                    .forEach(classInfo4Graph -> {
+                        Class<?> entityClass = classInfo4Graph.loadClass();
+                        EntityMapper<?> mapper = null;
+                        mapper = EntityMapper.build(entityClass, pignooConfig);
+                        entityMappers.add(mapper);
+                        log.info("[Pignoo-scan] class: {}, table-name: {}", entityClass.getName(), mapper.tableName());
+                    });
         }
         return entityMappers;
+    }
+
+    private static boolean isPublicClass(ClassInfo classInfo) {
+        return !classInfo.getName().contains("$")
+                && classInfo.getModifiersStr().indexOf("public") >= 0;
+    }
+
+    private static boolean isStaticInnerClass(ClassInfo classInfo) {
+        return classInfo.getName().contains("$")
+                && classInfo.getModifiersStr().indexOf("static") >= 0
+                && classInfo.getModifiersStr().indexOf("public") >= 0;
     }
 }
