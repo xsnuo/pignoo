@@ -16,23 +16,6 @@ import lombok.Data;
  */
 @Data
 public class DatabaseCheckResult {
-
-    /**
-     * 结果状态的枚举
-     * <p>
-     * Result state enumeration
-     */
-    public static enum ResultState {
-        SUCCESS, WARNING, ERROR
-    }
-
-    /**
-     * 结果状态
-     * <p>
-     * Result state
-     */
-    public ResultState state = ResultState.SUCCESS;
-
     /**
      * 如果表不存在，这里存放创建表的建议语句
      * <p>
@@ -67,19 +50,4 @@ public class DatabaseCheckResult {
      * If you encounter a problem that cannot be corrected through automated SQL, here is the problem description
      */
     public List<String> otherMessage = new ArrayList<>();
-
-    /**
-     * 更新状态，允许往更严重的状态更新
-     * <p>
-     * Update state, allow update to a more serious state
-     * 
-     * @param state 状态
-     *              <p>
-     *              state
-     */
-    public void setState(ResultState state) {
-        if (this.state.ordinal() < state.ordinal()) {
-            this.state = state;
-        }
-    }
 }

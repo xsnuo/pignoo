@@ -104,7 +104,6 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
                 sql.append("PRIMARY KEY (`" + pkColumn + "`) ");
                 sql.append(") ");
                 result.setAdvise2AddTable(sql.toString());
-                result.setState(DatabaseCheckResult.ResultState.ERROR);
             } else {// 表存在：检查字段
                 String sql = """
                         SELECT
@@ -144,12 +143,10 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
                     }
                     if (entityMapper.primaryKeyColumn().equals(column)) {
                         result.getOtherMessage().add("Primary-Key '" + column + "' in " + entityMapper.getType().getName() + ", not in table: " + tableName);
-                        result.setState(DatabaseCheckResult.ResultState.ERROR);
                         continue;
                     }
                     sql = "ALTER TABLE `" + tableName + "` ADD COLUMN `" + column + "` " + columnType + " NULL ";
                     result.getAdvise2AddColumn().add(sql);
-                    result.setState(DatabaseCheckResult.ResultState.WARNING);
                 }
                 for (int i = 0; i < columnInfosInDatabase.size(); i++) {// 数据库中多余字段：删除
                     String column = columnNamesInDatabase.get(i);
@@ -158,12 +155,10 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
                     }
                     if (columnInfosInDatabase.get(i).getPk()) {
                         result.getOtherMessage().add("Primary-Key '" + column + "' not in " + entityMapper.getType().getName() + ", in table: " + tableName);
-                        result.setState(DatabaseCheckResult.ResultState.ERROR);
                         continue;
                     }
                     sql = "ALTER TABLE `" + tableName + "` DROP COLUMN `" + column + "` ";
                     result.getAdvise2RemoveColumn().add(sql);
-                    result.setState(DatabaseCheckResult.ResultState.WARNING);
                 }
                 for (int i = 0; i < entityMapper.columns().size(); i++) {// 数据库中字段类型不匹配：修改
                     String column = entityMapper.columns().get(i);
@@ -176,18 +171,15 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
                     }
                     if (entityMapper.primaryKeyColumn().equals(column) || ciid.getPk()) {
                         result.getOtherMessage().add("Primary-Key type mapping error with " + entityMapper.getType().getName() + " and table: " + tableName);
-                        result.setState(DatabaseCheckResult.ResultState.ERROR);
                         continue;
                     }
                     String mysqlType = this.javaType2SqlType(entityMapper.fields().get(i).getType());
                     if (mysqlType == null) {
                         result.getOtherMessage().add(entityMapper.fields().get(i).getType().getName() + " " + entityMapper.fields().get(i).getName() + " can not be mapped to mysql type");
-                        result.setState(DatabaseCheckResult.ResultState.ERROR);
                         continue;
                     }
                     sql = "ALTER TABLE `" + tableName + "` MODIFY COLUMN `" + column + "` " + mysqlType + " ";
                     result.getAdvise2UpdateColumn().add(sql);
-                    result.setState(DatabaseCheckResult.ResultState.WARNING);
                 }
             }
         } catch (SQLException e) {
