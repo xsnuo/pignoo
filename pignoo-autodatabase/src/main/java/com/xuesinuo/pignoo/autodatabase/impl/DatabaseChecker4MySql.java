@@ -251,7 +251,7 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
         }
         // 字符串
         if (String.class.isAssignableFrom(javaType)) {
-            return "varchar(128)";
+            return "varchar(255)";
         }
         // 日期时间
         if (java.util.Date.class.isAssignableFrom(javaType)) {
@@ -291,7 +291,7 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
         }
         // 枚举
         if (javaType.isEnum()) {
-            return "varchar(32)";
+            return "varchar(255)";
         }
         return null;
     };

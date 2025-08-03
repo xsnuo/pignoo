@@ -11,7 +11,7 @@ Pignoo是一个应对大部分小型Java项目的轻量JDBC框架。
 <dependency>
     <groupId>com.xuesinuo</groupId>
     <artifactId>pignoo-core</artifactId>
-    <version>0.2.4</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
@@ -114,14 +114,14 @@ Pignoo - 小黄人语的“无聊”。《卑鄙的我3》中小黄人们高呼�
     });
 ```
 
-## v0.4.0计划：开放SQL执行器
+## v0.3.0
 
-## v0.3.0开发中
-
-- 自动数据库构建器 OK
-- 自定义数据库类型与表类型映射器 OK
-- 优化默认映射器性能 OK
-- 非数据库表映射的Mapper，不需要非指定一个@Table
+- 自动数据库构建器：
+  - 实体扫描器：按照若干可配置规则，扫描数据库实体
+  - 数据库构建器：根据实体自动执行DDL语句
+  - 自定义数据构建关系：例如String，默认构建varchar(255)，可以通过配置改为varchar(20)，这是全局生效的
+  - 反向映射校验：数据库中已有字段，会反向校验是否能映射成Java中的数据类型，例如LongText、varchar、char，在JavaBean中都允许是String
+- 非数据库表映射的Mapper，不需要非指定一个@Table。允许SQL查询结果直接映射到LinkedHashMap
 
 ## v0.2.4
 
