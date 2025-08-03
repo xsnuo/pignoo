@@ -90,14 +90,14 @@ public class EntityScanConfig {
      * <p>
      * Package to scan, effective at the same time as 'classesForScanPackage', merged into effect
      */
-    private String[] packages;
+    private String[] packages = {};
 
     /**
      * 扫描这些类所在包，与packages同时生效，合并起效
      * <p>
      * Scan these classes in the package, effective at the same time as 'packages', merged into effect
      */
-    private Class<?>[] classesForScanPackage;
+    private Class<?>[] classesForScanPackage = {};
 
     /**
      * 构建模式，默认为谨慎模式。需要显式得制定你想要的模式，否则工具会做任何数据操作
@@ -118,5 +118,5 @@ public class EntityScanConfig {
      * <p>
      * Custom type mapper, convert Java type to SQL type. When the custom mapping cannot be mapped, use the default mapping.
      */
-    private TypeMapper typeMapper = javaType -> null;
+    private TypeMapper typeMapper = t -> null;
 }

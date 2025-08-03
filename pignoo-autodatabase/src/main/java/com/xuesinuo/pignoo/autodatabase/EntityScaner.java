@@ -60,8 +60,9 @@ public class EntityScaner {
         case DatabaseEngine.MySQL:
             this.databaseChecker = new DatabaseChecker4MySql(dataSource, entityScanConfig.getTypeMapper());
             break;
+        default:
+            throw new RuntimeException("Unknow database engine");
         }
-        throw new RuntimeException("Unknow database engine");
     }
 
     /**
@@ -73,7 +74,7 @@ public class EntityScaner {
      *         <p>
      *         EntityMapper collection
      */
-    public Set<EntityMapper<?>> scan() {
+    private Set<EntityMapper<?>> scanPackage() {
         HashSet<String> packages = new HashSet<>(entityScanConfig.getPackages().length + entityScanConfig.getClassesForScanPackage().length);
         for (String packageStr : entityScanConfig.getPackages()) {
             if (packageStr != null && !packageStr.isBlank()) {
@@ -86,7 +87,7 @@ public class EntityScaner {
             }
         }
         if (packages.isEmpty()) {
-            throw new RuntimeException("EntityScanConfig packages is empty");
+            throw new RuntimeException("[Scan Error] Packages empty");
         }
         String[] packageArray = packages.toArray(new String[packages.size()]);
         ClassGraph classGraph = new ClassGraph();
@@ -114,7 +115,6 @@ public class EntityScaner {
                         EntityMapper<?> mapper = null;
                         mapper = EntityMapper.build(entityClass, this.pignooConfig);
                         entityMappers.add(mapper);
-                        log.info("[Pignoo-scan] class: {}, table-name: {}", entityClass.getName(), mapper.tableName());
                     });
         }
         return entityMappers;
@@ -136,38 +136,44 @@ public class EntityScaner {
      * <p>
      * Scan and build
      */
-    public void scanAndBuild() {
+    public void scan() {
         DatabaseCheckResult allResult = new DatabaseCheckResult();
-        for (EntityMapper<?> mapper : scan()) {
+        StringBuilder scanClassMsg = new StringBuilder();
+        for (EntityMapper<?> mapper : scanPackage()) {
             DatabaseCheckResult itemResult = databaseChecker.check(mapper);
             allResult.getAdvise2AddTable().addAll(itemResult.getAdvise2AddTable());
             allResult.getAdvise2AddColumn().addAll(itemResult.getAdvise2AddColumn());
             allResult.getAdvise2UpdateColumn().addAll(itemResult.getAdvise2UpdateColumn());
             allResult.getAdvise2RemoveColumn().addAll(itemResult.getAdvise2RemoveColumn());
             allResult.getOtherMessage().addAll(itemResult.getOtherMessage());
+            scanClassMsg.append(mapper.getType().getName()).append("\n");
+        }
+        if (scanClassMsg.length() > 0) {
+            log.info("[Scan] Classes found:\n{}", scanClassMsg);
+        } else {
+            log.warn("[Scan] No class found");
         }
         String warningTitle = """
 
                 ================================
                 = Pingnoo-Autodatabase Warning =
                 ================================
-
                 """;
         List<String> workingList = new ArrayList<>();
         StringBuilder warning = new StringBuilder(warningTitle);
         allResult.getOtherMessage().stream().forEach(msg -> warning.append(msg).append("\n"));
         if (this.entityScanConfig.getBuildMode() == EntityScanConfig.BuildMode.CAREFULLY) {
-            allResult.getAdvise2RemoveColumn().stream().forEach(msg -> warning.append(msg).append("\n"));
-            allResult.getAdvise2UpdateColumn().stream().forEach(msg -> warning.append(msg).append("\n"));
-            allResult.getAdvise2AddColumn().stream().forEach(msg -> warning.append(msg).append("\n"));
-            allResult.getAdvise2AddTable().stream().forEach(msg -> warning.append(msg).append("\n"));
+            allResult.getAdvise2RemoveColumn().stream().forEach(msg -> warning.append(msg).append(";\n"));
+            allResult.getAdvise2UpdateColumn().stream().forEach(msg -> warning.append(msg).append(";\n"));
+            allResult.getAdvise2AddColumn().stream().forEach(msg -> warning.append(msg).append(";\n"));
+            allResult.getAdvise2AddTable().stream().forEach(msg -> warning.append(msg).append(";\n"));
         } else if (this.entityScanConfig.getBuildMode() == EntityScanConfig.BuildMode.SAFELY) {
-            allResult.getAdvise2RemoveColumn().stream().forEach(msg -> warning.append(msg).append("\n"));
-            allResult.getAdvise2UpdateColumn().stream().forEach(msg -> warning.append(msg).append("\n"));
+            allResult.getAdvise2RemoveColumn().stream().forEach(msg -> warning.append(msg).append(";\n"));
+            allResult.getAdvise2UpdateColumn().stream().forEach(msg -> warning.append(msg).append(";\n"));
             workingList.addAll(allResult.getAdvise2AddColumn());
             workingList.addAll(allResult.getAdvise2AddTable());
         } else if (this.entityScanConfig.getBuildMode() == EntityScanConfig.BuildMode.USABILITY) {
-            allResult.getAdvise2RemoveColumn().stream().forEach(msg -> warning.append(msg).append("\n"));
+            allResult.getAdvise2RemoveColumn().stream().forEach(msg -> warning.append(msg).append(";\n"));
             workingList.addAll(allResult.getAdvise2UpdateColumn());
             workingList.addAll(allResult.getAdvise2AddColumn());
             workingList.addAll(allResult.getAdvise2AddTable());
@@ -185,11 +191,10 @@ public class EntityScaner {
                         ===============================
                         = Pingnoo-Autodatabase Advise =
                         ===============================
-
                         """ + workingList.stream().map(sql -> sql + ";\n").collect(Collectors.joining()));
             }
             log.error(warn);
-            throw new RuntimeException("Database check failed");
+            throw new RuntimeException("[Scan] Database check failed");
         }
         if (!workingList.isEmpty()) {
             log.warn("""
@@ -197,7 +202,6 @@ public class EntityScaner {
                     ===============================
                     = Pingnoo-Autodatabase Advise =
                     ===============================
-
                     """ + workingList.stream().map(sql -> sql + ";\n").collect(Collectors.joining()));
         }
         if (!warn.equals(warningTitle)) {
@@ -206,33 +210,40 @@ public class EntityScaner {
         if (!workingList.isEmpty()) {
             Connection conn = null;
             Boolean autoCommit = null;
+            String workSql = null;
             try {
                 conn = dataSource.getConnection();
                 autoCommit = conn.getAutoCommit();
                 conn.setAutoCommit(false);
                 for (String workingItem : workingList) {
-                    conn.createStatement().execute(workingItem);
+                    workSql = workingItem;
+                    conn.createStatement().execute(workSql);
                 }
                 conn.commit();
-                log.warn("Advise SQLs executed successfully!");
+                log.warn("[Scan] Advise SQLs executed successfully!");
             } catch (SQLException e) {
-                throw new RuntimeException("Auto-Database run failed", e);
+                throw new RuntimeException("[Scan] Auto-Database run failed: " + workSql, e);
             } finally {
                 if (conn != null && autoCommit != null) {
                     try {
                         conn.setAutoCommit(autoCommit);
                     } catch (SQLException e) {
-                        log.error("Set auto commit failed At running auto-database");
+                        log.error("[Scan] Set auto commit failed At running auto-database");
                     }
                 }
                 if (conn != null) {
                     try {
                         conn.close();
                     } catch (SQLException e) {
-                        log.error("Close connection failed At running auto-database");
+                        log.error("[Scan] Close connection failed At running auto-database");
                     }
                 }
             }
+        }
+        if (warning.toString().equals(warningTitle) && workingList.isEmpty()) {
+            log.info("[Scan Result] Nothing to do");
+        } else {
+            log.info("[Scan Result] Done");
         }
     }
 }
