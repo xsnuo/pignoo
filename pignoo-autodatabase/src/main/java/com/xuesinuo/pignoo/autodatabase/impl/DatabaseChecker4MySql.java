@@ -225,74 +225,53 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
      */
     public static final TypeMapper defaultTypeMapper = javaType -> {
         // 基本数据类型
-        if (Long.class.isAssignableFrom(javaType) || long.class.equals(javaType)) {
+        if (Long.class.isAssignableFrom(javaType) || long.class.equals(javaType))
             return "bigint";
-        }
-        if (Integer.class.isAssignableFrom(javaType) || int.class.equals(javaType)) {
+        if (Integer.class.isAssignableFrom(javaType) || int.class.equals(javaType))
             return "int";
-        }
-        if (Short.class.isAssignableFrom(javaType) || short.class.equals(javaType)) {
+        if (Short.class.isAssignableFrom(javaType) || short.class.equals(javaType))
             return "smallint";
-        }
-        if (Byte.class.isAssignableFrom(javaType) || byte.class.equals(javaType)) {
+        if (Byte.class.isAssignableFrom(javaType) || byte.class.equals(javaType))
             return "tinyint";
-        }
-        if (Double.class.isAssignableFrom(javaType) || double.class.equals(javaType)) {
+        if (Double.class.isAssignableFrom(javaType) || double.class.equals(javaType))
             return "double";
-        }
-        if (Float.class.isAssignableFrom(javaType) || float.class.equals(javaType)) {
+        if (Float.class.isAssignableFrom(javaType) || float.class.equals(javaType))
             return "float";
-        }
-        if (Boolean.class.isAssignableFrom(javaType) || boolean.class.equals(javaType)) {
+        if (Boolean.class.isAssignableFrom(javaType) || boolean.class.equals(javaType))
             return "tinyint(1)";
-        }
-        if (Character.class.isAssignableFrom(javaType) || char.class.equals(javaType)) {
+        if (Character.class.isAssignableFrom(javaType) || char.class.equals(javaType))
             return "char(1)";
-        }
         // 字符串
-        if (String.class.isAssignableFrom(javaType)) {
+        if (String.class.isAssignableFrom(javaType))
             return "varchar(255)";
-        }
         // 日期时间
-        if (java.util.Date.class.isAssignableFrom(javaType)) {
-            if (java.sql.Timestamp.class.isAssignableFrom(javaType)) {
-                return "datetime";
-            }
-            return "date";
-        }
-        if (Instant.class.isAssignableFrom(javaType)) {
-            return "timestamp";
-        }
-        if (LocalDate.class.isAssignableFrom(javaType)) {
-            return "date";
-        }
-        if (LocalTime.class.isAssignableFrom(javaType)) {
-            return "time";
-        }
-        if (LocalDateTime.class.isAssignableFrom(javaType)) {
+        if (java.util.Date.class.isAssignableFrom(javaType))
             return "datetime";
-        }
-        if (ZonedDateTime.class.isAssignableFrom(javaType) || OffsetDateTime.class.isAssignableFrom(javaType)) {
+        if (Instant.class.isAssignableFrom(javaType))
             return "timestamp";
-        }
-        if (OffsetTime.class.isAssignableFrom(javaType)) {
+        if (LocalDate.class.isAssignableFrom(javaType))
+            return "date";
+        if (LocalTime.class.isAssignableFrom(javaType))
             return "time";
-        }
+        if (LocalDateTime.class.isAssignableFrom(javaType))
+            return "datetime";
+        if (ZonedDateTime.class.isAssignableFrom(javaType))
+            return "timestamp";
+        if (OffsetDateTime.class.isAssignableFrom(javaType))
+            return "timestamp";
+        if (OffsetTime.class.isAssignableFrom(javaType))
+            return "time";
         // 数字
-        if (java.math.BigDecimal.class.isAssignableFrom(javaType)) {
+        if (java.math.BigDecimal.class.isAssignableFrom(javaType))
             return "decimal(32,4)";
-        }
-        if (BigInteger.class.isAssignableFrom(javaType)) {
+        if (BigInteger.class.isAssignableFrom(javaType))
             return "decimal(64,0)";
-        }
         // 二进制
-        if (byte[].class.isAssignableFrom(javaType)) {
+        if (byte[].class.isAssignableFrom(javaType))
             return "blob";
-        }
         // 枚举
-        if (javaType.isEnum()) {
+        if (javaType.isEnum())
             return "varchar(255)";
-        }
         return null;
     };
 
@@ -350,17 +329,14 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
             return BOOLEAN_TYPES.contains(mysqlType);
         if (Character.class.isAssignableFrom(javaType) || char.class.equals(javaType))
             return CHARACTER_TYPES.contains(mysqlType);
-
         // String
         if (String.class.isAssignableFrom(javaType))
             return STRING_TYPES.contains(mysqlType);
-
         // 数字
         if (BigInteger.class.isAssignableFrom(javaType))
             return BIG_INTEGER_TYPES.contains(mysqlType);
         if (BigDecimal.class.isAssignableFrom(javaType))
             return BIG_DECIMAL_TYPES.contains(mysqlType);
-
         // 日期时间
         if (java.util.Date.class.isAssignableFrom(javaType))
             return UTIL_DATE_TYPES.contains(mysqlType);
@@ -376,15 +352,12 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
             return ZONED_OR_OFFSET_DATE_TIME_TYPES.contains(mysqlType);
         if (OffsetTime.class.isAssignableFrom(javaType))
             return OFFSET_TIME_TYPES.contains(mysqlType);
-
         // 二进制
         if (byte[].class.isAssignableFrom(javaType))
             return BINARY_TYPES.contains(mysqlType);
-
         // 枚举
         if (javaType.isEnum())
             return ENUM_TYPES.contains(mysqlType);
-
         return false;// 未匹配的类型默认返回false
     }
 }
