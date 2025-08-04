@@ -11,7 +11,7 @@ Pignoo是一个应对大部分小型Java项目的轻量JDBC框架。
 <dependency>
     <groupId>com.xuesinuo</groupId>
     <artifactId>pignoo-core</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 </dependency>
 ```
 
@@ -125,12 +125,12 @@ Pignoo - 小黄人语的“无聊”。《卑鄙的我3》中小黄人们高呼�
 - 通过注解指定列的：名称、类型、默认值、是否可以为空、字符集、索引
 - 通过注解指定表的：名称、字符集、引擎
 
-## v0.3.1开发中
+## v0.3.1
 
 - 修复了一些BUG
-- 允许设置数据库字段规模 OK
-- 映射验证时，需要验证数据库已有字段的规模
-- 是否允许为空、默认值设置问题 OK
+- 允许设置数据库字段规模
+- 映射验证时，需要验证数据库已有字段的“规模”
+- 是否允许为空、默认值设置问题
 
 ## v0.3.0
 
