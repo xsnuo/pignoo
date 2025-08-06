@@ -1,5 +1,7 @@
 package com.xuesinuo.pignoo.autodatabase;
 
+import java.lang.reflect.Field;
+
 /**
  * 数据类型与数据库的映射关系，支持自定义，不做自定义则会使用Pignoo默认的规则
  * <p>
@@ -17,12 +19,15 @@ public interface TypeMapper {
      * @param javaType Java类型
      *                 <p>
      *                 Java Type
-     * @param scale    数据规模（是等级1～5，支持自定义，不是数据长度）
+     * @param scale    数据规模，默认0（是等级1～5，支持自定义，不是数据长度）
      *                 <p>
-     *                 Data Scale (Level 1-5, support customization, not data length)
+     *                 Data Scale, Default 0 (Level 1-5, support customization, not data length)
+     * @param field    字段名，可扩展用：通过字段名、字段注解等信息定制化特殊映射关系
+     *                 <p>
+     *                 Field name, can be extended to customize special mapping relationships through field name, field annotations, etc.
      * @return 数据库类型
      *         <p>
      *         Database Type
      */
-    public String javaTypeToSqlType(Class<?> javaType, int scale);
+    public String javaTypeToSqlType(Class<?> javaType, int scale, Field field);
 }

@@ -229,9 +229,9 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
      */
     private String javaType2SqlType(Field field) {
         int scale = java.util.Optional.ofNullable(field.getAnnotation(Column.class)).map(x -> x.scale()).orElse(0);
-        String sqlType = typeMapper.javaTypeToSqlType(field.getType(), scale);
+        String sqlType = typeMapper.javaTypeToSqlType(field.getType(), scale, field);
         if (sqlType == null || sqlType.isBlank()) {
-            sqlType = defaultTypeMapper.javaTypeToSqlType(field.getType(), scale);
+            sqlType = defaultTypeMapper.javaTypeToSqlType(field.getType(), scale, field);
         }
         return sqlType;
     }
@@ -241,7 +241,7 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
      * <p>
      * Java type is converted to MySQL type by default
      */
-    public static final TypeMapper defaultTypeMapper = (javaType, scale) -> {
+    public static final TypeMapper defaultTypeMapper = (javaType, scale, field) -> {
         // 基本数据类型
         if (Long.class.isAssignableFrom(javaType) || long.class.equals(javaType))
             return "bigint";
@@ -261,11 +261,11 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
             return "char(1)";
         // 字符串
         if (String.class.isAssignableFrom(javaType)) {
-            if (scale == Column.SCALE_SMALL) {
+            if (scale == Column.PresetScale.SMALL) {
                 return "varchar(255)";
-            } else if (scale == Column.SCALE_MEDIUM) {
+            } else if (scale == Column.PresetScale.MEDIUM) {
                 return "text";
-            } else if (scale == Column.SCALE_LARGE) {
+            } else if (scale == Column.PresetScale.LARGE) {
                 return "longtext";
             } else {
                 return "varchar(255)";
@@ -290,11 +290,11 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
             return "time";
         // 数字
         if (java.math.BigDecimal.class.isAssignableFrom(javaType)) {
-            if (scale == Column.SCALE_SMALL) {
+            if (scale == Column.PresetScale.SMALL) {
                 return "decimal(16,4)";
-            } else if (scale == Column.SCALE_MEDIUM) {
+            } else if (scale == Column.PresetScale.MEDIUM) {
                 return "decimal(32,8)";
-            } else if (scale == Column.SCALE_LARGE) {
+            } else if (scale == Column.PresetScale.LARGE) {
                 return "decimal(64,16)";
             } else {
                 return "decimal(32,8)";

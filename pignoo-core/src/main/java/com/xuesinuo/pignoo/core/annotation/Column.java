@@ -47,29 +47,36 @@ public @interface Column {
     int scale() default 0;
 
     /**
-     * 小规模数据
+     * Pignoo中预设的规模档位
      * <p>
-     * Small scale data
+     * Preset scale level in Pignoo
      * 
-     * @since 0.3.1
+     * @since 0.3.2
      */
-    public static final int SCALE_SMALL = 1;
-
-    /**
-     * 中规模数据
-     * <p>
-     * Medium scale data
-     * 
-     * @since 0.3.1
-     */
-    public static final int SCALE_MEDIUM = 2;
-
-    /**
-     * 大规模数据
-     * <p>
-     * Large scale data
-     * 
-     * @since 0.3.1
-     */
-    public static final int SCALE_LARGE = 3;
+    public static final class PresetScale {
+        /**
+         * 小规模数据
+         * <p>
+         * Small scale data
+         * 
+         * @since 0.3.1
+         */
+        public static final int SMALL = 1;
+        /**
+         * 中规模数据
+         * <p>
+         * Medium scale data
+         * 
+         * @since 0.3.1
+         */
+        public static final int MEDIUM = 2;
+        /**
+         * 大规模数据
+         * <p>
+         * Large scale data
+         * 
+         * @since 0.3.1
+         */
+        public static final int LARGE = 3;
+    }
 }
