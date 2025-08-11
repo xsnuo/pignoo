@@ -11,11 +11,13 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 import com.xuesinuo.pignoo.autodatabase.entity.DatabaseCheckResult;
+import com.xuesinuo.pignoo.autodatabase.exception.ScanException;
 import com.xuesinuo.pignoo.autodatabase.impl.DatabaseChecker4MySql;
 import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.annotation.Table;
 import com.xuesinuo.pignoo.core.config.DatabaseEngine;
 import com.xuesinuo.pignoo.core.entity.EntityMapper;
+import com.xuesinuo.pignoo.core.exception.DataSourceException;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
@@ -53,7 +55,7 @@ public class EntityScaner {
                     conn.commit();
                 }
             } catch (SQLException e) {
-                throw new RuntimeException("Search database engine error", e);
+                throw new DataSourceException("Search database engine error", e);
             }
         }
         switch (pignooConfig.getEngine()) {
@@ -61,7 +63,7 @@ public class EntityScaner {
             this.databaseChecker = new DatabaseChecker4MySql(dataSource, entityScanConfig.getTypeMapper(), entityScanConfig.getStrictColumnType());
             break;
         default:
-            throw new RuntimeException("Unknow database engine");
+            throw new DataSourceException("Unknow database engine");
         }
     }
 
@@ -87,7 +89,7 @@ public class EntityScaner {
             }
         }
         if (packages.isEmpty()) {
-            throw new RuntimeException("[Pignoo-Scan Error] Packages empty");
+            throw new DataSourceException("[Pignoo-Scan Error] Packages empty");
         }
         String[] packageArray = packages.toArray(new String[packages.size()]);
         ClassGraph classGraph = new ClassGraph();
@@ -195,7 +197,7 @@ public class EntityScaner {
                         """ + workingList.stream().map(sql -> sql + ";\n").collect(Collectors.joining()));
             }
             log.error(warn);
-            throw new RuntimeException("[Pignoo-Scan] Database check failed");
+            throw new ScanException("[Pignoo-Scan] Database check failed");
         }
         if (!workingList.isEmpty()) {
             log.warn("""
@@ -223,7 +225,7 @@ public class EntityScaner {
                 conn.commit();
                 log.warn("[Pignoo-Scan] Advise SQLs executed successfully!");
             } catch (SQLException e) {
-                throw new RuntimeException("[Pignoo-Scan] Auto-Database run failed: " + workSql, e);
+                throw new ScanException("[Pignoo-Scan] Auto-Database run failed: " + workSql, e);
             } finally {
                 Exception e = null;
                 if (conn != null && autoCommit != null) {
@@ -243,7 +245,7 @@ public class EntityScaner {
                     }
                 }
                 if (e != null) {
-                    throw new RuntimeException("[Pignoo-Scan] Connetction error", e);
+                    throw new ScanException("[Pignoo-Scan] Connetction error", e);
                 }
             }
         }

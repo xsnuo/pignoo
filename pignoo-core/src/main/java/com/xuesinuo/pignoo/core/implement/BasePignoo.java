@@ -15,6 +15,8 @@ import com.xuesinuo.pignoo.core.PignooReader;
 import lombok.extern.slf4j.Slf4j;
 
 import com.xuesinuo.pignoo.core.config.DatabaseEngine;
+import com.xuesinuo.pignoo.core.exception.DataSourceException;
+import com.xuesinuo.pignoo.core.exception.PignooRuntimeException;
 
 /**
  * 基础的Pignoo实现
@@ -67,7 +69,7 @@ public class BasePignoo implements Pignoo {
      */
     public BasePignoo(DataSource dataSource, PignooConfig pignooConfig) {
         if (dataSource == null) {
-            throw new RuntimeException("Unknow dataSource");
+            throw new DataSourceException("Unknow dataSource");
         }
         this.dataSource = dataSource;
         if (pignooConfig == null) {
@@ -86,23 +88,23 @@ public class BasePignoo implements Pignoo {
                         log.error("Open connection error, and then close connection error", e1);
                     }
                 }
-                throw new RuntimeException(e);
+                throw new DataSourceException("Search database engine error", e);
             }
         }
         if (this.config.getEngine() == null) {
-            throw new RuntimeException("Unknow database engine");
+            throw new DataSourceException("Unknow database engine");
         }
     }
 
     private synchronized Connection getConnection() {
         if (hasClosed) {
-            throw new RuntimeException("Pignoo has closed, can not get connection");
+            throw new PignooRuntimeException("Pignoo has closed, can not get connection");
         }
         if (this.conn == null) {
             try {
                 this.conn = this.dataSource.getConnection();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new DataSourceException("Get connection error", e);
             }
         }
         return this.conn;
@@ -116,8 +118,7 @@ public class BasePignoo implements Pignoo {
                 conn.commit();
             }
         } catch (Exception ex) {
-            log.error("Connection commit error", ex);
-            throw new RuntimeException(ex);
+            throw new DataSourceException("Connection commit error", ex);
         }
     };
 
@@ -128,7 +129,7 @@ public class BasePignoo implements Pignoo {
         case MySQL:
             return new PignooWriter4Mysql<E>(this, connGetter, connCloser, false, c, this.config);
         }
-        throw new RuntimeException("Unknow database engine");
+        throw new DataSourceException("Unknow database engine");
     }
 
     /** {@inheritDoc} */
@@ -138,7 +139,7 @@ public class BasePignoo implements Pignoo {
         case MySQL:
             return new PignooReader4Mysql<E>(this, connGetter, connCloser, false, c, this.config);
         }
-        throw new RuntimeException("Unknow database engine");
+        throw new DataSourceException("Unknow database engine");
     }
 
     /** {@inheritDoc} */
@@ -150,7 +151,7 @@ public class BasePignoo implements Pignoo {
             try {
                 this.conn.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new DataSourceException("Close connection error", e);
             } finally {
                 this.conn = null;
             }

@@ -12,6 +12,9 @@ import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooWriter;
 import com.xuesinuo.pignoo.core.PignooReader;
 import com.xuesinuo.pignoo.core.config.DatabaseEngine;
+import com.xuesinuo.pignoo.core.exception.DataSourceException;
+import com.xuesinuo.pignoo.core.exception.PignooRuntimeException;
+import com.xuesinuo.pignoo.core.exception.SqlExecuteException;
 
 /**
  * 基于JDBC事务的Pignoo实现
@@ -63,7 +66,7 @@ public class TransactionPignoo implements Pignoo {
      */
     public TransactionPignoo(DataSource dataSource, PignooConfig pignooConfig) {
         if (dataSource == null) {
-            throw new RuntimeException("Unknow dataSource");
+            throw new DataSourceException("Unknow dataSource");
         }
         this.dataSource = dataSource;
         if (pignooConfig == null) {
@@ -76,17 +79,17 @@ public class TransactionPignoo implements Pignoo {
                 this.config.setEngine(DatabaseEngine.getDatabaseEngineByConnection(this.getConnection()));
             } catch (SQLException e) {
                 this.close();
-                throw new RuntimeException(e);
+                throw new DataSourceException("Search database engine error", e);
             }
         }
         if (this.config.getEngine() == null) {
-            throw new RuntimeException("Unknow database engine");
+            throw new DataSourceException("Unknow database engine");
         }
     }
 
     private synchronized Connection getConnection() {
         if (this.hasClosed) {
-            throw new RuntimeException("Pignoo has closed, can not get connection");
+            throw new PignooRuntimeException("Pignoo has closed, can not get connection");
         }
         if (this.conn != null) {
             return this.conn;
@@ -97,7 +100,7 @@ public class TransactionPignoo implements Pignoo {
             this.conn.setAutoCommit(false);
         } catch (SQLException e) {
             this.close();
-            throw new RuntimeException(e);
+            throw new SqlExecuteException(e);
         }
         return this.conn;
     }
@@ -113,7 +116,7 @@ public class TransactionPignoo implements Pignoo {
         case MySQL:
             return new PignooWriter4Mysql<E>(this, connGetter, connCloser, true, c, this.config);
         }
-        throw new RuntimeException("Unknow database engine");
+        throw new DataSourceException("Unknow database engine");
     }
 
     /** {@inheritDoc} */
@@ -123,7 +126,7 @@ public class TransactionPignoo implements Pignoo {
         case MySQL:
             return new PignooReader4Mysql<E>(this, connGetter, connCloser, true, c, this.config);
         }
-        throw new RuntimeException("Unknow database engine");
+        throw new DataSourceException("Unknow database engine");
     }
 
     /**
@@ -139,7 +142,7 @@ public class TransactionPignoo implements Pignoo {
             conn.rollback();
             hasRollbacked = true;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SqlExecuteException(e);
         }
     }
 
@@ -155,7 +158,7 @@ public class TransactionPignoo implements Pignoo {
             try {
                 conn.commit();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new SqlExecuteException(e);
             }
         }
         try {
@@ -166,7 +169,7 @@ public class TransactionPignoo implements Pignoo {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SqlExecuteException(e);
         } finally {
             conn = null;
         }

@@ -24,6 +24,8 @@ import com.xuesinuo.pignoo.autodatabase.entity.DatabaseCheckResult;
 import com.xuesinuo.pignoo.core.SqlExecuter;
 import com.xuesinuo.pignoo.core.annotation.Column;
 import com.xuesinuo.pignoo.core.entity.EntityMapper;
+import com.xuesinuo.pignoo.core.exception.DataSourceException;
+import com.xuesinuo.pignoo.core.exception.SqlExecuteException;
 import com.xuesinuo.pignoo.core.implement.SimpleJdbcSqlExecuter;
 
 /**
@@ -69,7 +71,7 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
             // 是否选中了数据库
             String database = sqlExecuter.selectColumn(() -> c, x -> {}, "SELECT DATABASE()", new HashMap<>(), String.class);
             if (database == null || database.isBlank()) {
-                throw new RuntimeException("Connection must have a database selected.");
+                throw new DataSourceException("Connection must have a database selected.");
             }
             // 表是否存在
             String tableName = entityMapper.tableName();
@@ -199,7 +201,7 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SqlExecuteException(e);
         } finally {
             if (conn != null) {
                 try {
@@ -208,7 +210,7 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
                     }
                     conn.close();
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                    throw new SqlExecuteException(e);
                 }
             }
         }

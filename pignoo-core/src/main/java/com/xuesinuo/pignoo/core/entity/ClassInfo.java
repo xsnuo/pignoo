@@ -14,6 +14,7 @@ import com.xuesinuo.pignoo.core.annotation.PrimaryKey;
 import com.xuesinuo.pignoo.core.annotation.Table;
 import com.xuesinuo.pignoo.core.config.AnnotationMode;
 import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
+import com.xuesinuo.pignoo.core.exception.MapperException;
 import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
 
 /**
@@ -63,7 +64,7 @@ public class ClassInfo<E> {
         Table tableAnn = c.getAnnotation(Table.class);
         Link linkAnn = c.getAnnotation(Link.class);
         if (config.getAnnotationMode() == AnnotationMode.MUST && tableAnn == null && linkAnn == null) {
-            throw new RuntimeException("Entity " + c.getName() + " missing @Table or @Link");
+            throw new MapperException("Entity " + c.getName() + " missing @Table or @Link");
         }
         if (tableAnn != null) {
             this.tableName = tableAnn.value().trim();
@@ -78,7 +79,7 @@ public class ClassInfo<E> {
             }
         }
         if ((this.tableName == null || this.tableName.isBlank()) && linkAnn == null) {
-            throw new RuntimeException("Entity " + c.getName() + " read table name failed");
+            throw new MapperException("Entity " + c.getName() + " read table name failed");
         }
         try {
             this.constructor = c.getDeclaredConstructor();
@@ -107,11 +108,11 @@ public class ClassInfo<E> {
                     }
                 }
                 if (this.primaryKeyColumn == null || this.primaryKeyColumn.isBlank()) {
-                    throw new RuntimeException("Entity " + c.getName() + " read primaryKey column name failed");
+                    throw new MapperException("Entity " + c.getName() + " read primaryKey column name failed");
                 }
                 this.autoPrimaryKey = primaryKeyAnn.auto();
                 if (this.primaryKeyField != null) {
-                    throw new RuntimeException("Entity " + c.getName() + " can't has more than one @PrimaryKey");
+                    throw new MapperException("Entity " + c.getName() + " can't has more than one @PrimaryKey");
                 } else {
                     this.primaryKeyField = field;
                 }
@@ -133,7 +134,7 @@ public class ClassInfo<E> {
                     }
                 }
                 if (columnName == null || columnName.isBlank()) {
-                    throw new RuntimeException("Entity " + c.getName() + "#" + field.getName() + " read column name failed");
+                    throw new MapperException("Entity " + c.getName() + "#" + field.getName() + " read column name failed");
                 }
                 this.columns.add(columnName);
                 Method[] getterSetter = this.fields2GetterSetter(c, field);
@@ -151,11 +152,11 @@ public class ClassInfo<E> {
                 pkName = PrimaryKeyNamingConvention.DEFAULT.naming(tableName, c.getSimpleName());
             }
             if (pkName == null || pkName.isBlank()) {
-                throw new RuntimeException("Entity " + c.getName() + " PrimaryKey not found");
+                throw new MapperException("Entity " + c.getName() + " PrimaryKey not found");
             }
             int indexOfPk = this.columns.indexOf(pkName);
             if (indexOfPk < 0) {
-                throw new RuntimeException("Entity " + c.getName() + " PrimaryKey not found");
+                throw new MapperException("Entity " + c.getName() + " PrimaryKey not found");
             }
             this.primaryKeyColumn = pkName;
             if (config.getAutoPrimaryKey() == null) {
@@ -202,13 +203,13 @@ public class ClassInfo<E> {
         try {
             getter = c.getMethod(getterName);
         } catch (NoSuchMethodException | SecurityException e) {
-            throw new RuntimeException("Entity " + c.getName() + " read getter failed", e);
+            throw new MapperException("Entity " + c.getName() + " read getter failed", e);
         }
         Method setter;
         try {
             setter = c.getMethod(setterName, field.getType());
         } catch (NoSuchMethodException | SecurityException e) {
-            throw new RuntimeException("Entity " + c.getName() + " read setter failed", e);
+            throw new MapperException("Entity " + c.getName() + " read setter failed", e);
         }
         return new Method[] { getter, setter };
     }

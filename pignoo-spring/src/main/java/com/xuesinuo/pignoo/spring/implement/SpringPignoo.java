@@ -16,6 +16,8 @@ import com.xuesinuo.pignoo.core.PignooReader;
 import lombok.extern.slf4j.Slf4j;
 
 import com.xuesinuo.pignoo.core.config.DatabaseEngine;
+import com.xuesinuo.pignoo.core.exception.DataSourceException;
+import com.xuesinuo.pignoo.core.exception.PignooRuntimeException;
 import com.xuesinuo.pignoo.spring.config.PignooTransactionSynchronizationAdapter;
 
 /**
@@ -84,18 +86,18 @@ public class SpringPignoo implements Pignoo {
     public SpringPignoo(DataSource dataSource, PignooConfig pignooConfig) {
         DatabaseEngine engine = null;
         if (dataSource == null) {
-            throw new RuntimeException("Unknow dataSource");
+            throw new DataSourceException("Unknow dataSource");
         }
         this.dataSource = dataSource;
         if (engine == null) {
             try (Connection conn = DataSourceUtils.getConnection(dataSource)) {
                 engine = DatabaseEngine.getDatabaseEngineByConnection(conn);
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new DataSourceException("Search database engine error", e);
             }
         }
         if (engine == null) {
-            throw new RuntimeException("Unknow database engine");
+            throw new DataSourceException("Unknow database engine");
         }
         if (pignooConfig == null) {
             pignooConfig = new PignooConfig();
@@ -105,7 +107,7 @@ public class SpringPignoo implements Pignoo {
         if (pignooConfig.getEngine() == null) {
             pignooConfig.setEngine(engine);
         } else if (engine != pignooConfig.getEngine()) {
-            throw new RuntimeException("Database engine mismatch");
+            throw new DataSourceException("Database engine mismatch");
         }
         this.config = pignooConfig;
         this.basePignoo = new SpringPignooItem(dataSource, pignooConfig, false);
@@ -125,7 +127,7 @@ public class SpringPignoo implements Pignoo {
 
     private SpringPignooItem getPignoo() {
         if (this.hasClosed) {
-            throw new RuntimeException("Pignoo-Spring has closed!");
+            throw new PignooRuntimeException("Pignoo-Spring has closed!");
         }
         boolean inTransaction = TransactionSynchronizationManager.isActualTransactionActive();
         SpringPignooItem pignoo = null;

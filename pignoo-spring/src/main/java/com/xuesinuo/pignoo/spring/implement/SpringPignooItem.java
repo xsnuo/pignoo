@@ -19,6 +19,7 @@ import com.xuesinuo.pignoo.core.implement.PignooReader4Mysql;
 import lombok.extern.slf4j.Slf4j;
 
 import com.xuesinuo.pignoo.core.config.DatabaseEngine;
+import com.xuesinuo.pignoo.core.exception.DataSourceException;
 
 /**
  * Spring事务Pignoo实现
@@ -55,7 +56,7 @@ public class SpringPignooItem implements Pignoo {
      */
     protected SpringPignooItem(DataSource dataSource, PignooConfig pignooConfig, boolean inTransaction) {
         if (dataSource == null) {
-            throw new RuntimeException("Unknow dataSource");
+            throw new DataSourceException("Unknow dataSource");
         }
         this.dataSource = dataSource;
         if (pignooConfig == null) {
@@ -71,7 +72,7 @@ public class SpringPignooItem implements Pignoo {
                 this.config.setEngine(DatabaseEngine.getDatabaseEngineByConnection(conn));
             } catch (SQLException e) {
                 this.close();
-                throw new RuntimeException(e);
+                throw new DataSourceException("Search database engine error", e);
             } finally {
                 if (conn != null) {
                     DataSourceUtils.releaseConnection(conn, this.getDataSource());
@@ -79,7 +80,7 @@ public class SpringPignooItem implements Pignoo {
             }
         }
         if (this.config.getEngine() == null) {
-            throw new RuntimeException("Unknow database engine");
+            throw new DataSourceException("Unknow database engine");
         }
     }
 
@@ -104,7 +105,7 @@ public class SpringPignooItem implements Pignoo {
         case MySQL:
             return new PignooWriter4Mysql<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
         }
-        throw new RuntimeException("Unknow database engine");
+        throw new DataSourceException("Unknow database engine");
     }
 
     /** {@inheritDoc} */
@@ -114,7 +115,7 @@ public class SpringPignooItem implements Pignoo {
         case MySQL:
             return new PignooReader4Mysql<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
         }
-        throw new RuntimeException("Unknow database engine");
+        throw new DataSourceException("Unknow database engine");
     }
 
     /** {@inheritDoc} */

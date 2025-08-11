@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import com.xuesinuo.pignoo.core.PignooConfig;
+import com.xuesinuo.pignoo.core.exception.MapperException;
 
 /**
  * 实体映射器，启动包很类信息、getter方法与属性名的映射器
@@ -79,7 +80,7 @@ public class EntityMapper<E> {
     public static <E> EntityMapper<E> build(Class<E> c) {
         EntityMapper<E> mapper = (EntityMapper<E>) cache.get(c);
         if (mapper == null) {
-            throw new RuntimeException("EntityMapper not found for " + c.getName() + ", please use EntityMapper.build(Class<E> c, PignooConfig config) to init EntityMapper first.");
+            throw new MapperException("EntityMapper not found for " + c.getName() + ", please use EntityMapper.build(Class<E> c, PignooConfig config) to init EntityMapper first.");
         }
         return mapper;
     }

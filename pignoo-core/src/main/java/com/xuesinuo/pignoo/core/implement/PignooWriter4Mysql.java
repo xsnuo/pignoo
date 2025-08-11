@@ -19,6 +19,7 @@ import com.xuesinuo.pignoo.core.PignooWriter;
 import com.xuesinuo.pignoo.core.PignooSorter;
 import com.xuesinuo.pignoo.core.entity.EntityProxyFactory;
 import com.xuesinuo.pignoo.core.entity.SqlParam;
+import com.xuesinuo.pignoo.core.exception.MapperException;
 
 /**
  * 基于MySQL语法实现的{@link com.xuesinuo.pignoo.core.PignooWriter}
@@ -68,10 +69,10 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
             try {
                 primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
             } catch (IllegalAccessException | InvocationTargetException ex) {
-                throw new RuntimeException("Primary key is not found " + e, ex);
+                throw new MapperException("Primary key is not found " + e, ex);
             }
             if (primaryKeyValue == null) {
-                throw new RuntimeException("Primary key can not be NULL " + e);
+                throw new MapperException("Primary key can not be NULL " + e);
             }
             SqlParam sqlParam = new SqlParam();
             StringBuilder sql = new StringBuilder("");
@@ -96,10 +97,10 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
             try {
                 primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
             } catch (IllegalAccessException | InvocationTargetException ex) {
-                throw new RuntimeException("Primary key is not found " + e, ex);
+                throw new MapperException("Primary key is not found " + e, ex);
             }
             if (primaryKeyValue == null) {
-                throw new RuntimeException("Primary key is null " + e);
+                throw new MapperException("Primary key is null " + e);
             }
             sql2.append("SELECT ");
             sql2.append(entityMapper.columns().stream().map(column -> "`" + column + "`").collect(Collectors.joining(",")) + " ");
@@ -178,7 +179,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
                 }
             }
         } catch (IllegalAccessException | InvocationTargetException ex) {
-            throw new RuntimeException(ex);
+            throw new MapperException(ex);
         }
         sql.append("INSERT INTO ");
         sql.append("`" + entityMapper.tableName() + "` ");
@@ -192,10 +193,10 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
             try {
                 primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
             } catch (IllegalAccessException | InvocationTargetException ex) {
-                throw new RuntimeException("Primary key is not found " + e, ex);
+                throw new MapperException("Primary key is not found " + e, ex);
             }
             if (primaryKeyValue == null) {
-                throw new RuntimeException("Primary key can not be NULL " + e);
+                throw new MapperException("Primary key can not be NULL " + e);
             }
             sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
         }
@@ -218,10 +219,10 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         try {
             primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
         } catch (IllegalAccessException | InvocationTargetException ex) {
-            throw new RuntimeException("Primary key is not found " + e, ex);
+            throw new MapperException("Primary key is not found " + e, ex);
         }
         if (primaryKeyValue == null) {
-            throw new RuntimeException("Primary key can not be NULL " + e);
+            throw new MapperException("Primary key can not be NULL " + e);
         }
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
@@ -237,7 +238,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
                 }
             }
         } catch (IllegalAccessException | InvocationTargetException ex) {
-            throw new RuntimeException(ex);
+            throw new MapperException(ex);
         }
         if (params.size() == 0) {
             return 0L;
@@ -260,10 +261,10 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         try {
             primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
         } catch (IllegalAccessException | InvocationTargetException ex) {
-            throw new RuntimeException("Primary key is not found " + e, ex);
+            throw new MapperException("Primary key is not found " + e, ex);
         }
         if (primaryKeyValue == null) {
-            throw new RuntimeException("Primary key can not be NULL " + e);
+            throw new MapperException("Primary key can not be NULL " + e);
         }
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
@@ -277,7 +278,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
                 }
             }
         } catch (IllegalAccessException | InvocationTargetException ex) {
-            throw new RuntimeException(ex);
+            throw new MapperException(ex);
         }
         if (params.size() == 0) {
             return 0L;
@@ -310,7 +311,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
                 }
             }
         } catch (IllegalAccessException | InvocationTargetException ex) {
-            throw new RuntimeException(ex);
+            throw new MapperException(ex);
         }
         if (params.size() == 0) {
             return 0L;
@@ -339,7 +340,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
                     Object paramValue = getter.invoke(e);
                     params.put(entityMapper.columns().get(i), paramValue);
                 } catch (IllegalAccessException | InvocationTargetException ex) {
-                    throw new RuntimeException(ex);
+                    throw new MapperException(ex);
                 }
             }
         }
@@ -364,10 +365,10 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         try {
             primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
         } catch (IllegalAccessException | InvocationTargetException ex) {
-            throw new RuntimeException("Primary key is not found " + e, ex);
+            throw new MapperException("Primary key is not found " + e, ex);
         }
         if (primaryKeyValue == null) {
-            throw new RuntimeException("Primary key can not be NULL " + e);
+            throw new MapperException("Primary key can not be NULL " + e);
         }
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();

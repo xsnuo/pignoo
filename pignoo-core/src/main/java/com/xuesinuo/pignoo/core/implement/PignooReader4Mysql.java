@@ -21,6 +21,7 @@ import com.xuesinuo.pignoo.core.PignooFilter.XOR;
 import com.xuesinuo.pignoo.core.PignooSorter.SMode;
 import com.xuesinuo.pignoo.core.entity.EntityMapper;
 import com.xuesinuo.pignoo.core.entity.SqlParam;
+import com.xuesinuo.pignoo.core.exception.MapperException;
 
 /**
  * 基于MySQL语法实现的{@link com.xuesinuo.pignoo.core.PignooReader}
@@ -234,7 +235,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 }
             }
             if (filter.getMode().getMinCount() > valueCount || filter.getMode().getMaxCount() < valueCount) {
-                throw new RuntimeException(filter.getMode() + " can not use " + valueCount + " values -> " +
+                throw new MapperException(filter.getMode() + " can not use " + valueCount + " values -> " +
                         this.entityMapper.tableName() + "." + this.entityMapper.getColumnByFunction(filter.getField()));
             }
             if (values.size() >= filter.getMode().getMinCount()) {
@@ -257,7 +258,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 } else if (filter.getMode() == FMode.NE) {
                     sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NOT NULL ";
                 } else {
-                    throw new RuntimeException(filter.getMode() + " can not be NULL -> " +
+                    throw new MapperException(filter.getMode() + " can not be NULL -> " +
                             this.entityMapper.tableName() + "." + this.entityMapper.getColumnByFunction(filter.getField()));
                 }
             } else {

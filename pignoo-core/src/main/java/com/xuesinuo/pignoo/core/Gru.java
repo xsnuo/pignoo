@@ -8,6 +8,7 @@ import java.util.function.Function;
 import javax.sql.DataSource;
 
 import com.xuesinuo.pignoo.core.config.DatabaseEngine;
+import com.xuesinuo.pignoo.core.exception.DataSourceException;
 import com.xuesinuo.pignoo.core.implement.BasePignoo;
 import com.xuesinuo.pignoo.core.implement.TransactionPignoo;
 
@@ -51,12 +52,12 @@ public class Gru {
             config = config.copy();
         }
         if (dataSource == null) {
-            throw new RuntimeException("DataSource Error: DataSource is null");
+            throw new DataSourceException("DataSource Error: DataSource is null");
         }
         DatabaseEngine engine = config.getEngine();
         try (Connection conn = dataSource.getConnection()) {
             if (conn == null) {
-                throw new RuntimeException("DataSource Error: get connection failed");
+                throw new DataSourceException("DataSource Error: get connection failed");
             }
             if (engine == null) {
                 engine = DatabaseEngine.getDatabaseEngineByConnection(conn);
@@ -65,10 +66,10 @@ public class Gru {
                 conn.commit();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Read database engine failed", e);
+            throw new DataSourceException("Read database engine failed", e);
         }
         if (engine == null) {
-            throw new RuntimeException("Unknow database engine");
+            throw new DataSourceException("Unknow database engine");
         }
         config.setEngine(engine);
         this.config = config;

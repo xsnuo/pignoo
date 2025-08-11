@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import com.xuesinuo.pignoo.core.exception.MapperException;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -132,7 +134,7 @@ public class PignooFilter<E> {
          */
         public static FMode getFMode(String name) {
             if (name == null) {
-                throw new RuntimeException("Invalid FMode: null");
+                throw new MapperException("Invalid FMode: null");
             }
             name = name.trim().toLowerCase();
             for (FMode fMode : values()) {
@@ -140,7 +142,7 @@ public class PignooFilter<E> {
                     return fMode;
                 }
             }
-            throw new RuntimeException("Invalid FMode: " + name);
+            throw new MapperException("Invalid FMode: " + name);
         }
     }
 
