@@ -38,7 +38,7 @@
   <parent>
     <groupId>com.xuesinuo</groupId>
     <artifactId>pignoo</artifactId>
-    <version>0.3.1</version>
+    <version>1.0.0</version>
   </parent>
 
   <dependencies>

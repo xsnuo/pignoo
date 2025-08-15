@@ -5,9 +5,9 @@ package com.xuesinuo.pignoo.core.config;
  * <p>
  * PrimaryKey Naming Convention
  * <p>
- * 设置一个全局的主键命名规则，当没有{@link com.xuesinuo.pignoo.core.annotation.PrimaryKey}注解时，会按照这个规则查找主键
+ * 设置一个全局的主键命名规则，当没有{@link com.xuesinuo.pignoo.core.annotation.Column#primaryKey()}注解时，会按照这个规则查找主键
  * <p>
- * Set a global primary key naming rule, when there is no {@link com.xuesinuo.pignoo.core.annotation.PrimaryKey} annotation, it will find the primary key according to this rule
+ * Set a global primary key naming rule, when there is no {@link com.xuesinuo.pignoo.core.annotation.Column#primaryKey()} annotation, it will find the primary key according to this rule
  *
  * @author xuesinuo
  * @since 0.2.0
