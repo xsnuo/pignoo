@@ -10,7 +10,6 @@ import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.annotation.Column;
 import com.xuesinuo.pignoo.core.annotation.Ignore;
 import com.xuesinuo.pignoo.core.annotation.Link;
-import com.xuesinuo.pignoo.core.annotation.PrimaryKey;
 import com.xuesinuo.pignoo.core.annotation.Table;
 import com.xuesinuo.pignoo.core.config.AnnotationMode;
 import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
@@ -23,7 +22,7 @@ import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
- * @version 0.2.4
+ * @version 1.0.0
  */
 public class ClassInfo<E> {
     protected Constructor<E> constructor;
@@ -95,10 +94,8 @@ public class ClassInfo<E> {
             if (columnAnn == null && config.getAnnotationMode() == AnnotationMode.MUST) {
                 continue;
             }
-            if (field.isAnnotationPresent(PrimaryKey.class)) {
-                PrimaryKey primaryKeyAnn = field.getAnnotation(PrimaryKey.class);
-                columnAnn = field.getAnnotation(Column.class);
-                if (columnAnn != null && columnAnn.value() != null && !columnAnn.value().isBlank()) {
+            if (columnAnn != null && (columnAnn.primaryKey() == Column.PrimaryKey.AUTO || columnAnn.primaryKey() == Column.PrimaryKey.NON_AUTO)) {
+                if (columnAnn.value() != null && !columnAnn.value().isBlank()) {
                     this.primaryKeyColumn = columnAnn.value();
                 } else if (config.getAnnotationMode() == AnnotationMode.MIX) {
                     if (config.getAnnotationMixMode() == AnnotationMixMode.SAME) {
@@ -110,7 +107,7 @@ public class ClassInfo<E> {
                 if (this.primaryKeyColumn == null || this.primaryKeyColumn.isBlank()) {
                     throw new MapperException("Entity " + c.getName() + " read primaryKey column name failed");
                 }
-                this.autoPrimaryKey = primaryKeyAnn.auto();
+                this.autoPrimaryKey = columnAnn.primaryKey() == Column.PrimaryKey.AUTO;
                 if (this.primaryKeyField != null) {
                     throw new MapperException("Entity " + c.getName() + " can't has more than one @PrimaryKey");
                 } else {
@@ -122,7 +119,6 @@ public class ClassInfo<E> {
             }
             if (field.isAnnotationPresent(Column.class) || config.getAnnotationMode() == AnnotationMode.MIX) {
                 this.fields.add(field);
-                columnAnn = field.getAnnotation(Column.class);
                 String columnName = null;
                 if (columnAnn != null && columnAnn.value() != null && !columnAnn.value().isBlank()) {
                     columnName = columnAnn.value();
@@ -164,7 +160,14 @@ public class ClassInfo<E> {
             } else {
                 this.autoPrimaryKey = config.getAutoPrimaryKey();
             }
-            this.primaryKeyField = this.fields.get(indexOfPk);
+            Field primaryKeyField = this.fields.get(indexOfPk);
+            if (this.primaryKeyField.isAnnotationPresent(Column.class)) {
+                Column columnAnn = primaryKeyField.getAnnotation(Column.class);
+                if (columnAnn != null && columnAnn.primaryKey() == Column.PrimaryKey.NOT) {
+                    throw new MapperException("Entity " + c.getName() + " PrimaryKey not found");
+                }
+            }
+            this.primaryKeyField = primaryKeyField;
             this.primaryKeyGetter = this.getters.get(indexOfPk);
             this.primaryKeySetter = this.setters.get(indexOfPk);
         }

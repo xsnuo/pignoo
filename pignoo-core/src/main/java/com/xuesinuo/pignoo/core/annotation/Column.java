@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  *
  * @author xuesinuo
  * @since 0.1.0
- * @version 0.3.1
+ * @version 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -47,6 +47,18 @@ public @interface Column {
     int scale() default 0;
 
     /**
+     * 主键设置
+     * <p>
+     * Primary key setting
+     * 
+     * @return 主键设置枚举
+     *         <p>
+     *         Primary key setting enum
+     * @since 1.0.0
+     */
+    PrimaryKey primaryKey() default PrimaryKey.DEFAULT;
+
+    /**
      * Pignoo中预设的规模档位
      * <p>
      * Preset scale level in Pignoo
@@ -78,5 +90,39 @@ public @interface Column {
          * @since 0.3.1
          */
         public static final int LARGE = 3;
+    }
+
+    /**
+     * 主键设置枚举
+     * <p>
+     * Primary key setting enum
+     * 
+     * @since 1.0.0
+     */
+    public static enum PrimaryKey {
+        /**
+         * 是自动生成的主键
+         * <p>
+         * Is an auto-generated primary key
+         */
+        AUTO,
+        /**
+         * 不是自动生成的主键
+         * <p>
+         * Is not an auto-generated primary key
+         */
+        NON_AUTO,
+        /**
+         * 不是主键
+         * <p>
+         * Is not a primary key
+         */
+        NOT,
+        /**
+         * 默认值：没声明是否为主键
+         * <p>
+         * Default value: not declared whether it is a primary key
+         */
+        DEFAULT;
     }
 }
