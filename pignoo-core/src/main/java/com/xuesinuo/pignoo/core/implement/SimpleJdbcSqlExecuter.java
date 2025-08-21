@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,7 @@ import java.util.function.Supplier;
 
 import com.xuesinuo.pignoo.core.SqlExecuter;
 import com.xuesinuo.pignoo.core.entity.EntityMapper;
+import com.xuesinuo.pignoo.core.exception.MapperException;
 import com.xuesinuo.pignoo.core.exception.PignooRuntimeException;
 import com.xuesinuo.pignoo.core.exception.SqlExecuteException;
 
@@ -64,14 +67,14 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
             conn = connGetter.get();
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-                    ps.setObject(entry.getKey() + 1, entry.getValue());
+                    setParam(ps, entry.getKey() + 1, entry.getValue());
                 }
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         E entity = mapper.buildEntity();
                         for (int i = 0; i < mapper.columns().size(); i++) {
                             String columnName = mapper.columns().get(i);
-                            Object columnValue = rs.getObject(columnName, mapper.fields().get(i).getType());
+                            Object columnValue = getObject(rs, mapper.fields().get(i).getType(), null, columnName);
                             mapper.setters().get(i).invoke(entity, columnValue);
                         }
                         if (saveLog) {
@@ -105,14 +108,14 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
             conn = connGetter.get();
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-                    ps.setObject(entry.getKey() + 1, entry.getValue());
+                    setParam(ps, entry.getKey() + 1, entry.getValue());
                 }
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         E entity = mapper.buildEntity();
                         for (int i = 0; i < mapper.columns().size(); i++) {
                             String columnName = mapper.columns().get(i);
-                            Object columnValue = rs.getObject(columnName, mapper.fields().get(i).getType());
+                            Object columnValue = getObject(rs, mapper.fields().get(i).getType(), null, columnName);
                             mapper.setters().get(i).invoke(entity, columnValue);
                         }
                         list.add(entity);
@@ -145,7 +148,7 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
             conn = connGetter.get();
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-                    ps.setObject(entry.getKey() + 1, entry.getValue());
+                    setParam(ps, entry.getKey() + 1, entry.getValue());
                 }
                 try (ResultSet rs = ps.executeQuery()) {
                     List<String> columnNames = new ArrayList<>();
@@ -186,14 +189,14 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
             conn = connGetter.get();
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-                    ps.setObject(entry.getKey() + 1, entry.getValue());
+                    setParam(ps, entry.getKey() + 1, entry.getValue());
                 }
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         if (saveLog) {
                             log.debug("1 row(s) in " + (System.currentTimeMillis() - startTime) + " ms");
                         }
-                        return rs.getObject(1, c);
+                        return getObject(rs, c, 1, null);
                     }
                 }
             }
@@ -220,7 +223,7 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
             conn = connGetter.get();
             try (PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-                    ps.setObject(entry.getKey() + 1, entry.getValue());
+                    setParam(ps, entry.getKey() + 1, entry.getValue());
                 }
                 int rowsAffected = ps.executeUpdate();
                 if (rowsAffected > 0) {
@@ -256,7 +259,7 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
             conn = connGetter.get();
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 for (Map.Entry<Integer, Object> entry : params.entrySet()) {
-                    ps.setObject(entry.getKey() + 1, entry.getValue());
+                    setParam(ps, entry.getKey() + 1, entry.getValue());
                 }
                 int rowsAffected = ps.executeUpdate();
                 if (saveLog) {
@@ -278,5 +281,55 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
             return new SqlExecuteException((SQLException) e);
         }
         return new PignooRuntimeException(e);
+    }
+
+    private static final <R> R getObject(ResultSet rs, Class<R> c, Integer index, String columnLabel) throws SQLException {
+        Class<?> getterClass = c;
+        if (c.isEnum()) {
+            getterClass = String.class;
+        } else if (Character.class.isAssignableFrom(c) || char.class.equals(c)) {
+            getterClass = String.class;
+        } else if (Instant.class.isAssignableFrom(c)) {
+            getterClass = Date.class;
+        }
+        Object value = null;
+        if (index != null) {
+            value = rs.getObject(index, getterClass);
+        } else if (columnLabel != null) {
+            value = rs.getObject(columnLabel, getterClass);
+        }
+        if (value == null) {
+            return null;
+        }
+        R result = null;
+        if (c.isEnum()) {
+            result = (R) convertEnum(value, c);
+        } else if (Character.class.isAssignableFrom(c) || char.class.equals(c)) {
+            result = (R) Character.valueOf(value.toString().charAt(0));
+        } else if (Instant.class.isAssignableFrom(c)) {
+            log.debug("Instant:" + value);
+            result = (R) ((Date) value).toInstant();
+        } else {
+            result = (R) value;
+        }
+        return result;
+    }
+
+    private static final void setParam(PreparedStatement ps, int index, Object value) throws SQLException {
+        if (value instanceof Character) {
+            ps.setObject(index, value.toString());
+        } else if (value.getClass().isEnum()) {
+            ps.setObject(index, value.toString());
+        } else {
+            ps.setObject(index, value);
+        }
+    }
+
+    private static <T extends Enum<T>> T convertEnum(Object dbValue, Class<?> enumType) {
+        Class<T> concreteEnumType = (Class<T>) enumType;
+        if (dbValue instanceof String) {
+            return Enum.valueOf(concreteEnumType, (String) dbValue);
+        }
+        throw new MapperException("Invalid enum value: " + dbValue + " -> " + enumType);
     }
 }
