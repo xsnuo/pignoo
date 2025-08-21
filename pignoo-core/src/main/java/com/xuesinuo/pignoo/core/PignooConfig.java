@@ -1,8 +1,8 @@
 package com.xuesinuo.pignoo.core;
 
 import com.xuesinuo.pignoo.core.config.AnnotationMode;
-import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
 import com.xuesinuo.pignoo.core.config.DatabaseEngine;
+import com.xuesinuo.pignoo.core.config.NamingMode;
 import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
 
 import lombok.Data;
@@ -33,7 +33,7 @@ public class PignooConfig {
         PignooConfig config = new PignooConfig();
         config.setEngine(this.engine);
         config.setAnnotationMode(this.annotationMode);
-        config.setAnnotationMixMode(this.annotationMixMode);
+        config.setNamingMode(this.namingMode);
         config.setPrimaryKeyNamingConvention(this.primaryKeyNamingConvention);
         config.setAutoPrimaryKey(this.autoPrimaryKey);
         return config;
@@ -62,7 +62,7 @@ public class PignooConfig {
      * 
      * @version 0.2.0
      */
-    private AnnotationMixMode annotationMixMode = AnnotationMixMode.CAMEL_TO_SNAKE;
+    private NamingMode namingMode = NamingMode.CAMEL_TO_SNAKE;
 
     /**
      * 主键命名规则{@link FunctionalInterface}

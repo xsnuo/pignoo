@@ -13,7 +13,7 @@ import com.xuesinuo.pignoo.core.annotation.Table;
 import com.xuesinuo.pignoo.core.config.AnnotationMode;
 import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
 import com.xuesinuo.pignoo.core.exception.MapperException;
-import com.xuesinuo.pignoo.core.config.AnnotationMode.AnnotationMixMode;
+import com.xuesinuo.pignoo.core.config.NamingMode;
 
 /**
  * 解析实体类
@@ -56,8 +56,8 @@ public class ClassInfo<E> {
         if (config.getAnnotationMode() == null) {
             config.setAnnotationMode(AnnotationMode.MIX);
         }
-        if (config.getAnnotationMixMode() == null) {
-            config.setAnnotationMixMode(AnnotationMixMode.CAMEL_TO_SNAKE);
+        if (config.getNamingMode() == null) {
+            config.setNamingMode(NamingMode.CAMEL_TO_SNAKE);
         }
         Table tableAnn = c.getAnnotation(Table.class);
         Link linkAnn = c.getAnnotation(Link.class);
@@ -73,12 +73,10 @@ public class ClassInfo<E> {
             this.tableName = linkClassInfo.tableName;
         }
         if (this.tableName == null || this.tableName.isBlank()) {
-            if (config.getAnnotationMode() == AnnotationMode.MIX) {
-                if (config.getAnnotationMixMode() == AnnotationMixMode.SAME) {
-                    this.tableName = c.getSimpleName();
-                } else if (config.getAnnotationMixMode() == AnnotationMixMode.CAMEL_TO_SNAKE) {
-                    this.tableName = camel2Underline(c.getSimpleName());
-                }
+            if (config.getNamingMode() == NamingMode.SAME) {
+                this.tableName = c.getSimpleName();
+            } else if (config.getNamingMode() == NamingMode.CAMEL_TO_SNAKE) {
+                this.tableName = camel2Underline(c.getSimpleName());
             }
         }
         if ((this.tableName == null || this.tableName.isBlank()) && linkAnn == null) {
@@ -101,10 +99,11 @@ public class ClassInfo<E> {
             if (columnAnn != null && (columnAnn.primaryKey() == Column.PrimaryKey.AUTO || columnAnn.primaryKey() == Column.PrimaryKey.NON_AUTO)) {
                 if (columnAnn.value() != null && !columnAnn.value().isBlank()) {
                     this.primaryKeyColumn = columnAnn.value();
-                } else if (config.getAnnotationMode() == AnnotationMode.MIX) {
-                    if (config.getAnnotationMixMode() == AnnotationMixMode.SAME) {
+                }
+                if (this.primaryKeyColumn == null || this.primaryKeyColumn.isBlank()) {
+                    if (config.getNamingMode() == NamingMode.SAME) {
                         this.primaryKeyColumn = field.getName();
-                    } else if (config.getAnnotationMixMode() == AnnotationMixMode.CAMEL_TO_SNAKE) {
+                    } else if (config.getNamingMode() == NamingMode.CAMEL_TO_SNAKE) {
                         this.primaryKeyColumn = camel2Underline(field.getName());
                     }
                 }
@@ -126,10 +125,11 @@ public class ClassInfo<E> {
                 String columnName = null;
                 if (columnAnn != null && columnAnn.value() != null && !columnAnn.value().isBlank()) {
                     columnName = columnAnn.value();
-                } else if (config.getAnnotationMode() == AnnotationMode.MIX) {
-                    if (config.getAnnotationMixMode() == AnnotationMixMode.SAME) {
+                }
+                if (columnName == null || columnName.isBlank()) {
+                    if (config.getNamingMode() == NamingMode.SAME) {
                         columnName = field.getName();
-                    } else if (config.getAnnotationMixMode() == AnnotationMixMode.CAMEL_TO_SNAKE) {
+                    } else if (config.getNamingMode() == NamingMode.CAMEL_TO_SNAKE) {
                         columnName = camel2Underline(field.getName());
                     }
                 }

@@ -31,32 +31,4 @@ public enum AnnotationMode {
      * not marked, it is parsed according to the class name and attribute name.
      */
     MIX;
-
-    /**
-     * 混用注解时，名称的解析方式
-     * <p>
-     * When using mixed annotations, the parsing method of the name.
-     * 
-     * @author xuesinuo
-     * @version 0.2.0
-     */
-    public static enum AnnotationMixMode {
-        /**
-         * 类名等于表名，属性名等于列名
-         * <p>
-         * The class name is equal to the table name, and the attribute name is equal to the column name.
-         */
-        SAME,
-
-        /**
-         * 【默认】Java使用驼峰命名，数据库使用蛇形命名（下划线命名）
-         * <p>
-         * [Default] Java uses camel naming, and the database uses snake naming (underscore naming).
-         * <p>
-         * 这要求JavaBean的命名必须要规范，否则可能出现解析错误
-         * <p>
-         * This requires that the naming of JavaBean must be standardized, otherwise parsing errors may occur.
-         */
-        CAMEL_TO_SNAKE;
-    }
 }
