@@ -1,5 +1,6 @@
 package com.xuesinuo.pignoo.autodatabase;
 
+import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -77,6 +78,8 @@ public class EntityScaner {
      *         EntityMapper collection
      */
     private Set<EntityMapper<?>> scanPackage() {
+        entityScanConfig.setPackages(entityScanConfig.getPackages() == null ? new String[0] : entityScanConfig.getPackages());
+        entityScanConfig.setClassesForScanPackage(entityScanConfig.getClassesForScanPackage() == null ? new Class<?>[0] : entityScanConfig.getClassesForScanPackage());
         HashSet<String> packages = new HashSet<>(entityScanConfig.getPackages().length + entityScanConfig.getClassesForScanPackage().length);
         for (String packageStr : entityScanConfig.getPackages()) {
             if (packageStr != null && !packageStr.isBlank()) {
@@ -123,14 +126,38 @@ public class EntityScaner {
     }
 
     private static boolean isPublicClass(ClassInfo classInfo) {
-        return !classInfo.getName().contains("$")
-                && classInfo.getModifiersStr().indexOf("public") >= 0;
+        Class<?> c;
+        try {
+            c = Class.forName(classInfo.getName());
+        } catch (ClassNotFoundException e) {
+            throw new ScanException("Can not read class " + classInfo.getName(), e);
+        }
+        if (c.getEnclosingClass() != null) {
+            return false;
+        }
+        if (!Modifier.isPublic(c.getModifiers())) {
+            return false;
+        }
+        return true;
     }
 
     private static boolean isStaticInnerClass(ClassInfo classInfo) {
-        return classInfo.getName().contains("$")
-                && classInfo.getModifiersStr().indexOf("static") >= 0
-                && classInfo.getModifiersStr().indexOf("public") >= 0;
+        Class<?> c;
+        try {
+            c = Class.forName(classInfo.getName());
+        } catch (ClassNotFoundException e) {
+            throw new ScanException("Can not read class " + classInfo.getName(), e);
+        }
+        if (c.getEnclosingClass() == null) {
+            return false;
+        }
+        if (!Modifier.isPublic(c.getModifiers())) {
+            return false;
+        }
+        if (!Modifier.isStatic(c.getModifiers())) {
+            return false;
+        }
+        return true;
     }
 
     /**

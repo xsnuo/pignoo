@@ -118,7 +118,7 @@ public class EntityScanConfig {
      * <p>
      * Custom type mapper, convert Java type to SQL type. When the custom mapping cannot be mapped, use the default mapping.
      */
-    private TypeMapper typeMapper = (t, s, f) -> null;
+    private TypeMapper typeMapper = (javaType, scale, field) -> null;
 
     /**
      * 严格限制数据库字段类型一致
