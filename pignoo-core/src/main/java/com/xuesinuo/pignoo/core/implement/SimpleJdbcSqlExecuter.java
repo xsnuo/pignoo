@@ -283,6 +283,7 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
         return new PignooRuntimeException(e);
     }
 
+    @SuppressWarnings("unchecked")
     private static final <R> R getObject(ResultSet rs, Class<R> c, Integer index, String columnLabel) throws SQLException {
         Class<?> getterClass = c;
         if (c.isEnum()) {
@@ -325,6 +326,7 @@ public class SimpleJdbcSqlExecuter implements SqlExecuter {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static <T extends Enum<T>> T convertEnum(Object dbValue, Class<?> enumType) {
         Class<T> concreteEnumType = (Class<T>) enumType;
         if (dbValue instanceof String) {
