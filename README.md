@@ -45,7 +45,7 @@ public class Test {
 
 ### 名字的由来
 
-Pignoo - 名字来源于《Despicable Me 3》中Minions（小黄人）向Gru（格鲁）抗议生活无聊时喊的词。可能这个词本身没啥意义，但Bilibili上字母打出的“Pignoo（无聊）”。正巧注意到这个词那天，本项目开始动工。Pignoo这个单词好记又没有任何特指意义，蛮适合用来起名字的。又因为这个词拼写接近Pig，于是项目Logo形象是个戴着Minions同款护目镜的小猪🐷。
+Pignoo - 名字来源于《Despicable Me 3》中Minions（小黄人）向Gru（格鲁）抗议生活无聊时喊的词。可能这个词本身没啥意义，但Bilibili上字幕打出的“Pignoo（无聊）”。正巧注意到这个词那天，本项目开始动工。Pignoo这个单词好记又没有任何特指意义，蛮适合用来起名字的。又因为这个词拼写接近Pig，于是项目Logo形象是个戴着Minions同款护目镜的小猪🐷。
 
 Gru（格鲁 - 《Despicable Me》主人公，主宰一切的人）。记住这两个名字，这是Pignoo框架中的两个核心类。
 
