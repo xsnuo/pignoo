@@ -25,16 +25,15 @@ public class Test {
     private Pignoo pignoo = new BasePignoo(Test.dataSource);
 
     public void test() {
-        var list = pignoo.writer(Pig.class);
+        var list = pignoo.writer(Pig.class);// 加载数据
+
         List<Pig> pigs = list.getAll();// 查询
-        System.out.println(pigs);
 
-        new Pig(null, "新的小猪");
-        Pig newPig = list.add(pig);// 新增
+        Pig pig = list.add(new Pig(null, "新的小猪"));// 新增
 
-        newPig.setName("小猪改名");// 修改
+        pig.setName("小猪改名");// 修改
 
-        list.filter(Pig::getId, "==", newPig.getId()).removeAll();// 删除
+        list.filter(Pig::getId, "==", pig.getId()).removeAll();// 删除
     }
 }
 ```
@@ -65,8 +64,8 @@ Pignoo不是一个全功能的ORM框架，它可能满足不了你100%对数据�
 
 Pignoo的核心思路是：用List与JavaBean的操作取代数据库操作。操作JavaBean，就等同于操作数据库。比如上面`newPig.setName("小猪改名");`满足了：
 
-- newPig是从Pignoo中取出
-- set操作修改了newPig的属性
+- pig是从Pignoo中取出
+- setter操作修改了pig的属性
 
 于是，“小猪改名”就会被按照ID，更新到数据库中。但注意**多线程修改数据时，Pignoo不能实时将其他线程更新的结果写到当前线程已经查询出的JavaBean上**。
 
@@ -77,10 +76,10 @@ Pignoo的核心思路是：用List与JavaBean的操作取代数据库操作。�
 Pignoo对数据的操作，很像是在使用list与list.stream()。在分解代码逻辑时，可以抛开SQL思维，用List去理解Pignoo的逻辑。例如：
 
 ```java
-    pignoo.writer(Pig.class) // 从Pignoo获取PigList
-        .sort(Pig::getId, SMode.MIN_FIRST) // 按照ID排序
-        .sort(Pig::getName, SMode.MIN_FIRST) // 按照Name字典序排序
-        .getAll(); // 查询最终结果是：先按Name字典序排序，同Name时再按ID从小到大排序
+pignoo.writer(Pig.class) // 从Pignoo获取PigList
+    .sort(Pig::getId, SMode.MIN_FIRST) // 按照ID排序
+    .sort(Pig::getName, SMode.MIN_FIRST) // 按照Name字典序排序
+    .getAll(); // 查询最终结果是：先按Name字典序排序，同Name时再按ID从小到大排序
 ```
 
 如果你还是在用SQL思路看待问题，很可能会误认为上面代码是“先按ID排序，再按Name排序”。但设想一下，你如果是用同样的流程用`.stream()`操作List，第二次排序时候，会将第一次的排序“打乱”，最终形成Name顺序优先、ID顺序其次的结果。
@@ -128,22 +127,23 @@ Gru是Pignoo的管理者，或者理解成Pignoo工厂，事务管理器。使�
 在非Spring环境下，或不想使用Spring事务管理的情况下，最优先使用Gru来构建pignoo。例如：
 
 ```java
-    Gru gru = new Gru(dataSource); // 线程安全，可以为每个dataSource生成一个Gru实例，全局共享
+Gru gru = new Gru(dataSource); // 线程安全，可以为每个dataSource生成一个Gru实例，全局共享
 
-    List<Pig> list = gru.run(pignoo -> { // 非事务操作：查询
-        var reader = pignoo.reader(Pig.class);
-        Pig peppa = reader.copyReader().filter(Pig::getName, "==", "佩奇").getOne();
-        return reader.filter(Pig::getId, ">", peppa.getId()).getAll();
-    });
+List<Pig> list = gru.run(pignoo -> { // 非事务操作：查询
+    var reader = pignoo.reader(Pig.class);
+    Pig peppa = reader.copyReader().filter(Pig::getName, "==", "佩奇").getOne();
+    return reader.filter(Pig::getId, ">", peppa.getId()).getAll();
+});
 
-    Pig pig = gru.runTransaction(pignoo -> { // 事务操作
-        Pig peppa = pignoo.writer(Pig.class).filter(Pig::getName, "==", "佩奇").getOne();
-        peppa.setName("乔治");
-        peppa = pignoo.writer(Pig.class).filter(Pig::getName, "==", "Peppa").getOne();
-        peppa.setName("George");
-        return peppa;
-    });
-    pig.setName("佩奇"); // 超出作用域的setter操作不会影响数据库
+Pig pig = gru.runTransaction(pignoo -> { // 事务操作
+    Pig peppa = pignoo.writer(Pig.class).filter(Pig::getName, "==", "佩奇").getOne();
+    peppa.setName("乔治");
+    peppa = pignoo.writer(Pig.class).filter(Pig::getName, "==", "Peppa").getOne();
+    peppa.setName("George");
+    return peppa;
+});
+
+pig.setName("佩奇"); // 超出Pignoo作用域，setter操作不会影响数据库
 ```
 
 #### PignooReader与PignooWriter
