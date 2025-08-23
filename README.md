@@ -296,3 +296,39 @@ Gru gru = new Gru(dataSource, config);
   - lambda的入参有表明和类名。一种常见的方式，是用表明加id后缀做主键名：`(tableName, className) -> tableName + "_id"`。
   - 默认是`id`。
 - `autoPrimaryKey`：主键是否是自动生成的。默认`true`。
+
+## TODO List
+
+- [ ] 全局配置允许关闭代理
+- [ ] 支持PostgreSQL
+- [ ] 自定义非标准数据类型映射规则
+  - [ ] 替换标准JDBC类型映射规则（显式调用JDBC的getXXX方法代替getObject方法）
+  - [ ] 圈定Pignoo默认支持的数据类型范围
+  - [ ] 自定义非标准JDBC类型映射规则，例如String映射成List
+- [ ] 扩展数据集合操作
+  - [ ] addAll
+  - [ ] getOne改为忽略排序条件的查询（效率更高）
+  - [ ] getFirst（使用排序条件）
+  - [ ] getLast（反向使用排序条件）
+  - [ ] pollFirst
+  - [ ] pollLast
+  - [ ] removeByIds
+  - [ ] 去除replaceAll
+  - [ ] 去除mixAll
+  - [ ] replaceByIds
+  - [ ] mixByIds
+  - [ ] iterator游标查询，并指定游标跳页数量
+  - [ ] spliterator 并行遍历器
+  - [ ] forEach
+  - [ ] isEmpty
+  - [ ] containsId
+  - [ ] containsIds
+  - [ ] intersection 交集
+  - [ ] union 并集
+  - [ ] removeAll 单侧补集
+  - [ ] complement 双侧补集
+  - [ ] max maxNullAs
+  - [ ] min minNullAs
+  - [ ] sum sumNullAs
+  - [ ] avg avgNullAs
+  - [ ] count countNullAs
