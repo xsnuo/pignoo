@@ -188,6 +188,9 @@ public class ClassInfo<E> {
                 }
             }
         }
+        for (Field field : this.fields) {
+            field.setAccessible(true);
+        }
     }
 
     private Method[] fields2GetterSetter(Class<E> c, Field field) {

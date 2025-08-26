@@ -1,12 +1,14 @@
 package com.xuesinuo.pignoo.core.entity;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.util.List;
 
-import org.springframework.cglib.proxy.Enhancer;
-import org.springframework.cglib.proxy.MethodInterceptor;
-import org.springframework.cglib.proxy.MethodProxy;
+import com.xuesinuo.pignoo.core.exception.PignooRuntimeException;
+
+import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.implementation.InvocationHandlerAdapter;
+import net.bytebuddy.matcher.ElementMatchers;
 
 /**
  * 查询结果实体的代理的创建器
@@ -18,13 +20,11 @@ import org.springframework.cglib.proxy.MethodProxy;
  * @since 0.1.0
  * @version 0.1.0
  */
+@Slf4j
 public class EntityProxyFactory<E> {
-    private Enhancer enhancer;
+    private Class<? extends E> porxyClass;
+    private Field proxyField;
     private EntityMapper<E> mapper;
-    /**
-     * 正在构建代理时的对象，会调用set方法赋值内容，以此标记此工厂正在构建的代理，正在构建中的代理不执行代理逻辑
-     */
-    private Object building = null;
 
     /**
      * 在代理执行setter时，拦截并执行的update操作
@@ -57,20 +57,27 @@ public class EntityProxyFactory<E> {
      */
     public EntityProxyFactory(Class<E> c, EntityMapper<E> mapper, Updater updater) {
         this.mapper = mapper;
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(c);
-        enhancer.setCallback(new MethodInterceptor() {
-            @Override
-            public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-                String methodName = method.getName();
-                int index = mapper.setterNames().indexOf(methodName);
-                if (index >= 0 && method.getParameterCount() == 1 && obj != building) {
-                    updater.run(index, args[0], obj);
-                }
-                return proxy.invokeSuper(obj, args);
-            }
-        });
-        this.enhancer = enhancer;
+        try {
+            this.porxyClass = new ByteBuddy()
+                    .subclass(c)
+                    .defineField("$proxy", c, java.lang.reflect.Modifier.PRIVATE)
+                    .method(ElementMatchers.not(ElementMatchers.isDeclaredBy(Object.class)))
+                    .intercept(InvocationHandlerAdapter.of((proxy, method, args) -> {
+                        String methodName = method.getName();
+                        int index = mapper.setterNames().indexOf(methodName);
+                        if (index >= 0 && method.getParameterCount() == 1) {
+                            updater.run(index, args[0], proxy);
+                        }
+                        return method.invoke(this.proxyField.get(proxy), args);
+                    }))
+                    .make()
+                    .load(c.getClassLoader())
+                    .getLoaded();
+            this.proxyField = porxyClass.getDeclaredField("$proxy");
+            this.proxyField.setAccessible(true);
+        } catch (Exception e) {
+            throw new PignooRuntimeException("Pignoo create proxy-factory error", e);
+        }
     }
 
     /**
@@ -85,23 +92,25 @@ public class EntityProxyFactory<E> {
      *         <p>
      *         Proxy
      */
-    @SuppressWarnings("unchecked")
-    public synchronized E build(E entity) {
+    public E build(E entity) {
         if (entity == null) {
             return null;
         }
-        E proxy = (E) enhancer.create();
-        building = proxy;
-        for (int i = 0; i < mapper.columns().size(); i++) {
+        E proxy = null;
+        try {
+            proxy = (E) porxyClass.getDeclaredConstructor().newInstance();
+            proxyField.set(proxy, entity);
+        } catch (Exception e) {
+            throw new PignooRuntimeException("Pignoo create proxy error", e);
+        }
+        for (Field field : mapper.fields()) {
             try {
-                if (mapper.setters().get(i) != null && mapper.getters().get(i) != null) {
-                    mapper.setters().get(i).invoke(proxy, mapper.getters().get(i).invoke(entity));
-                }
-            } catch (IllegalAccessException | InvocationTargetException e) {
+                Object value = field.get(entity);
+                field.set(proxy, value);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        building = null;
         return proxy;
     }
 

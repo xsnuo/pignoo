@@ -1,11 +1,10 @@
 package com.xuesinuo.pignoo.core.entity;
 
-import java.lang.reflect.Method;
 import java.util.function.Function;
 
-import org.springframework.cglib.proxy.Enhancer;
-import org.springframework.cglib.proxy.MethodInterceptor;
-import org.springframework.cglib.proxy.MethodProxy;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.implementation.InvocationHandlerAdapter;
+import net.bytebuddy.matcher.ElementMatchers;
 
 /**
  * getter方法与属性名映射器
@@ -34,20 +33,25 @@ public class FunctionNameGetter<E> {
      *          <p>
      *          Entity Type
      */
-    @SuppressWarnings("unchecked")
     public FunctionNameGetter(Class<E> c) {
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(c);
-        namePicker = new NamePicker();
-        enhancer.setCallback(new MethodInterceptor() {
-            @Override
-            public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-                String functionName = method.getName();
-                namePicker.name = functionName;
-                return null;
-            }
-        });
-        proxy = (E) enhancer.create();
+        this.namePicker = new NamePicker();
+        try {
+            this.proxy = (E) new ByteBuddy()
+                    .subclass(c)
+                    .method(ElementMatchers.any())
+                    .intercept(InvocationHandlerAdapter.of((proxy, method, args) -> {
+                        String functionName = method.getName();
+                        namePicker.name = functionName;
+                        return null;
+                    }))
+                    .make()
+                    .load(c.getClassLoader())
+                    .getLoaded()
+                    .getDeclaredConstructor()
+                    .newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("创建代理对象失败", e);
+        }
     }
 
     /**
@@ -66,7 +70,7 @@ public class FunctionNameGetter<E> {
         String functionName;
         synchronized (this) {
             fun.apply(proxy);
-            functionName = namePicker.name;
+            functionName = this.namePicker.name;
         }
         return functionName;
     }
