@@ -18,7 +18,7 @@ import net.bytebuddy.matcher.ElementMatchers;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
- * @version 0.1.0
+ * @version 1.0.0
  */
 @Slf4j
 public class EntityProxyFactory<E> {

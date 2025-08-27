@@ -300,12 +300,7 @@ Gru gru = new Gru(dataSource, config);
 ## TODO List
 
 - [x] SpringAOP替换为ByteBuddy
-- [ ] 全局配置允许关闭代理
-- [ ] 支持PostgreSQL
-- [ ] 自定义非标准数据类型映射规则
-  - [ ] 替换标准JDBC类型映射规则（显式调用JDBC的getXXX方法代替getObject方法）
-  - [ ] 圈定Pignoo默认支持的数据类型范围
-  - [ ] 自定义非标准JDBC类型映射规则，例如String映射成List
+- [x] 全局配置允许关闭代理
 - [ ] 扩展数据集合操作
   - [ ] addAll
   - [ ] getOne改为忽略排序条件的查询（效率更高）
@@ -333,3 +328,8 @@ Gru gru = new Gru(dataSource, config);
   - [ ] sum sumNullAs
   - [ ] avg avgNullAs
   - [ ] count countNullAs
+- [ ] 支持PostgreSQL
+- [ ] 自定义非标准数据类型映射规则
+  - [ ] 替换标准JDBC类型映射规则（显式调用JDBC的getXXX方法代替getObject方法）
+  - [ ] 圈定Pignoo默认支持的数据类型范围
+  - [ ] 自定义非标准JDBC类型映射规则，例如String映射成List

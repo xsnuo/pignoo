@@ -14,7 +14,7 @@ import lombok.Data;
  *
  * @author xuesinuo
  * @since 0.1.0
- * @version 0.2.1
+ * @version 1.1.0
  */
 @Data
 public class PignooConfig {
@@ -36,6 +36,7 @@ public class PignooConfig {
         config.setNamingMode(this.namingMode);
         config.setPrimaryKeyNamingConvention(this.primaryKeyNamingConvention);
         config.setAutoPrimaryKey(this.autoPrimaryKey);
+        config.setOpenSetterProxy(this.openSetterProxy);
         return config;
     }
 
@@ -81,4 +82,13 @@ public class PignooConfig {
      * @version 0.2.0
      */
     private Boolean autoPrimaryKey = true;
+
+    /**
+     * 在执行Setter时，自动更新数据库
+     * <p>
+     * Automatically update the database when executing the Setter
+     * 
+     * @version 1.1.0
+     */
+    private Boolean openSetterProxy = true;
 }

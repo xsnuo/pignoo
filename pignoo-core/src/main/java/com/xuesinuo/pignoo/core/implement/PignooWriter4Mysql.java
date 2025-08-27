@@ -60,30 +60,33 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
      */
     public PignooWriter4Mysql(Pignoo pignoo, Supplier<Connection> connGetter, Consumer<Connection> connCloser, boolean inTransaction, Class<E> c, PignooConfig config) {
         super(pignoo, connGetter, connCloser, inTransaction, c, config);
-
-        this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, e) -> {
-            if (pignoo.closed()) {
-                return;
-            }
-            Object primaryKeyValue = null;
-            try {
-                primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
-            } catch (IllegalAccessException | InvocationTargetException ex) {
-                throw new MapperException("Primary key is not found " + e, ex);
-            }
-            if (primaryKeyValue == null) {
-                throw new MapperException("Primary key can not be NULL " + e);
-            }
-            SqlParam sqlParam = new SqlParam();
-            StringBuilder sql = new StringBuilder("");
-            sql.append("UPDATE ");
-            sql.append("`" + entityMapper.tableName() + "` ");
-            sql.append("SET ");
-            sql.append("`" + entityMapper.columns().get(index) + "` = " + (arg == null ? "NULL" : sqlParam.next(arg)) + " ");
-            sql.append("WHERE ");
-            sql.append("`" + entityMapper.primaryKeyColumn() + "` = " + sqlParam.next(primaryKeyValue) + " ");
-            sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
-        });
+        if (config.getOpenSetterProxy() == null || config.getOpenSetterProxy() == true) {
+            this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, e) -> {
+                if (pignoo.closed()) {
+                    return;
+                }
+                Object primaryKeyValue = null;
+                try {
+                    primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
+                } catch (IllegalAccessException | InvocationTargetException ex) {
+                    throw new MapperException("Primary key is not found " + e, ex);
+                }
+                if (primaryKeyValue == null) {
+                    throw new MapperException("Primary key can not be NULL " + e);
+                }
+                SqlParam sqlParam = new SqlParam();
+                StringBuilder sql = new StringBuilder("");
+                sql.append("UPDATE ");
+                sql.append("`" + entityMapper.tableName() + "` ");
+                sql.append("SET ");
+                sql.append("`" + entityMapper.columns().get(index) + "` = " + (arg == null ? "NULL" : sqlParam.next(arg)) + " ");
+                sql.append("WHERE ");
+                sql.append("`" + entityMapper.primaryKeyColumn() + "` = " + sqlParam.next(primaryKeyValue) + " ");
+                sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
+            });
+        } else {
+            this.entityProxyFactory = null;
+        }
     }
 
     @Override
@@ -109,7 +112,10 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
             sql2.append("FOR UPDATE ");
             e = sqlExecuter.selectOne(connGetter, connCloser, sql2.toString(), sqlParam2.params, c);
         }
-        return entityProxyFactory.build(e);
+        if (entityProxyFactory != null) {
+            e = entityProxyFactory.build(e);
+        }
+        return e;
     }
 
     @Override
@@ -205,7 +211,10 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql2.append("`" + entityMapper.tableName() + "` ");
         sql2.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam2.next(primaryKeyValue) + " ");
         e = sqlExecuter.selectOne(connGetter, connCloser, sql2.toString(), sqlParam2.params, c);
-        return entityProxyFactory.build(e);
+        if (entityProxyFactory != null) {
+            e = entityProxyFactory.build(e);
+        }
+        return e;
     }
 
     @Override
