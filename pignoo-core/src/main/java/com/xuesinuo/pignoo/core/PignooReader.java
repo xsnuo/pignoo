@@ -1,5 +1,6 @@
 package com.xuesinuo.pignoo.core;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -23,7 +24,7 @@ import java.util.function.Function;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.2.3
- * @version 0.2.3
+ * @version 1.1.0
  */
 public interface PignooReader<E> {
 
@@ -61,15 +62,26 @@ public interface PignooReader<E> {
     boolean isReadOnly();
 
     /**
-     * 获取表中的第一条数据
+     * 获取第一条数据
      * <p>
-     * Get the first data in the table
+     * Get the first data
      *
      * @return 第一条数据，可能为null
      *         <p>
      *         The first data, may be null
      */
-    E getOne();
+    E getFirst();
+
+    /**
+     * 获取满足条件的一条数据
+     * <p>
+     * Get one data that meets the condition
+     * 
+     * @return 满足条件的一条数据，可能为null
+     *         <p>
+     *         One data that meets the condition, may be null
+     */
+    E getAny();
 
     /**
      * 获取列表
@@ -256,6 +268,92 @@ public interface PignooReader<E> {
     PignooReader<E> filter(Function<PignooFilter<E>, PignooFilter<E>> filterBuilder);
 
     /**
+     * 求最大值
+     * <p>
+     * Max
+     *
+     * @param field 求最大值的字段
+     *              <p>
+     *              Field
+     * @param c     结果类型
+     *              <p>
+     *              Class of result
+     * @param <R>   结果类型
+     *              <p>
+     *              Class of result
+     * @return 求最大值结果
+     *         <p>
+     *         result
+     */
+    <R> R max(Function<E, R> field, Class<R> c);
+
+    /**
+     * 求最大值
+     * <p>
+     * Max
+     *
+     * @param field  求最大值的字段
+     *               <p>
+     *               Field
+     * @param c      结果类型
+     *               <p>
+     *               Class of result
+     * @param nullAs 将null视为此值计算
+     *               <p>
+     *               View null as this value
+     * @param <R>    结果类型
+     *               <p>
+     *               Class of result
+     * @return 求最大值结果
+     *         <p>
+     *         result
+     */
+    <R> R maxNullAs(Function<E, R> field, Class<R> c, R nullAs);
+
+    /**
+     * 求最小值
+     * <p>
+     * Min
+     *
+     * @param field 求最小值的字段
+     *              <p>
+     *              Field
+     * @param c     结果类型
+     *              <p>
+     *              Class of result
+     * @param <R>   结果类型
+     *              <p>
+     *              Class of result
+     * @return 求最小值结果
+     *         <p>
+     *         result
+     */
+    <R> R min(Function<E, R> field, Class<R> c);
+
+    /**
+     * 求最小值
+     * <p>
+     * Min
+     *
+     * @param field  求最小值的字段
+     *               <p>
+     *               Field
+     * @param c      结果类型
+     *               <p>
+     *               Class of result
+     * @param nullAs 将null视为此值计算
+     *               <p>
+     *               View null as this value
+     * @param <R>    结果类型
+     *               <p>
+     *               Class of result
+     * @return 求最小值结果
+     *         <p>
+     *         result
+     */
+    <R> R minNullAs(Function<E, R> field, Class<R> c, R nullAs);
+
+    /**
      * 求和
      * <p>
      * Sum
@@ -276,6 +374,29 @@ public interface PignooReader<E> {
     <R> R sum(Function<E, R> field, Class<R> c);
 
     /**
+     * 求和
+     * <p>
+     * Sum
+     *
+     * @param field  求和的字段
+     *               <p>
+     *               Field
+     * @param c      结果类型
+     *               <p>
+     *               Class of result
+     * @param nullAs 将null视为此值计算
+     *               <p>
+     *               View null as this value
+     * @param <R>    结果类型
+     *               <p>
+     *               Class of result
+     * @return 求和结果
+     *         <p>
+     *         result
+     */
+    <R> R sumNullAs(Function<E, R> field, Class<R> c, R nullAs);
+
+    /**
      * 求平均
      * <p>
      * Avg
@@ -294,4 +415,84 @@ public interface PignooReader<E> {
      *         result of avg
      */
     <R> R avg(Function<E, R> field, Class<R> c);
+
+    /**
+     * 求平均
+     * <p>
+     * Avg
+     *
+     * @param field  求平均的字段
+     *               <p>
+     *               Field
+     * @param c      结果类型
+     *               <p>
+     *               Class of result
+     * @param nullAs 将null视为此值计算
+     *               <p>
+     *               View null as this value
+     * @param <R>    结果类型
+     *               <p>
+     *               Class of result
+     * @return 求平均结果
+     *         <p>
+     *         result of avg
+     */
+    <R> R avgNullAs(Function<E, R> field, Class<R> c, R nullAs);
+
+    /**
+     * 求不重复的总条数
+     * <p>
+     * Count distinct
+     *
+     * @param field 求总条数的字段
+     *              <p>
+     *              Field
+     * @param <R>   字段类型
+     *              <p>
+     *              Class of result
+     * @return 求总条数结果
+     *         <p>
+     *         result of avg
+     */
+    <R> long countDistinct(Function<E, R> field);
+
+    /**
+     * 求不重复的总条数
+     * <p>
+     * Count distinct
+     *
+     * @param field  求总条数的字段
+     *               <p>
+     *               Field
+     * @param nullAs 将null视为此值计算
+     *               <p>
+     *               View null as this value
+     * @param <R>    字段类型
+     *               <p>
+     *               Class of result
+     * @return 求总条数结果
+     *         <p>
+     *         result of avg
+     */
+    <R> long countDistinctNullAs(Function<E, R> field, R nullAs);
+
+    /**
+     * 是否包含指定ID
+     * <p>
+     * Is contains id
+     * 
+     * @param e 含ID的实体
+     * @return 是否包含指定ID
+     */
+    boolean containsId(E e);
+
+    /**
+     * 是否全包含指定ID
+     * <p>
+     * Is contains all ids
+     * 
+     * @param collection 含ID的实体集合
+     * @return 是否全包含指定ID
+     */
+    boolean containsIds(Collection<E> collection);
 }

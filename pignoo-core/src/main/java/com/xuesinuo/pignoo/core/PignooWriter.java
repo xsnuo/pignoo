@@ -27,7 +27,7 @@ import java.util.function.Function;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
- * @version 0.2.3
+ * @version 1.1.0
  */
 public interface PignooWriter<E> extends PignooReader<E> {
     /**
@@ -45,32 +45,40 @@ public interface PignooWriter<E> extends PignooReader<E> {
     E add(E e);
 
     /**
-     * 根据主键修改数据：混入不为NULL的属性
+     * 取出并移除第一条数据
+     * <p>
+     * Take out and remove the first data
+     * 
+     * @return 第一条数据
+     *         <p>
+     *         First data
+     */
+    E pollFirst();
+
+    /**
+     * 取出并移除任意一条满足条件的数据
+     * <p>
+     * Take out and remove any data that meets the condition
+     * 
+     * @return 任意一条满足条件的数据
+     *         <p>
+     *         Any data that meets the condition
+     */
+    E pollAny();
+
+    /**
+     * 根据ID修改数据：混入不为NULL的属性
      * <p>
      * Modify data by Primary-Key: mix in properties that are not NULL
      *
-     * @param e 数据
+     * @param e 含ID的数据
      *          <p>
-     *          Data
+     *          data with Primary-Key
      * @return 受影响条数
      *         <p>
      *         Number of affected entries
      */
     long mixById(E e);
-
-    /**
-     * 根据主键修改数据：完全替换
-     * <p>
-     * Modify data by Primary-Key: completely replace
-     *
-     * @param e 数据
-     *          <p>
-     *          Data
-     * @return 受影响条数
-     *         <p>
-     *         Number of affected entries
-     */
-    long replaceById(E e);
 
     /**
      * 修改数据：混入不为NULL的属性
@@ -87,6 +95,20 @@ public interface PignooWriter<E> extends PignooReader<E> {
     long mixAll(E e);
 
     /**
+     * 根据ID修改数据：完全替换
+     * <p>
+     * Modify data by Primary-Key: completely replace
+     *
+     * @param e 含ID的数据
+     *          <p>
+     *          data with Primary-Key
+     * @return 受影响条数
+     *         <p>
+     *         Number of affected entries
+     */
+    long replaceById(E e);
+
+    /**
      * 修改数据：完全替换
      * <p>
      * Modify data: completely replace
@@ -101,11 +123,11 @@ public interface PignooWriter<E> extends PignooReader<E> {
     long replaceAll(E e);
 
     /**
-     * 根据主键删除数据
+     * 根据ID删除数据
      * <p>
      * Delete data by Primary-Key
      *
-     * @param e 含主键的实体
+     * @param e 含ID的实体
      *          <p>
      *          data with Primary-Key
      * @return 受影响条数

@@ -30,7 +30,7 @@ import com.xuesinuo.pignoo.core.exception.MapperException;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
- * @version 0.3.0
+ * @version 1.1.0
  */
 public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements PignooWriter<E> {
 
@@ -90,8 +90,42 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
     }
 
     @Override
-    public E getOne() {
-        E e = super.getOne();
+    public boolean isReadOnly() {
+        return false;
+    }
+
+    @Override
+    public E getFirst() {
+        E e = super.getFirst();
+        if (e != null && inTransaction) {
+            StringBuilder sql2 = new StringBuilder("");
+            SqlParam sqlParam2 = new SqlParam();
+            Object primaryKeyValue = null;
+            try {
+                primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
+            } catch (IllegalAccessException | InvocationTargetException ex) {
+                throw new MapperException("Primary key is not found " + e, ex);
+            }
+            if (primaryKeyValue == null) {
+                throw new MapperException("Primary key is null " + e);
+            }
+            sql2.append("SELECT ");
+            sql2.append(entityMapper.columns().stream().map(column -> "`" + column + "`").collect(Collectors.joining(",")) + " ");
+            sql2.append("FROM ");
+            sql2.append("`" + entityMapper.tableName() + "` ");
+            sql2.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam2.next(primaryKeyValue) + " ");
+            sql2.append("FOR UPDATE ");
+            e = sqlExecuter.selectOne(connGetter, connCloser, sql2.toString(), sqlParam2.params, c);
+        }
+        if (entityProxyFactory != null) {
+            e = entityProxyFactory.build(e);
+        }
+        return e;
+    }
+
+    @Override
+    public E getAny() {
+        E e = super.getAny();
         if (e != null && inTransaction) {
             StringBuilder sql2 = new StringBuilder("");
             SqlParam sqlParam2 = new SqlParam();
@@ -218,6 +252,26 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
     }
 
     @Override
+    public E pollFirst() {
+        E e = this.getFirst();
+        if (e == null) {
+            return null;
+        }
+        this.removeById(e);
+        return e;
+    }
+
+    @Override
+    public E pollAny() {
+        E e = this.getAny();
+        if (e == null) {
+            return null;
+        }
+        this.removeById(e);
+        return e;
+    }
+
+    @Override
     public long mixById(E e) {
         Object primaryKeyValue = null;
         try {
@@ -259,6 +313,38 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
     }
 
     @Override
+    public long mixAll(E e) {
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        Map<String, Object> params = new LinkedHashMap<>();
+        try {
+            for (int i = 0; i < entityMapper.columns().size(); i++) {
+                Method getter = entityMapper.getters().get(i);
+                if (getter != null && !entityMapper.columns().get(i).equals(entityMapper.primaryKeyColumn())) {
+                    Object paramValue = getter.invoke(e);
+                    if (paramValue != null) {
+                        params.put(entityMapper.columns().get(i), paramValue);
+                    }
+                }
+            }
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            throw new MapperException(ex);
+        }
+        if (params.size() == 0) {
+            return 0L;
+        }
+        sql.append("UPDATE ");
+        sql.append("`" + entityMapper.tableName() + "` ");
+        sql.append("SET ");
+        sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + sqlParam.next(params.get(column))).collect(Collectors.joining(",")) + " ");
+        if (filter != null) {
+            sql.append("WHERE ");
+            sql.append(filter2Sql(filter, sqlParam));
+        }
+        return sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
+    }
+
+    @Override
     public long replaceById(E e) {
         Object primaryKeyValue = null;
         try {
@@ -293,38 +379,6 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
         if (filter != null) {
             sql.append("AND " + filter2Sql(filter, sqlParam));
-        }
-        return sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
-    }
-
-    @Override
-    public long mixAll(E e) {
-        StringBuilder sql = new StringBuilder("");
-        SqlParam sqlParam = new SqlParam();
-        Map<String, Object> params = new LinkedHashMap<>();
-        try {
-            for (int i = 0; i < entityMapper.columns().size(); i++) {
-                Method getter = entityMapper.getters().get(i);
-                if (getter != null && !entityMapper.columns().get(i).equals(entityMapper.primaryKeyColumn())) {
-                    Object paramValue = getter.invoke(e);
-                    if (paramValue != null) {
-                        params.put(entityMapper.columns().get(i), paramValue);
-                    }
-                }
-            }
-        } catch (IllegalAccessException | InvocationTargetException ex) {
-            throw new MapperException(ex);
-        }
-        if (params.size() == 0) {
-            return 0L;
-        }
-        sql.append("UPDATE ");
-        sql.append("`" + entityMapper.tableName() + "` ");
-        sql.append("SET ");
-        sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + sqlParam.next(params.get(column))).collect(Collectors.joining(",")) + " ");
-        if (filter != null) {
-            sql.append("WHERE ");
-            sql.append(filter2Sql(filter, sqlParam));
         }
         return sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
     }
@@ -419,11 +473,6 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
             sql.append(filter2Sql(filter, sqlParam));
         }
         return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
-    }
-
-    @Override
-    public boolean isReadOnly() {
-        return false;
     }
 
     @Override

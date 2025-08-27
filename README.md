@@ -301,33 +301,26 @@ Gru gru = new Gru(dataSource, config);
 
 - [x] SpringAOP替换为ByteBuddy
 - [x] 全局配置允许关闭代理
-- [ ] 扩展数据集合操作
-  - [ ] addAll
-  - [ ] getOne改为忽略排序条件的查询（效率更高）
-  - [ ] getFirst（使用排序条件）
-  - [ ] getLast（反向使用排序条件）
-  - [ ] pollFirst
-  - [ ] pollLast
-  - [ ] removeByIds
-  - [ ] 去除replaceAll
-  - [ ] 去除mixAll
-  - [ ] replaceByIds
-  - [ ] mixByIds
+- [x] 扩展数据集合操作
+  - [x] getOne改为getAny忽略排序条件的查询（效率更高）
+  - [x] getFirst（使用排序条件）
+  - [x] pollFirst
+  - [x] pollAny
+  - [x] containsId
+  - [x] containsIds
+  - [x] max maxNullAs
+  - [x] min minNullAs
+  - [x] sum sumNullAs
+  - [x] avg avgNullAs
+  - [x] count countNullAs
+- [ ] 高级的数据集合操作
   - [ ] iterator游标查询，并指定游标跳页数量
   - [ ] spliterator 并行遍历器
   - [ ] forEach
-  - [ ] isEmpty
-  - [ ] containsId
-  - [ ] containsIds
   - [ ] intersection 交集
   - [ ] union 并集
   - [ ] removeAll 单侧补集
   - [ ] complement 双侧补集
-  - [ ] max maxNullAs
-  - [ ] min minNullAs
-  - [ ] sum sumNullAs
-  - [ ] avg avgNullAs
-  - [ ] count countNullAs
 - [ ] 支持PostgreSQL
 - [ ] 自定义非标准数据类型映射规则
   - [ ] 替换标准JDBC类型映射规则（显式调用JDBC的getXXX方法代替getObject方法）

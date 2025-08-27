@@ -1,6 +1,7 @@
 
 package com.xuesinuo.pignoo.core.implement;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
@@ -31,7 +32,7 @@ import com.xuesinuo.pignoo.core.exception.MapperException;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.2.3
- * @version 0.2.3
+ * @version 1.1.0
  */
 public class PignooReader4Mysql<E> implements PignooReader<E> {
 
@@ -98,6 +99,11 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
         pignooWriter.filter = PignooFilter.copy(filter);
         pignooWriter.sorter = PignooSorter.copy(sorter);
         return pignooWriter;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
     }
 
     /**
@@ -298,7 +304,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public E getOne() {
+    public E getFirst() {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT ");
@@ -315,6 +321,26 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
         if (sorter != null) {
             sql.append("ORDER BY ");
             sql.append(sorter2Sql(sorter));
+        }
+        sql.append("LIMIT 1 ");
+        E e = sqlExecuter.selectOne(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+        return e;
+    }
+
+    @Override
+    public E getAny() {
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT ");
+        sql.append(entityMapper.columns().stream().map(column -> "`" + column + "`").collect(Collectors.joining(",")) + " ");
+        sql.append("FROM ");
+        sql.append("`" + entityMapper.tableName() + "` ");
+        if (filter != null) {
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
         }
         sql.append("LIMIT 1 ");
         E e = sqlExecuter.selectOne(connGetter, connCloser, sql.toString(), sqlParam.params, c);
@@ -458,10 +484,96 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
+    public <R> R max(Function<E, R> field, Class<R> c) {
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT MAX(`" + entityMapper.getColumnByFunction(field) + "`) ");
+        sql.append("FROM `" + entityMapper.tableName() + "` ");
+        if (filter != null) {
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
+        }
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+    }
+
+    @Override
+    public <R> R maxNullAs(Function<E, R> field, Class<R> c, R nullAs) {
+        if (nullAs == null) {
+            throw new NullPointerException("#maxNullAs's param 'nullAs' can not be null");
+        }
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT MAX(COALESCE(`" + entityMapper.getColumnByFunction(field) + "`," + sqlParam.next(nullAs) + ")) ");
+        sql.append("FROM `" + entityMapper.tableName() + "` ");
+        if (filter != null) {
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
+        }
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+    }
+
+    @Override
+    public <R> R min(Function<E, R> field, Class<R> c) {
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT MIN(`" + entityMapper.getColumnByFunction(field) + "`) ");
+        sql.append("FROM `" + entityMapper.tableName() + "` ");
+        if (filter != null) {
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
+        }
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+    }
+
+    @Override
+    public <R> R minNullAs(Function<E, R> field, Class<R> c, R nullAs) {
+        if (nullAs == null) {
+            throw new NullPointerException("#minNullAs's param 'nullAs' can not be null");
+        }
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT MIN(COALESCE(`" + entityMapper.getColumnByFunction(field) + "`," + sqlParam.next(nullAs) + ")) ");
+        sql.append("FROM `" + entityMapper.tableName() + "` ");
+        if (filter != null) {
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
+        }
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+    }
+
+    @Override
     public <R> R sum(Function<E, R> field, Class<R> c) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT SUM(`" + entityMapper.getColumnByFunction(field) + "`) ");
+        sql.append("FROM `" + entityMapper.tableName() + "` ");
+        if (filter != null) {
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
+        }
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+    }
+
+    @Override
+    public <R> R sumNullAs(Function<E, R> field, Class<R> c, R nullAs) {
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT SUM(COALESCE(`" + entityMapper.getColumnByFunction(field) + "`," + sqlParam.next(nullAs) + ")) ");
         sql.append("FROM `" + entityMapper.tableName() + "` ");
         if (filter != null) {
             String sqlWhere = filter2Sql(filter, sqlParam);
@@ -490,7 +602,122 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public boolean isReadOnly() {
-        return true;
+    public <R> R avgNullAs(Function<E, R> field, Class<R> c, R nullAs) {
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT AVG(COALESCE(`" + entityMapper.getColumnByFunction(field) + "`," + sqlParam.next(nullAs) + ")) ");
+        sql.append("FROM `" + entityMapper.tableName() + "` ");
+        if (filter != null) {
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
+        }
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+    }
+
+    @Override
+    public <R> long countDistinct(Function<E, R> field) {
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT COUNT(DISTINCT `" + entityMapper.getColumnByFunction(field) + "`) ");
+        sql.append("FROM `" + entityMapper.tableName() + "` ");
+        if (filter != null) {
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
+        }
+        Long count = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, Long.class);
+        if (count == null) {
+            return 0;
+        }
+        return count;
+    }
+
+    @Override
+    public <R> long countDistinctNullAs(Function<E, R> field, R nullAs) {
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT COUNT(DISTINCT COALESCE(`" + entityMapper.getColumnByFunction(field) + "`, " + sqlParam.next(nullAs) + ")) ");
+        sql.append("FROM `" + entityMapper.tableName() + "` ");
+        if (filter != null) {
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
+        }
+        Long count = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, Long.class);
+        if (count == null) {
+            return 0;
+        }
+        return count;
+    }
+
+    @Override
+    public boolean containsId(E e) {
+        if (e == null) {
+            return false;
+        }
+        Object primaryKeyValue = null;
+        try {
+            primaryKeyValue = entityMapper.primaryKeyGetter().invoke(e);
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            throw new MapperException("Primary key is not found " + e, ex);
+        }
+        if (primaryKeyValue == null) {
+            throw new MapperException("Primary key can not be NULL " + e);
+        }
+
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT COUNT(*) FROM ");
+        sql.append("`" + entityMapper.tableName() + "` ");
+        sql.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
+        if (filter != null) {
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("AND ");
+                sql.append(sqlWhere);
+            }
+        }
+        Long size = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, Long.class);
+        return size != null && size > 0;
+    }
+
+    @Override
+    public boolean containsIds(Collection<E> collection) {
+        if (collection == null || collection.isEmpty()) {
+            return false;
+        }
+        List<Object> pkList = collection.stream().filter(e -> e != null).map(e -> {
+            try {
+                return entityMapper.primaryKeyGetter().invoke(e);
+            } catch (IllegalAccessException | InvocationTargetException ex) {
+                throw new MapperException("Primary key is not found " + e, ex);
+            }
+        }).filter(pk -> pk != null).distinct().toList();
+        if (pkList.size() != collection.size()) {
+            return false;
+        }
+
+        StringBuilder sql = new StringBuilder("");
+        SqlParam sqlParam = new SqlParam();
+        sql.append("SELECT COUNT(*) FROM ");
+        sql.append("`" + entityMapper.tableName() + "` ");
+        sql.append("WHERE `" + entityMapper.primaryKeyColumn() + "` IN ( ");
+        sql.append(pkList.stream().map(pk -> sqlParam.next(pk)).collect(Collectors.joining(","))).append(") ");
+        if (filter != null) {
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("AND ");
+                sql.append(sqlWhere);
+            }
+        }
+        Long size = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, Long.class);
+        return size != null && size.intValue() == collection.size();
     }
 }
