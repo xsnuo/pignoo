@@ -313,10 +313,10 @@ Gru gru = new Gru(dataSource, config);
   - [x] sum sumNullAs
   - [x] avg avgNullAs
   - [x] count countNullAs
-- [ ] 高级的数据集合操作
-  - [ ] iterator游标查询，并指定游标跳页数量
+- [x] 高级的数据集合操作
+  - [x] iterator游标查询，并指定游标跳页数量
   - [ ] spliterator 并行遍历器
-  - [ ] forEach
+  - [x] forEach
 - [ ] 支持PostgreSQL
 - [ ] 自定义非标准数据类型映射规则
   - [ ] 替换标准JDBC类型映射规则（显式调用JDBC的getXXX方法代替getObject方法）
