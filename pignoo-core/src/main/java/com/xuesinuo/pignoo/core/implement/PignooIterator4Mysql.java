@@ -29,6 +29,7 @@ public class PignooIterator4Mysql<E> implements Iterator<E> {
     private final SMode idSortMode;
 
     private List<E> list;
+    private long pageIndex = 0;
     private int stepIndex = -1;
     private long index = 0;
     private E now;
@@ -60,32 +61,43 @@ public class PignooIterator4Mysql<E> implements Iterator<E> {
     }
 
     private void nextStep() throws IllegalAccessException, InvocationTargetException {
+        this.pageIndex++;
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT ");
         sql.append(this.reader.entityMapper.columns().stream().map(column -> "`" + column + "`").collect(Collectors.joining(",")) + " ");
         sql.append("FROM ");
         sql.append("`" + this.reader.entityMapper.tableName() + "` ");
-        if (this.reader.filter != null) {
-            String sqlWhere = this.reader.filter2Sql(this.reader.filter, sqlParam);
-            if (sqlWhere != null && !sqlWhere.isBlank()) {
-                sql.append("WHERE ");
-                if (this.stepIndex != -1) {
-                    sql.append("`" + this.reader.entityMapper.primaryKeyColumn() + "` ");
-                    if (this.idSortMode == SMode.MIN_FIRST) {
-                        sql.append(">= ");
-                    } else {
-                        sql.append("<= ");
-                    }
-                    Object lastPk = this.reader.entityMapper.primaryKeyGetter().invoke(list.getLast());
-                    sql.append(sqlParam.next(lastPk) + " AND ");
-                }
-                sql.append(sqlWhere);
+        String sqlWhere = "";
+        if (this.pageIndex > 1) {
+            sqlWhere += "`" + this.reader.entityMapper.primaryKeyColumn() + "` ";
+            if (this.idSortMode == SMode.MIN_FIRST) {
+                sqlWhere += "> ";
+            } else {
+                sqlWhere += "< ";
             }
+            Object lastPk = this.reader.entityMapper.primaryKeyGetter().invoke(list.getLast());
+            sqlWhere += sqlParam.next(lastPk) + " ";
+        }
+        if (this.reader.filter != null) {
+            String thisWhere = this.reader.filter2Sql(this.reader.filter, sqlParam);
+            if (thisWhere != null && !thisWhere.isBlank()) {
+                if (!sqlWhere.isBlank()) {
+                    sqlWhere += "AND ";
+                }
+                sqlWhere += thisWhere;
+            }
+        }
+        if (!sqlWhere.isBlank()) {
+            sql.append("WHERE ").append(sqlWhere);
         }
         sql.append("ORDER BY ");
         sql.append("`" + this.reader.entityMapper.primaryKeyColumn() + "` " + this.reader.smodeToSql(this.idSortMode) + " ");
-        sql.append("LIMIT " + (this.stepIndex == -1 ? this.offset + "," : "") + (this.step + 1) + " ");
+        if (this.pageIndex == 1) {
+            sql.append("LIMIT " + this.offset + "," + (this.step + 1) + " ");
+        } else {
+            sql.append("LIMIT " + this.step + " ");
+        }
         this.list = sqlExecuter.selectList(this.reader.connGetter, this.reader.connCloser, sql.toString(), sqlParam.params, this.c);
         this.stepIndex = 0;
     }
@@ -95,7 +107,10 @@ public class PignooIterator4Mysql<E> implements Iterator<E> {
         if (list.isEmpty()) {
             return false;
         }
-        if (this.stepIndex >= this.list.size()) {
+        if (this.pageIndex == 1 && this.stepIndex >= this.list.size()) {
+            return false;
+        }
+        if (this.pageIndex > 1 && this.stepIndex > this.list.size()) {
             return false;
         }
         if (this.index >= this.limit) {
@@ -111,17 +126,13 @@ public class PignooIterator4Mysql<E> implements Iterator<E> {
         }
         this.index++;
         E entity;
-        if (this.stepIndex >= step) {
-            entity = list.get(step);
-            if (step >= list.size()) {
-                throw new NoSuchElementException("No more data in database");
-            }
+        if (this.stepIndex + 1 >= list.size()) {
+            entity = list.getLast();
             try {
                 this.nextStep();
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new MapperException("Get primary key failed in iterator", e);
             }
-            this.stepIndex = 1;
         } else {
             entity = list.get(stepIndex);
             this.stepIndex++;

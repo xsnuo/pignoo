@@ -34,7 +34,7 @@ import com.xuesinuo.pignoo.core.exception.MapperException;
  * @since 0.2.3
  * @version 1.1.0
  */
-public class PignooReader4Mysql<E> implements PignooReader<E>, Iterable<E> {
+public class PignooReader4Mysql<E> implements PignooReader<E> {
 
     /**
      * SQL执行器
@@ -52,6 +52,9 @@ public class PignooReader4Mysql<E> implements PignooReader<E>, Iterable<E> {
     protected PignooFilter<E> filter;
     protected PignooSorter<E> sorter;
     protected final PignooConfig config;
+
+    private int iteratorStep = 100;// 迭代器步长
+    private SMode iteratorSortMode = SMode.MIN_FIRST;// 迭代器排序方式
 
     /**
      * 构造器
@@ -723,21 +726,45 @@ public class PignooReader4Mysql<E> implements PignooReader<E>, Iterable<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return new PignooIterator4Mysql<>(this, this.c, this.isReadOnly(), 100, 0, Long.MAX_VALUE, SMode.MIN_FIRST);
-    }
-
-    @Override
-    public Iterator<E> iterator(int step) {
-        return new PignooIterator4Mysql<>(this, this.c, this.isReadOnly(), step, 0, Long.MAX_VALUE, SMode.MIN_FIRST);
+        return new PignooIterator4Mysql<>(this, this.c, this.isReadOnly(), this.iteratorStep, 0, Long.MAX_VALUE, this.iteratorSortMode);
     }
 
     @Override
     public Iterator<E> iterator(int step, SMode idSortMode) {
+        if (idSortMode == null) {
+            idSortMode = this.iteratorSortMode;
+        }
         return new PignooIterator4Mysql<>(this, this.c, this.isReadOnly(), step, 0, Long.MAX_VALUE, idSortMode);
     }
 
     @Override
     public Iterator<E> iterator(int step, SMode idSortMode, long offset, long limit) {
+        if (idSortMode == null) {
+            idSortMode = this.iteratorSortMode;
+        }
         return new PignooIterator4Mysql<>(this, this.c, this.isReadOnly(), step, offset, limit, idSortMode);
+    }
+
+    @Override
+    public void setIteratorStep(int step) {
+        this.iteratorStep = step;
+    }
+
+    @Override
+    public int getIteratorStep() {
+        return this.iteratorStep;
+    }
+
+    @Override
+    public void setIteratorSortMode(SMode idSortMode) {
+        if (idSortMode == null) {
+            throw new IllegalArgumentException("iteratorSortMode can not be null");
+        }
+        this.iteratorSortMode = idSortMode;
+    }
+
+    @Override
+    public SMode getIteratorSortMode() {
+        return this.iteratorSortMode;
     }
 }

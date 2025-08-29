@@ -317,8 +317,8 @@ Gru gru = new Gru(dataSource, config);
   - [x] iterator游标查询，并指定游标跳页数量
   - [ ] spliterator 并行遍历器
   - [x] forEach
-- [ ] 支持PostgreSQL
 - [ ] 自定义非标准数据类型映射规则
   - [ ] 替换标准JDBC类型映射规则（显式调用JDBC的getXXX方法代替getObject方法）
   - [ ] 圈定Pignoo默认支持的数据类型范围
   - [ ] 自定义非标准JDBC类型映射规则，例如String映射成List
+- [ ] 支持PostgreSQL

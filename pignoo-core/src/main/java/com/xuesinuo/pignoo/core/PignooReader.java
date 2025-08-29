@@ -29,7 +29,7 @@ import com.xuesinuo.pignoo.core.PignooSorter.SMode;
  * @since 0.2.3
  * @version 1.1.0
  */
-public interface PignooReader<E> {
+public interface PignooReader<E> extends Iterable<E> {
 
     /**
      * 复制一个读写List（保持当前的查询条件）
@@ -500,6 +500,50 @@ public interface PignooReader<E> {
     boolean containsIds(Collection<E> collection);
 
     /**
+     * 设置迭代器步长：用于默认迭代器，也就是用于forEach循环
+     * <p>
+     * Set iterator step: Used for default iterator, that is, used for forEach loop
+     * 
+     * @param step 步长
+     *             <p>
+     *             Step
+     */
+    void setIteratorStep(int step);
+
+    /**
+     * 获取迭代器步长
+     * <p>
+     * Get iterator step
+     * 
+     * @return 迭代器步长
+     *         <p>
+     *         Iterator step
+     */
+    int getIteratorStep();
+
+    /**
+     * 设置迭代器排序方式：用于默认迭代器，也就是用于forEach循环
+     * <p>
+     * Set iterator sort mode: Used for default iterator, that is, used for forEach loop
+     * 
+     * @param idSortMode ID排序方式
+     *                   <p>
+     *                   ID sort mode
+     */
+    void setIteratorSortMode(SMode idSortMode);
+
+    /**
+     * 获取迭代器排序方式
+     * <p>
+     * Get iterator sort mode
+     * 
+     * @return ID排序方式
+     *         <p>
+     *         ID sort mode
+     */
+    SMode getIteratorSortMode();
+
+    /**
      * 默认迭代器：按ID从前到后遍历全部数据
      * <p>
      * Default iterator: Traverse all data from front to back by ID
@@ -510,19 +554,8 @@ public interface PignooReader<E> {
      * 
      * @return iterator
      */
+    @Override
     Iterator<E> iterator();
-
-    /**
-     * 步长迭代器
-     * <p>
-     * Step iterator
-     * 
-     * @param step 步长：每次从数据源查询这么多条并缓存，遍历完后再查询
-     *             <p>
-     *             Step: How many to query each time, and then query again when the data is traversed
-     * @return iterator
-     */
-    Iterator<E> iterator(int step);
 
     /**
      * 含排序方式的步长迭代器
@@ -540,9 +573,9 @@ public interface PignooReader<E> {
     Iterator<E> iterator(int step, SMode idSortMode);
 
     /**
-     * 含偏移量、总条数的步长迭代器
+     * 含偏移量、总条数的迭代器
      * <p>
-     * Step iterator with offset and limit
+     * Iterator with offset and limit
      * 
      * @param step       步长：每次从数据源查询这么多条并缓存，遍历完后再查询
      *                   <p>
