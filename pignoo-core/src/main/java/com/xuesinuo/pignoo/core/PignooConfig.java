@@ -57,9 +57,9 @@ public class PignooConfig {
     private AnnotationMode annotationMode = AnnotationMode.MIX;
 
     /**
-     * 注解混合使用方式
+     * 命名规则映射方式
      * <p>
-     * Annotation mixed usage(when annotationMode=MIX is effective)
+     * Naming rule mapping mode
      * 
      * @version 0.2.0
      */
