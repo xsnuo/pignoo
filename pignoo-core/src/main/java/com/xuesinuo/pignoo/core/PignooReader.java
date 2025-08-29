@@ -287,6 +287,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @return 求最大值结果
      *         <p>
      *         result
+     * @since 1.1.0
      */
     <R> R max(Function<E, R> field, Class<R> c);
 
@@ -310,6 +311,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @return 求最大值结果
      *         <p>
      *         result
+     * @since 1.1.0
      */
     <R> R maxNullAs(Function<E, R> field, Class<R> c, R nullAs);
 
@@ -330,6 +332,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @return 求最小值结果
      *         <p>
      *         result
+     * @since 1.1.0
      */
     <R> R min(Function<E, R> field, Class<R> c);
 
@@ -353,6 +356,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @return 求最小值结果
      *         <p>
      *         result
+     * @since 1.1.0
      */
     <R> R minNullAs(Function<E, R> field, Class<R> c, R nullAs);
 
@@ -396,6 +400,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @return 求和结果
      *         <p>
      *         result
+     * @since 1.1.0
      */
     <R> R sumNullAs(Function<E, R> field, Class<R> c, R nullAs);
 
@@ -439,6 +444,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @return 求平均结果
      *         <p>
      *         result of avg
+     * @since 1.1.0
      */
     <R> R avgNullAs(Function<E, R> field, Class<R> c, R nullAs);
 
@@ -456,6 +462,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @return 求总条数结果
      *         <p>
      *         result of avg
+     * @since 1.1.0
      */
     <R> long countDistinct(Function<E, R> field);
 
@@ -476,6 +483,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @return 求总条数结果
      *         <p>
      *         result of avg
+     * @since 1.1.0
      */
     <R> long countDistinctNullAs(Function<E, R> field, R nullAs);
 
@@ -486,6 +494,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * 
      * @param e 含ID的实体
      * @return 是否包含指定ID
+     * @since 1.1.0
      */
     boolean containsId(E e);
 
@@ -496,6 +505,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * 
      * @param collection 含ID的实体集合
      * @return 是否全包含指定ID
+     * @since 1.1.0
      */
     boolean containsIds(Collection<E> collection);
 
@@ -507,6 +517,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @param step 步长
      *             <p>
      *             Step
+     * @since 1.1.0
      */
     void setIteratorStep(int step);
 
@@ -518,6 +529,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @return 迭代器步长
      *         <p>
      *         Iterator step
+     * @since 1.1.0
      */
     int getIteratorStep();
 
@@ -529,6 +541,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @param idSortMode ID排序方式
      *                   <p>
      *                   ID sort mode
+     * @since 1.1.0
      */
     void setIteratorSortMode(SMode idSortMode);
 
@@ -540,6 +553,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * @return ID排序方式
      *         <p>
      *         ID sort mode
+     * @since 1.1.0
      */
     SMode getIteratorSortMode();
 
@@ -553,6 +567,7 @@ public interface PignooReader<E> extends Iterable<E> {
      * The iterator obtained by 'reader' is read-only, and the iterator obtained by 'writer' is writable
      * 
      * @return iterator
+     * @since 1.1.0
      */
     @Override
     Iterator<E> iterator();
@@ -569,6 +584,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *                   <p>
      *                   ID sort mode
      * @return iterator
+     * @since 1.1.0
      */
     Iterator<E> iterator(int step, SMode idSortMode);
 
@@ -590,6 +606,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *                   <p>
      *                   Maximum number of data to traverse
      * @return iterator
+     * @since 1.1.0
      */
     Iterator<E> iterator(int step, SMode idSortMode, long offset, long limit);
 }

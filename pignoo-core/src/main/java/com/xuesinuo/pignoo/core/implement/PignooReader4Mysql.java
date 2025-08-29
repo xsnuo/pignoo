@@ -53,8 +53,8 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     protected PignooSorter<E> sorter;
     protected final PignooConfig config;
 
-    private int iteratorStep = 100;// 迭代器步长
-    private SMode iteratorSortMode = SMode.MIN_FIRST;// 迭代器排序方式
+    private int iteratorStep = 100;
+    private SMode iteratorSortMode = SMode.MIN_FIRST;
 
     /**
      * 构造器

@@ -11,6 +11,15 @@ import com.xuesinuo.pignoo.core.SqlExecuter;
 import com.xuesinuo.pignoo.core.entity.SqlParam;
 import com.xuesinuo.pignoo.core.exception.MapperException;
 
+/**
+ * MySQL的集合遍历器
+ * <p>
+ * MySQL Iterator
+ * 
+ * @author xuesinuo
+ * @version 1.1.0
+ * @since 1.1.0
+ */
 public class PignooIterator4Mysql<E> implements Iterator<E> {
     /**
      * SQL执行器
@@ -28,21 +37,27 @@ public class PignooIterator4Mysql<E> implements Iterator<E> {
     private final long limit;
     private final SMode idSortMode;
 
+    /** 当前从数据库取出的缓存list */
     private List<E> list;
+    /** 当前页数，从1开始 */
     private long pageIndex = 0;
+    /** 当前页序号，从0开始 */
     private int stepIndex = -1;
+    /** 总序号，从0开始 */
     private long index = 0;
+    /** 当前元素 */
     private E now;
 
     /**
+     * MySQL遍历器的构造方法
      * 
-     * @param reader
-     * @param c
-     * @param isReadOnly
-     * @param step
-     * @param offset
-     * @param limit
-     * @param idSortMode 不可NULL
+     * @param reader     被遍历的集合
+     * @param c          元素类型
+     * @param isReadOnly 是否只读
+     * @param step       每次读取的步长
+     * @param offset     起始偏移量
+     * @param limit      限制总数量
+     * @param idSortMode 遍历顺序，不可NULL
      */
     public PignooIterator4Mysql(PignooReader4Mysql<E> reader, Class<E> c, boolean isReadOnly, int step, long offset, long limit, SMode idSortMode) {
         this.reader = reader.copyReader();
@@ -60,6 +75,12 @@ public class PignooIterator4Mysql<E> implements Iterator<E> {
         }
     }
 
+    /**
+     * 加载下一页到list
+     * 
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private void nextStep() throws IllegalAccessException, InvocationTargetException {
         this.pageIndex++;
         StringBuilder sql = new StringBuilder("");

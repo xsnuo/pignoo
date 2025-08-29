@@ -52,6 +52,7 @@ public interface PignooWriter<E> extends PignooReader<E> {
      * @return 第一条数据
      *         <p>
      *         First data
+     * @since 1.1.0
      */
     E pollFirst();
 
@@ -63,6 +64,7 @@ public interface PignooWriter<E> extends PignooReader<E> {
      * @return 任意一条满足条件的数据
      *         <p>
      *         Any data that meets the condition
+     * @since 1.1.0
      */
     E pollAny();
 
