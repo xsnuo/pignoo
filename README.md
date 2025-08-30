@@ -1,6 +1,6 @@
 # PIGNOO
 
-**Pignoo**是一个用于应对小型Java项目的轻量ORM框架。更详细的介绍，请移步Pignoo首页：<https://www.xuesinuo.com/#/pignoo>
+**Pignoo**是一个用于应对小型Java项目的轻量ORM框架。更详细的介绍，请移步Pignoo首页（首次加载可能较慢，请耐心等待）：<https://www.xuesinuo.com/#/pignoo>
 
 ![pignoo](https://www.xuesinuo.com/img/pignoo.png)
 
