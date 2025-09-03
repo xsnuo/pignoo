@@ -264,8 +264,6 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                     sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL ";
                 } else if (filter.getMode() == FMode.NE) {
                     sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NOT NULL ";
-                } else if (filter.getMode() == FMode.NOT_LIKE) {
-                    // DO NOTHING
                 } else {
                     throw new MapperException(filter.getMode() + " can not be NULL -> " +
                             this.entityMapper.tableName() + "." + this.entityMapper.getColumnByFunction(filter.getField()));
