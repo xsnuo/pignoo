@@ -246,34 +246,48 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                         this.entityMapper.tableName() + "." + this.entityMapper.getColumnByFunction(filter.getField()));
             }
             if (values.size() >= filter.getMode().getMinCount()) {
-                sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` " + fmodeToSql(filter.getMode()) + " ";
-                String paramSql = values.stream().map(p -> sqlParam.next(p)).collect(Collectors.joining(","));
-                if (!paramSql.isBlank()) {
-                    if (filter.getMode() == FMode.IN || filter.getMode() == FMode.NOT_IN) {
-                        paramSql = "(" + paramSql + ")";
+                if (filter.getMode().getMaxCount() == 0) {
+                    sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` " + fmodeToSql(filter.getMode()) + " ";
+                } else if (values.size() > 0) {
+                    sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` " + fmodeToSql(filter.getMode()) + " ";
+                    String paramSql = values.stream().map(p -> sqlParam.next(p)).collect(Collectors.joining(","));
+                    if (!paramSql.isBlank()) {
+                        if (filter.getMode() == FMode.IN || filter.getMode() == FMode.NOT_IN) {
+                            paramSql = "(" + paramSql + ")";
+                        }
+                        sql += paramSql + " ";
                     }
-                    sql += paramSql + " ";
                 }
             }
-            if (hasNull) {
+            if (valueCount == 0) {
                 if (filter.getMode() == FMode.IN) {
-                    sql = "(" + sql + (sql.isBlank() ? "" : "OR ") + "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL)";
+                    sql = "(1=0) ";
                 } else if (filter.getMode() == FMode.NOT_IN) {
-                    // DO NOTHING
-                } else if (filter.getMode() == FMode.EQ) {
-                    sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL ";
-                } else if (filter.getMode() == FMode.NE) {
-                    sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NOT NULL ";
-                } else {
-                    throw new MapperException(filter.getMode() + " can not be NULL -> " +
-                            this.entityMapper.tableName() + "." + this.entityMapper.getColumnByFunction(filter.getField()));
+                    sql = "(1=1) ";
                 }
             } else {
-                if (filter.getMode() == FMode.NOT_IN) {
-                    sql = "(" + sql + (sql.isBlank() ? "" : "OR ") + "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL)";
-                }
-                if (filter.getMode() == FMode.NOT_LIKE) {
-                    sql = "(" + sql + (sql.isBlank() ? "" : "OR ") + "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL)";
+                if (hasNull) {
+                    if (filter.getMode() == FMode.IN) {
+                        sql = "(" + sql + (sql.isBlank() ? "" : "OR ") + "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL)";
+                    } else if (filter.getMode() == FMode.NOT_IN) {
+                        if (valueCount == 1) {
+                            sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NOT NULL ";
+                        }
+                    } else if (filter.getMode() == FMode.EQ) {
+                        sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL ";
+                    } else if (filter.getMode() == FMode.NE) {
+                        sql += "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NOT NULL ";
+                    } else {
+                        throw new MapperException(filter.getMode() + " can not be NULL -> " +
+                                this.entityMapper.tableName() + "." + this.entityMapper.getColumnByFunction(filter.getField()));
+                    }
+                } else {
+                    if (filter.getMode() == FMode.NOT_IN) {
+                        sql = "(" + sql + (sql.isBlank() ? "" : "OR ") + "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL)";
+                    }
+                    if (filter.getMode() == FMode.NOT_LIKE) {
+                        sql = "(" + sql + (sql.isBlank() ? "" : "OR ") + "`" + entityMapper.getColumnByFunction(filter.getField()) + "` IS NULL)";
+                    }
                 }
             }
         }
@@ -460,6 +474,37 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
 
     @Override
     public PignooReader<E> filter(Function<E, ?> field, String mode, Object... values) {
+        return filter(field, FMode.getFMode(mode), values);
+    }
+
+    @Override
+    public PignooReader<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
+        if (condition != null && condition) {
+            return filter(field, mode, values);
+        }
+        return this;
+    }
+
+    @Override
+    public PignooReader<E> filter(Boolean condition, Function<E, ?> field, String mode, Collection<?> values) {
+        if (condition != null && condition) {
+            return filter(field, mode, values);
+        }
+        return this;
+    }
+
+    @Override
+    public PignooReader<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
+        if (this.filter == null) {
+            this.filter = PignooFilter.build(field, mode, values);
+        } else {
+            this.filter = this.filter.and(field, mode, values);
+        }
+        return this;
+    }
+
+    @Override
+    public PignooReader<E> filter(Function<E, ?> field, String mode, Collection<?> values) {
         return filter(field, FMode.getFMode(mode), values);
     }
 

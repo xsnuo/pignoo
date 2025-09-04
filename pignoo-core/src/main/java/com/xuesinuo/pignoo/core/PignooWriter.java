@@ -1,5 +1,6 @@
 package com.xuesinuo.pignoo.core;
 
+import java.util.Collection;
 import java.util.function.Function;
 
 /**
@@ -173,4 +174,15 @@ public interface PignooWriter<E> extends PignooReader<E> {
     @Override
     PignooWriter<E> filter(Function<PignooFilter<E>, PignooFilter<E>> filterBuilder);
 
+    @Override
+    PignooWriter<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
+
+    @Override
+    PignooWriter<E> filter(Boolean condition, Function<E, ?> field, String mode, Collection<?> values);
+
+    @Override
+    PignooWriter<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
+
+    @Override
+    PignooWriter<E> filter(Function<E, ?> field, String mode, Collection<?> values);
 }

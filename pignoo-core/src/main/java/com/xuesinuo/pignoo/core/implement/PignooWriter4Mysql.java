@@ -4,6 +4,7 @@ package com.xuesinuo.pignoo.core.implement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
 import com.xuesinuo.pignoo.core.Pignoo;
 import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooFilter;
+import com.xuesinuo.pignoo.core.PignooFilter.FMode;
+import com.xuesinuo.pignoo.core.PignooReader;
 import com.xuesinuo.pignoo.core.PignooWriter;
 import com.xuesinuo.pignoo.core.PignooSorter;
 import com.xuesinuo.pignoo.core.entity.EntityProxyFactory;
@@ -523,6 +526,30 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
 
     @Override
     public PignooWriter<E> filter(Function<E, ?> field, String mode, Object... values) {
+        super.filter(field, mode, values);
+        return this;
+    }
+
+    @Override
+    public PignooWriter<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
+        super.filter(condition, field, mode, values);
+        return this;
+    }
+
+    @Override
+    public PignooWriter<E> filter(Boolean condition, Function<E, ?> field, String mode, Collection<?> values) {
+        super.filter(condition, field, mode, values);
+        return this;
+    }
+
+    @Override
+    public PignooWriter<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
+        super.filter(field, mode, values);
+        return this;
+    }
+
+    @Override
+    public PignooWriter<E> filter(Function<E, ?> field, String mode, Collection<?> values) {
         super.filter(field, mode, values);
         return this;
     }

@@ -83,13 +83,13 @@ public class PignooFilter<E> {
          * <p>
          * Contains
          */
-        IN("in", 1, Integer.MAX_VALUE),
+        IN("in", 0, Integer.MAX_VALUE),
         /**
          * 不包含
          * <p>
          * Not contains
          */
-        NOT_IN("not in", 1, Integer.MAX_VALUE),
+        NOT_IN("not in", 0, Integer.MAX_VALUE),
         /**
          * 为空
          * <p>
@@ -218,7 +218,7 @@ public class PignooFilter<E> {
         pignooFilter.mode = mode;
         pignooFilter.values = new ArrayList<>();
         for (Object value : values) {
-            addInCollection(pignooFilter.values, value);
+            pignooFilter.values.add(value);
         }
         pignooFilter.xor = XOR.AND;
         return pignooFilter;
@@ -246,6 +246,64 @@ public class PignooFilter<E> {
      *         PignooFilter instance
      */
     public static <E> PignooFilter<E> build(Function<E, ?> field, String mode, Object... values) {
+        return build(field, FMode.getFMode(mode), values);
+    }
+
+    /**
+     * 构建一个PignooFilter实例
+     * <p>
+     * Build a PignooFilter instance
+     *
+     * @param field  字段（用Getter方法指代）
+     *               <p>
+     *               Field (use Getter method to refer)
+     * @param mode   筛选条件
+     *               <p>
+     *               Filter conditions
+     * @param values 值集合
+     *               <p>
+     *               Value collection
+     * @param <E>    过路器应用的实体类型
+     *               <p>
+     *               The entity type applied by the filter
+     * @return PignooFilter实例
+     *         <p>
+     *         PignooFilter instance
+     */
+    public static <E> PignooFilter<E> build(Function<E, ?> field, FMode mode, Collection<?> values) {
+        PignooFilter<E> pignooFilter = new PignooFilter<>();
+        pignooFilter.field = field;
+        pignooFilter.mode = mode;
+        pignooFilter.values = new ArrayList<>();
+        if (values != null && !values.isEmpty()) {
+            pignooFilter.values.addAll(values);
+        }
+        pignooFilter.xor = XOR.AND;
+        return pignooFilter;
+    }
+
+    /**
+     * 请参考{@link #build(Function, FMode, Collection)}
+     * <p>
+     * Please refer to {@link #build(Function, FMode, Collection)}
+     *
+     * @param field  字段（用Getter方法指代）
+     *               <p>
+     *               Field (use Getter method to refer)
+     * @param mode   筛选条件
+     *               <p>
+     *               Filter conditions
+     * @param values 值集合
+     *               <p>
+     *               Value collection
+     * @param <E>    过路器应用的实体类型
+     *               <p>
+     *               The entity type applied by the filter
+     * @return PignooFilter实例
+     *         <p>
+     *         PignooFilter instance
+     */
+    public static <E> PignooFilter<E> build(Function<E, ?> field, String mode, Collection<?> values) {
         return build(field, FMode.getFMode(mode), values);
     }
 
@@ -293,7 +351,7 @@ public class PignooFilter<E> {
         filter.mode = mode;
         filter.values = new ArrayList<>();
         for (Object value : values) {
-            addInCollection(filter.values, value);
+            filter.values.add(value);
         }
         filter.xor = XOR.AND;
         return this.and(filter);
@@ -322,6 +380,58 @@ public class PignooFilter<E> {
     }
 
     /**
+     * 现有条件上AND拼接下一个条件
+     * <p>
+     * AND concatenate the next condition on the existing condition
+     *
+     * @param field  字段（用Getter方法指代）
+     *               <p>
+     *               Field (use Getter method to refer)
+     * @param mode   筛选条件
+     *               <p>
+     *               Filter conditions
+     * @param values 值集合
+     *               <p>
+     *               Value collection
+     * @return PignooFilter实例
+     *         <p>
+     *         PignooFilter instance
+     */
+    public PignooFilter<E> and(Function<E, ?> field, FMode mode, Collection<?> values) {
+        PignooFilter<E> filter = new PignooFilter<>();
+        filter.field = field;
+        filter.mode = mode;
+        filter.values = new ArrayList<>();
+        if (values != null && !values.isEmpty()) {
+            filter.values.addAll(values);
+        }
+        filter.xor = XOR.AND;
+        return this.and(filter);
+    }
+
+    /**
+     * 请参考{@link #and(Function, FMode, Collection)}
+     * <p>
+     * Please refer to {@link #and(Function, FMode, Collection)}
+     *
+     * @param field  字段（用Getter方法指代）
+     *               <p>
+     *               Field (use Getter method to refer)
+     * @param mode   筛选条件
+     *               <p>
+     *               Filter conditions
+     * @param values 值
+     *               <p>
+     *               Value
+     * @return PignooFilter实例
+     *         <p>
+     *         PignooFilter instance
+     */
+    public PignooFilter<E> and(Function<E, ?> field, String mode, Collection<?> values) {
+        return and(field, FMode.getFMode(mode), values);
+    }
+
+    /**
      * 现有条件上OR拼接下一个条件
      * <p>
      * OR concatenate the next condition on the existing condition
@@ -345,7 +455,7 @@ public class PignooFilter<E> {
         filter.mode = mode;
         filter.values = new ArrayList<>();
         for (Object value : values) {
-            addInCollection(filter.values, value);
+            filter.values.add(value);
         }
         filter.xor = XOR.AND;
         return this.or(filter);
@@ -370,6 +480,58 @@ public class PignooFilter<E> {
      *         PignooFilter instance
      */
     public PignooFilter<E> or(Function<E, ?> field, String mode, Object... values) {
+        return or(field, FMode.getFMode(mode), values);
+    }
+
+    /**
+     * 现有条件上OR拼接下一个条件
+     * <p>
+     * OR concatenate the next condition on the existing condition
+     *
+     * @param field  字段（用Getter方法指代）
+     *               <p>
+     *               Field (use Getter method to refer)
+     * @param mode   筛选条件
+     *               <p>
+     *               Filter conditions
+     * @param values 值集合
+     *               <p>
+     *               Value collection
+     * @return PignooFilter实例
+     *         <p>
+     *         PignooFilter instance
+     */
+    public PignooFilter<E> or(Function<E, ?> field, FMode mode, Collection<?> values) {
+        PignooFilter<E> filter = new PignooFilter<>();
+        filter.field = field;
+        filter.mode = mode;
+        filter.values = new ArrayList<>();
+        if (values != null && !values.isEmpty()) {
+            filter.values.addAll(values);
+        }
+        filter.xor = XOR.AND;
+        return this.or(filter);
+    }
+
+    /**
+     * 请参考{@link #or(Function, FMode, Collection)}
+     * <p>
+     * Please refer to {@link #or(Function, FMode, Collection)}
+     * 
+     * @param field  字段（用Getter方法指代）
+     *               <p>
+     *               Field (use Getter method to refer)
+     * @param mode   筛选条件
+     *               <p>
+     *               Filter conditions
+     * @param values 值集合
+     *               <p>
+     *               Value collection
+     * @return PignooFilter实例
+     *         <p>
+     *         PignooFilter instance
+     */
+    public PignooFilter<E> or(Function<E, ?> field, String mode, Collection<?> values) {
         return or(field, FMode.getFMode(mode), values);
     }
 
@@ -411,68 +573,5 @@ public class PignooFilter<E> {
         orFilter.otherPignooFilterList.add(this);
         orFilter.otherPignooFilterList.add(filter);
         return orFilter;
-    }
-
-    /**
-     * 添加一个值到集合中，如果值是集合，则将值中的所有元素添加到集合中
-     * <p>
-     * Add a value to the collection, if the value is a collection, add all elements in the value to the collection
-     * 
-     * @param collection 集合
-     * @param value      添加到集合中的值
-     */
-    private static void addInCollection(Collection<Object> collection, Object value) {
-        if (value instanceof Iterable) {
-            for (var item : (Iterable<?>) value) {
-                collection.add(item);
-            }
-        } else if (value instanceof Object[]) {
-            Object[] array = (Object[]) value;
-            for (var item : array) {
-                collection.add(item);
-            }
-        } else if (value instanceof byte[]) {
-            byte[] array = (byte[]) value;
-            for (var item : array) {
-                collection.add(item);
-            }
-        } else if (value instanceof short[]) {
-            short[] array = (short[]) value;
-            for (var item : array) {
-                collection.add(item);
-            }
-        } else if (value instanceof int[]) {
-            int[] array = (int[]) value;
-            for (var item : array) {
-                collection.add(item);
-            }
-        } else if (value instanceof long[]) {
-            long[] array = (long[]) value;
-            for (var item : array) {
-                collection.add(item);
-            }
-        } else if (value instanceof float[]) {
-            float[] array = (float[]) value;
-            for (var item : array) {
-                collection.add(item);
-            }
-        } else if (value instanceof double[]) {
-            double[] array = (double[]) value;
-            for (var item : array) {
-                collection.add(item);
-            }
-        } else if (value instanceof char[]) {
-            char[] array = (char[]) value;
-            for (var item : array) {
-                collection.add(item);
-            }
-        } else if (value instanceof boolean[]) {
-            boolean[] array = (boolean[]) value;
-            for (var item : array) {
-                collection.add(item);
-            }
-        } else {
-            collection.add(value);
-        }
     }
 }
