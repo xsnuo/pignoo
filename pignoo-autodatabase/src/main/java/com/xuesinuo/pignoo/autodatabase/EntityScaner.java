@@ -189,7 +189,7 @@ public class EntityScaner {
                 = Pingnoo-Autodatabase Warning =
                 ================================
                 """;
-        List<String> workingList = new ArrayList<>();
+        List<String> adviseList = new ArrayList<>();
         StringBuilder warning = new StringBuilder(warningTitle);
         allResult.getOtherMessage().stream().forEach(msg -> warning.append(msg).append("\n"));
         if (this.entityScanConfig.getBuildMode() == EntityScanConfig.BuildMode.CAREFULLY) {
@@ -200,44 +200,44 @@ public class EntityScaner {
         } else if (this.entityScanConfig.getBuildMode() == EntityScanConfig.BuildMode.SAFELY) {
             allResult.getAdvise2RemoveColumn().stream().forEach(msg -> warning.append(msg).append(";\n"));
             allResult.getAdvise2UpdateColumn().stream().forEach(msg -> warning.append(msg).append(";\n"));
-            workingList.addAll(allResult.getAdvise2AddColumn());
-            workingList.addAll(allResult.getAdvise2AddTable());
+            adviseList.addAll(allResult.getAdvise2AddColumn());
+            adviseList.addAll(allResult.getAdvise2AddTable());
         } else if (this.entityScanConfig.getBuildMode() == EntityScanConfig.BuildMode.USABILITY) {
             allResult.getAdvise2RemoveColumn().stream().forEach(msg -> warning.append(msg).append(";\n"));
-            workingList.addAll(allResult.getAdvise2UpdateColumn());
-            workingList.addAll(allResult.getAdvise2AddColumn());
-            workingList.addAll(allResult.getAdvise2AddTable());
+            adviseList.addAll(allResult.getAdvise2UpdateColumn());
+            adviseList.addAll(allResult.getAdvise2AddColumn());
+            adviseList.addAll(allResult.getAdvise2AddTable());
         } else if (this.entityScanConfig.getBuildMode() == EntityScanConfig.BuildMode.RADICALLY) {
-            workingList.addAll(allResult.getAdvise2RemoveColumn());
-            workingList.addAll(allResult.getAdvise2UpdateColumn());
-            workingList.addAll(allResult.getAdvise2AddColumn());
-            workingList.addAll(allResult.getAdvise2AddTable());
+            adviseList.addAll(allResult.getAdvise2RemoveColumn());
+            adviseList.addAll(allResult.getAdvise2UpdateColumn());
+            adviseList.addAll(allResult.getAdvise2AddColumn());
+            adviseList.addAll(allResult.getAdvise2AddTable());
         }
         String warn = warning.toString();
         if (this.entityScanConfig.getBreakRunning() && !warn.equals(warningTitle)) {
-            if (!workingList.isEmpty()) {
+            if (!adviseList.isEmpty()) {
                 log.error("""
 
                         ===============================
                         = Pingnoo-Autodatabase Advise =
                         ===============================
-                        """ + workingList.stream().map(sql -> sql + ";\n").collect(Collectors.joining()));
+                        """ + adviseList.stream().map(sql -> sql + ";\n").collect(Collectors.joining()));
             }
             log.error(warn);
             throw new ScanException("[Pignoo-Scan] Database check failed");
         }
-        if (!workingList.isEmpty()) {
+        if (!adviseList.isEmpty()) {
             log.warn("""
 
                     ===============================
                     = Pingnoo-Autodatabase Advise =
                     ===============================
-                    """ + workingList.stream().map(sql -> sql + ";\n").collect(Collectors.joining()));
+                    """ + adviseList.stream().map(sql -> sql + ";\n").collect(Collectors.joining()));
         }
         if (!warn.equals(warningTitle)) {
             log.warn(warn);
         }
-        if (!workingList.isEmpty()) {
+        if (!adviseList.isEmpty()) {
             Connection conn = null;
             Boolean autoCommit = null;
             String workSql = null;
@@ -245,7 +245,7 @@ public class EntityScaner {
                 conn = dataSource.getConnection();
                 autoCommit = conn.getAutoCommit();
                 conn.setAutoCommit(false);
-                for (String workingItem : workingList) {
+                for (String workingItem : adviseList) {
                     workSql = workingItem;
                     conn.createStatement().execute(workSql);
                 }
@@ -276,7 +276,7 @@ public class EntityScaner {
                 }
             }
         }
-        if (warning.toString().equals(warningTitle) && workingList.isEmpty()) {
+        if (warning.toString().equals(warningTitle) && adviseList.isEmpty()) {
             log.info("[Pignoo-Scan Result] Nothing to do");
         } else {
             log.info("[Pignoo-Scan Result] Done");
