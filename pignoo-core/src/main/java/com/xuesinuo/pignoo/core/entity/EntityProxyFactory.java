@@ -68,7 +68,7 @@ public class EntityProxyFactory<E> {
                         if (index >= 0 && method.getParameterCount() == 1) {
                             updater.run(index, args[0], proxy);
                         }
-                        return method.invoke(this.proxyField.get(proxy), args);
+                        return method.invoke(this.proxyField.get(proxy), args);// TODO 进一步优化性能，且增加先setter再取值，再更新数据库的机制
                     }))
                     .make()
                     .load(c.getClassLoader())
