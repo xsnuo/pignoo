@@ -20,6 +20,24 @@ public class MethodRunner {
     private final Method method;
     private final MethodHandle methodHandle;
 
+    /**
+     * 执行方法
+     * <p>
+     * Execute method
+     * 
+     * @param bean 方法所属对象
+     *             <p>
+     *             Method owner object
+     * @param args 方法参数
+     *             <p>
+     *             Method parameters
+     * @return 方法返回值
+     *         <p>
+     *         Method return value
+     * @throws Throwable 异常
+     *                   <p>
+     *                   Exception
+     */
     public Object run(Object bean, Object... args) throws Throwable {
         if (methodHandle != null) {
             if (args == null || args.length == 0) {// 高频命中，if效率更高

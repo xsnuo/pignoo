@@ -18,13 +18,12 @@ import net.bytebuddy.matcher.ElementMatchers;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
- * @version 1.0.0
+ * @version 1.1.4
  */
 @Slf4j
 public class EntityProxyFactory<E> {
     private Class<? extends E> porxyClass;
     private Field proxyField;
-    private EntityMapper<E> mapper;
 
     /**
      * 在代理执行setter时，拦截并执行的update操作
@@ -45,30 +44,35 @@ public class EntityProxyFactory<E> {
      * <p>
      * Proxy Factory Constructor: Each type builds a factory
      *
-     * @param c       实体类型
-     *                <p>
-     *                Entity Type
-     * @param mapper  实体映射器
-     *                <p>
-     *                Entity Mapper
-     * @param updater 在代理执行setter时，拦截并执行的update操作
-     *                <p>
-     *                Update Operation Executed When Proxy Executes Setter
+     * @param c           实体类型
+     *                    <p>
+     *                    Entity Type
+     * @param setterNames setter方法名列表
+     *                    <p>
+     *                    Setter Method Name List
+     * @param fields      字段列表
+     *                    <p>
+     *                    Field List
+     * @param updater     在代理执行setter时，拦截并执行的update操作
+     *                    <p>
+     *                    Update Operation Executed When Proxy Executes Setter
      */
-    public EntityProxyFactory(Class<E> c, EntityMapper<E> mapper, Updater updater) {
-        this.mapper = mapper;
+    public EntityProxyFactory(Class<E> c, List<String> setterNames, List<Field> fields, Updater updater) {
         try {
             this.porxyClass = new ByteBuddy()
                     .subclass(c)
                     .defineField("$proxy", c, java.lang.reflect.Modifier.PRIVATE)
                     .method(ElementMatchers.not(ElementMatchers.isDeclaredBy(Object.class)))
                     .intercept(InvocationHandlerAdapter.of((proxy, method, args) -> {
+                        Object $proxy = this.proxyField.get(proxy);
+                        Object invokeResult = method.invoke($proxy, args);
                         String methodName = method.getName();
-                        int index = mapper.setterNames().indexOf(methodName);
+                        int index = setterNames.indexOf(methodName);
                         if (index >= 0 && method.getParameterCount() == 1) {
-                            updater.run(index, args[0], proxy);
+                            Object fieldValue = fields.get(index).get($proxy);
+                            updater.run(index, fieldValue, $proxy);
                         }
-                        return method.invoke(this.proxyField.get(proxy), args);
+                        return invokeResult;
                     }))
                     .make()
                     .load(c.getClassLoader())
@@ -102,14 +106,6 @@ public class EntityProxyFactory<E> {
             proxyField.set(proxy, entity);
         } catch (Exception e) {
             throw new PignooRuntimeException("Pignoo create proxy error", e);
-        }
-        for (Field field : mapper.fields()) {
-            try {
-                Object value = field.get(entity);
-                field.set(proxy, value);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
         return proxy;
     }

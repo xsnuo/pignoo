@@ -61,7 +61,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
     public PignooWriter4Mysql(Pignoo pignoo, Supplier<Connection> connGetter, Consumer<Connection> connCloser, boolean inTransaction, Class<E> c, PignooConfig config) {
         super(pignoo, connGetter, connCloser, inTransaction, c, config);
         if (config.getOpenSetterProxy() == null || config.getOpenSetterProxy() == true) {
-            this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper, (index, arg, e) -> {
+            this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper.setterNames(), entityMapper.fields(), (index, arg, e) -> {
                 if (pignoo.closed()) {
                     return;
                 }

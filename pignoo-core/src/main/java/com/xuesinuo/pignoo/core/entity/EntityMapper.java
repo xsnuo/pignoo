@@ -19,7 +19,7 @@ import lombok.Data;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
- * @version 1.1.3
+ * @version 1.1.4
  */
 public class EntityMapper<E> {
 
@@ -227,6 +227,8 @@ public class EntityMapper<E> {
 
     /**
      * 根据JavaBean的getter function获取对应的列名
+     * <p>
+     * Get the corresponding column name according to the JavaBean getter function
      *
      * @param function getter方法
      *                 <p>
