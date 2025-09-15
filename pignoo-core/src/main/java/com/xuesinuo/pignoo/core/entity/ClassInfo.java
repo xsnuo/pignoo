@@ -223,7 +223,7 @@ public class ClassInfo<E> {
         boolean is$;
     }
 
-    private Method[] fields2GetterSetter(Class<E> c, Field field) {
+    private String[] fields2GetterSetterName(Class<E> c, Field field) {
         String fieldName = field.getName();
         String capitalizedFieldName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
         String getterName = "get" + capitalizedFieldName;
@@ -238,15 +238,20 @@ public class ClassInfo<E> {
                 setterName = "set" + fieldName.substring(2);
             }
         }
+        return new String[] { getterName, setterName };
+    }
+
+    private Method[] fields2GetterSetter(Class<E> c, Field field) {
+        String[] getterSetterName = this.fields2GetterSetterName(c, field);
         Method getter;
         try {
-            getter = c.getMethod(getterName);
+            getter = c.getMethod(getterSetterName[0]);
         } catch (NoSuchMethodException | SecurityException e) {
             throw new MapperException("Entity " + c.getName() + " read getter failed", e);
         }
         Method setter;
         try {
-            setter = c.getMethod(setterName, field.getType());
+            setter = c.getMethod(getterSetterName[1], field.getType());
         } catch (NoSuchMethodException | SecurityException e) {
             throw new MapperException("Entity " + c.getName() + " read setter failed", e);
         }
@@ -254,25 +259,13 @@ public class ClassInfo<E> {
     }
 
     private MethodHandle[] fields2GetterSetterHandle(Class<E> c, Field field) {
-        String fieldName = field.getName();
-        String capitalizedFieldName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-        String getterName = "get" + capitalizedFieldName;
-        String setterName = "set" + capitalizedFieldName;
-        if (field.getType() == boolean.class) {
-            if (fieldName.length() > 2 && fieldName.substring(0, 2).equals("is")) {
-                if (!Character.isLowerCase(fieldName.charAt(2))) {
-                    getterName = fieldName;
-                }
-            } else {
-                getterName = "is" + capitalizedFieldName;
-            }
-        }
+        String[] getterSetterName = this.fields2GetterSetterName(c, field);
         MethodHandles.Lookup lookup = MethodHandles.lookup();
         MethodType getterMethodType = MethodType.methodType(field.getType());
         MethodType setterMethodType = MethodType.methodType(void.class, field.getType());
         try {
-            MethodHandle getterMethodHandle = lookup.findVirtual(c, getterName, getterMethodType);
-            MethodHandle setterMethodHandle = lookup.findVirtual(c, setterName, setterMethodType);
+            MethodHandle getterMethodHandle = lookup.findVirtual(c, getterSetterName[0], getterMethodType);
+            MethodHandle setterMethodHandle = lookup.findVirtual(c, getterSetterName[1], setterMethodType);
             return new MethodHandle[] { getterMethodHandle, setterMethodHandle };
         } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new MapperException("Entity " + c.getName() + " read getter failed", e);
