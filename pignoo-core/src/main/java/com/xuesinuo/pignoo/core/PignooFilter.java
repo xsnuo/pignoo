@@ -89,19 +89,7 @@ public class PignooFilter<E> {
          * <p>
          * Not contains
          */
-        NOT_IN("not in", 0, Integer.MAX_VALUE),
-        /**
-         * 为空
-         * <p>
-         * Is null
-         */
-        IS_NULL("is null", 0, 0),
-        /**
-         * 不为空
-         * <p>
-         * Is not null
-         */
-        IS_NOT_NULL("is not null", 0, 0);
+        NOT_IN("not in", 0, Integer.MAX_VALUE);
 
         /**
          * 筛选条件名称，可以用于代替枚举值，不区分大小写

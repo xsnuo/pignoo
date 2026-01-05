@@ -142,10 +142,10 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
             return "IN";
         case NOT_IN:
             return "NOT IN";
-        case IS_NULL:
-            return "IS NULL";
-        case IS_NOT_NULL:
-            return "IS NOT NULL";
+        // case IS_NULL:
+        //     return "IS NULL";
+        // case IS_NOT_NULL:
+        //     return "IS NOT NULL";
         default:
             return "";
         }
