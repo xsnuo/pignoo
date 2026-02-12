@@ -10,7 +10,7 @@
   <name>pignoo</name>
   <description>pignoo is a simple jdbc tool.</description>
   <packaging>pom</packaging>
-  <url>https://gitee.com/xue_da_nuo/pignoo</url>
+  <url>https://github.com/xsnuo/pignoo</url>
   <organization>
     <name>xuesinuo</name>
     <url>https://www.xuesinuo.com</url>
@@ -27,15 +27,15 @@
       <id>xuesinuo</id>
       <name>xuesinuo</name>
       <email>nayukiminace@163.com</email>
-      <url>https://gitee.com/xue_da_nuo/pignoo</url>
+      <url>https://github.com/xsnuo/pignoo</url>
       <organization>xuesinuo</organization>
       <organizationUrl>https://www.xuesinuo.com</organizationUrl>
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:https://gitee.com/xue_da_nuo/pignoo.git</connection>
-    <developerConnection>scm:git:ssh://git@gitee.com:xue_da_nuo/pignoo.git</developerConnection>
-    <url>https://gitee.com/xue_da_nuo/pignoo</url>
+    <connection>scm:git:https://github.com/xsnuo/pignoo.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:xsnuo/pignoo.git</developerConnection>
+    <url>https://github.com/xsnuo/pignoo</url>
   </scm>
 
   <modules>
