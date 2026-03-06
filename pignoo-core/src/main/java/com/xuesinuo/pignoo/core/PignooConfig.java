@@ -19,6 +19,16 @@ import lombok.Data;
 @Data
 public class PignooConfig {
 
+    static {
+        System.out.println("""
+
+                  _  ._  _  _  _
+                 /_///_// //_//_/
+                /    _/<<pignoo>>
+
+                """);
+    }
+
     /**
      * 复制一份配置文件
      * <p>
