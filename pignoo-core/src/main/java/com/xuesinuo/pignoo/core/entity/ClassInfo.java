@@ -2,7 +2,6 @@ package com.xuesinuo.pignoo.core.entity;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -123,7 +122,7 @@ public class ClassInfo<E> {
                     this.primaryKeyField = field;
                 }
                 Method[] getterSetter = this.fields2GetterSetter(c, field);
-                MethodHandle[] getterSetterHandle = this.fields2GetterSetterHandle(c, field);
+                MethodHandle[] getterSetterHandle = this.fields2GetterSetterHandle(getterSetter);
                 this.primaryKeyGetter = new MethodRunner(getterSetter[0], getterSetterHandle[0]);
                 this.primaryKeySetter = new MethodRunner(getterSetter[1], getterSetterHandle[1]);
             }
@@ -145,7 +144,7 @@ public class ClassInfo<E> {
                 }
                 this.columns.add(columnName);
                 Method[] getterSetter = this.fields2GetterSetter(c, field);
-                MethodHandle[] getterSetterHandle = this.fields2GetterSetterHandle(c, field);
+                MethodHandle[] getterSetterHandle = this.fields2GetterSetterHandle(getterSetter);
                 this.getters.add(new MethodRunner(getterSetter[0], getterSetterHandle[0]));
                 this.setters.add(new MethodRunner(getterSetter[1], getterSetterHandle[1]));
                 this.getterNames.add(getterSetter[0].getName());
@@ -258,17 +257,14 @@ public class ClassInfo<E> {
         return new Method[] { getter, setter };
     }
 
-    private MethodHandle[] fields2GetterSetterHandle(Class<E> c, Field field) {
-        String[] getterSetterName = this.fields2GetterSetterName(c, field);
-        MethodHandles.Lookup lookup = MethodHandles.lookup();
-        MethodType getterMethodType = MethodType.methodType(field.getType());
-        MethodType setterMethodType = MethodType.methodType(void.class, field.getType());
+    private MethodHandle[] fields2GetterSetterHandle(Method[] getterSetter) {
+        MethodHandles.Lookup lookup = MethodHandles.publicLookup();
         try {
-            MethodHandle getterMethodHandle = lookup.findVirtual(c, getterSetterName[0], getterMethodType);
-            MethodHandle setterMethodHandle = lookup.findVirtual(c, getterSetterName[1], setterMethodType);
+            MethodHandle getterMethodHandle = lookup.unreflect(getterSetter[0]);
+            MethodHandle setterMethodHandle = lookup.unreflect(getterSetter[1]);
             return new MethodHandle[] { getterMethodHandle, setterMethodHandle };
-        } catch (NoSuchMethodException | IllegalAccessException e) {
-            throw new MapperException("Entity " + c.getName() + " read getter failed", e);
+        } catch (IllegalAccessException | SecurityException | LinkageError e) {
+            return new MethodHandle[] { null, null };
         }
     }
 
