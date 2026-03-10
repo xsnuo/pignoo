@@ -188,6 +188,9 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
             sql.append("FOR UPDATE ");
         }
         List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.params, c, config);
+        if (entityProxyFactory != null) {
+            eList = entityProxyFactory.build(eList);
+        }
         return eList;
     }
 
@@ -212,6 +215,9 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
             sql.append("FOR UPDATE ");
         }
         List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.params, c, config);
+        if (entityProxyFactory != null) {
+            eList = entityProxyFactory.build(eList);
+        }
         return eList;
     }
 
