@@ -166,8 +166,8 @@ public class SpringPignoo implements Pignoo {
         this.basePignoo.close();
         this.hasClosed = true;
         this.dataSource = null;
-        log.warn("Spring-Pignoo 被关闭了！请确认SpringIoC容器也正在关闭，否则这是一次错误的Spring-Pignoo关闭！");
-        log.warn("Spring-Pignoo closed! Please confirm that the SpringIoC container is also closed, otherwise this is an abnormal shutdown!");
+        log.info("Spring-Pignoo 被关闭了！请确认SpringIoC容器也正在关闭，否则这是一次错误的Spring-Pignoo关闭！");
+        log.info("Spring-Pignoo closed! Please confirm that the SpringIoC container is also closed, otherwise this is an abnormal shutdown!");
     }
 
     @Override
