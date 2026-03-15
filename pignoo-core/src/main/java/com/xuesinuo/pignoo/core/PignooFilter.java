@@ -171,7 +171,9 @@ public class PignooFilter<E> {
         PignooFilter<E> pignooFilter = new PignooFilter<>();
         pignooFilter.field = filter.getField();
         pignooFilter.mode = filter.getMode();
-        pignooFilter.values = List.copyOf(filter.getValues());
+        if (filter.getValues() != null) {
+            pignooFilter.values = List.copyOf(filter.getValues());
+        }
         pignooFilter.xor = filter.getXor();
         if (filter.getOtherPignooFilterList() != null) {
             pignooFilter.otherPignooFilterList.addAll(filter.getOtherPignooFilterList().stream().map(PignooFilter::copy).toList());
