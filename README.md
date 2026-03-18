@@ -80,6 +80,10 @@ pignoo.writer(Pig.class) // 从Pignoo获取PigList
 
 ## TODO List
 
+- [ ] 2026-03-18预防死锁检查（在缓存中记录每个事务锁表的顺序，并检查）
+- [ ] 2026-03-18Gru增加一种非lambda的try-catch写法，lambda对编译检查不如非lambda友好。
+- [ ] 2026-03-18filter改为强数据类型验证
+- [ ] 2026-03-18支持查询缓存（仅限每个实体和表11映射场景，非更新会全额走缓存，更新会移除缓存）
 - [ ] 支持多组缓存Bean解析，代替static缓存Bean解析；将Bean的解析放入Pignoo运行环境。
 - [x] 高级的数据集合操作
   - [x] iterator游标查询，并指定游标跳页数量
