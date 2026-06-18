@@ -15,6 +15,7 @@ import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooFilter;
 import com.xuesinuo.pignoo.core.PignooReader;
 import com.xuesinuo.pignoo.core.PignooSorter;
+import com.xuesinuo.pignoo.core.EntityFunction;
 import com.xuesinuo.pignoo.core.SqlExecuter;
 import com.xuesinuo.pignoo.core.PignooFilter.FMode;
 import com.xuesinuo.pignoo.core.PignooFilter.XOR;
@@ -425,7 +426,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public PignooReader<E> sort(Function<E, ?> field, PignooSorter.SMode mode) {
+    public PignooReader<E> sort(EntityFunction<E, ?> field, PignooSorter.SMode mode) {
         if (this.sorter == null) {
             this.sorter = PignooSorter.build(field, mode);
         } else {
@@ -445,7 +446,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public PignooReader<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Object... values) {
+    public PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, PignooFilter.FMode mode, Object... values) {
         if (condition != null && condition) {
             return filter(field, mode, values);
         }
@@ -453,7 +454,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public PignooReader<E> filter(Boolean condition, Function<E, ?> field, String mode, Object... values) {
+    public PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, String mode, Object... values) {
         if (condition != null && condition) {
             return filter(field, mode, values);
         }
@@ -461,7 +462,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public PignooReader<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values) {
+    public PignooReader<E> filter(EntityFunction<E, ?> field, PignooFilter.FMode mode, Object... values) {
         if (this.filter == null) {
             this.filter = PignooFilter.build(field, mode, values);
         } else {
@@ -471,12 +472,12 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public PignooReader<E> filter(Function<E, ?> field, String mode, Object... values) {
+    public PignooReader<E> filter(EntityFunction<E, ?> field, String mode, Object... values) {
         return filter(field, FMode.getFMode(mode), values);
     }
 
     @Override
-    public PignooReader<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
+    public PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
         if (condition != null && condition) {
             return filter(field, mode, values);
         }
@@ -484,7 +485,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public PignooReader<E> filter(Boolean condition, Function<E, ?> field, String mode, Collection<?> values) {
+    public PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, String mode, Collection<?> values) {
         if (condition != null && condition) {
             return filter(field, mode, values);
         }
@@ -492,7 +493,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public PignooReader<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
+    public PignooReader<E> filter(EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
         if (this.filter == null) {
             this.filter = PignooFilter.build(field, mode, values);
         } else {
@@ -502,7 +503,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public PignooReader<E> filter(Function<E, ?> field, String mode, Collection<?> values) {
+    public PignooReader<E> filter(EntityFunction<E, ?> field, String mode, Collection<?> values) {
         return filter(field, FMode.getFMode(mode), values);
     }
 
@@ -528,7 +529,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public <R> R max(Function<E, R> field, Class<R> c) {
+    public <R> R max(EntityFunction<E, R> field, Class<R> c) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT MAX(`" + entityMapper.getColumnByFunction(field) + "`) ");
@@ -544,7 +545,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public <R> R maxNullAs(Function<E, R> field, Class<R> c, R nullAs) {
+    public <R> R maxNullAs(EntityFunction<E, R> field, Class<R> c, R nullAs) {
         if (nullAs == null) {
             throw new NullPointerException("#maxNullAs's param 'nullAs' can not be null");
         }
@@ -563,7 +564,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public <R> R min(Function<E, R> field, Class<R> c) {
+    public <R> R min(EntityFunction<E, R> field, Class<R> c) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT MIN(`" + entityMapper.getColumnByFunction(field) + "`) ");
@@ -579,7 +580,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public <R> R minNullAs(Function<E, R> field, Class<R> c, R nullAs) {
+    public <R> R minNullAs(EntityFunction<E, R> field, Class<R> c, R nullAs) {
         if (nullAs == null) {
             throw new NullPointerException("#minNullAs's param 'nullAs' can not be null");
         }
@@ -598,7 +599,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public <R> R sum(Function<E, R> field, Class<R> c) {
+    public <R> R sum(EntityFunction<E, R> field, Class<R> c) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT SUM(`" + entityMapper.getColumnByFunction(field) + "`) ");
@@ -614,7 +615,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public <R> R sumNullAs(Function<E, R> field, Class<R> c, R nullAs) {
+    public <R> R sumNullAs(EntityFunction<E, R> field, Class<R> c, R nullAs) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT SUM(COALESCE(`" + entityMapper.getColumnByFunction(field) + "`," + sqlParam.next(nullAs) + ")) ");
@@ -630,7 +631,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public <R> R avg(Function<E, R> field, Class<R> c) {
+    public <R> R avg(EntityFunction<E, R> field, Class<R> c) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT AVG(`" + entityMapper.getColumnByFunction(field) + "`) ");
@@ -646,7 +647,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public <R> R avgNullAs(Function<E, R> field, Class<R> c, R nullAs) {
+    public <R> R avgNullAs(EntityFunction<E, R> field, Class<R> c, R nullAs) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT AVG(COALESCE(`" + entityMapper.getColumnByFunction(field) + "`," + sqlParam.next(nullAs) + ")) ");
@@ -662,7 +663,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public <R> long countDistinct(Function<E, R> field) {
+    public <R> long countDistinct(EntityFunction<E, R> field) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT COUNT(DISTINCT `" + entityMapper.getColumnByFunction(field) + "`) ");
@@ -682,7 +683,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
     }
 
     @Override
-    public <R> long countDistinctNullAs(Function<E, R> field, R nullAs) {
+    public <R> long countDistinctNullAs(EntityFunction<E, R> field, R nullAs) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT COUNT(DISTINCT COALESCE(`" + entityMapper.getColumnByFunction(field) + "`, " + sqlParam.next(nullAs) + ")) ");

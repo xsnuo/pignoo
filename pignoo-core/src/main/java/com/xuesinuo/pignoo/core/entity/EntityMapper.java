@@ -4,9 +4,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 import com.xuesinuo.pignoo.core.PignooConfig;
+import com.xuesinuo.pignoo.core.EntityFunction;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,7 +38,7 @@ public class EntityMapper<E> {
     private EntityMapper(Class<E> c, PignooConfig config) {
         this.c = c;
         this.classInfo = new ClassInfo<>(c, config);
-        this.functionNameGetter = new FunctionNameGetter<>(c);
+        this.functionNameGetter = new FunctionNameGetter<>();
     }
 
     /**
@@ -237,7 +237,7 @@ public class EntityMapper<E> {
      *         <p>
      *         column name
      */
-    public String getColumnByFunction(Function<E, ?> function) {
+    public String getColumnByFunction(EntityFunction<E, ?> function) {
         String functionName = functionNameGetter.getFunctionName(function);
         int index = classInfo.getterNames.indexOf(functionName);
         if (index >= 0) {

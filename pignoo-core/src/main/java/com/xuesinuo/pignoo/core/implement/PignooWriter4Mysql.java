@@ -16,6 +16,7 @@ import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.PignooFilter;
 import com.xuesinuo.pignoo.core.PignooWriter;
 import com.xuesinuo.pignoo.core.PignooSorter;
+import com.xuesinuo.pignoo.core.EntityFunction;
 import com.xuesinuo.pignoo.core.entity.EntityProxyFactory;
 import com.xuesinuo.pignoo.core.entity.MethodRunner;
 import com.xuesinuo.pignoo.core.entity.SqlParam;
@@ -476,7 +477,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
     }
 
     @Override
-    public <R> R sum(Function<E, R> field, Class<R> c) {
+    public <R> R sum(EntityFunction<E, R> field, Class<R> c) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT SUM(`" + entityMapper.getColumnByFunction(field) + "`) ");
@@ -489,7 +490,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
     }
 
     @Override
-    public <R> R avg(Function<E, R> field, Class<R> c) {
+    public <R> R avg(EntityFunction<E, R> field, Class<R> c) {
         StringBuilder sql = new StringBuilder("");
         SqlParam sqlParam = new SqlParam();
         sql.append("SELECT AVG(`" + entityMapper.getColumnByFunction(field) + "`) ");
@@ -502,7 +503,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
     }
 
     @Override
-    public PignooWriter<E> sort(Function<E, ?> field, PignooSorter.SMode mode) {
+    public PignooWriter<E> sort(EntityFunction<E, ?> field, PignooSorter.SMode mode) {
         super.sort(field, mode);
         return this;
     }
@@ -514,49 +515,49 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
     }
 
     @Override
-    public PignooWriter<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Object... values) {
+    public PignooWriter<E> filter(Boolean condition, EntityFunction<E, ?> field, PignooFilter.FMode mode, Object... values) {
         super.filter(condition, field, mode, values);
         return this;
     }
 
     @Override
-    public PignooWriter<E> filter(Boolean condition, Function<E, ?> field, String mode, Object... values) {
+    public PignooWriter<E> filter(Boolean condition, EntityFunction<E, ?> field, String mode, Object... values) {
         super.filter(condition, field, mode, values);
         return this;
     }
 
     @Override
-    public PignooWriter<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values) {
+    public PignooWriter<E> filter(EntityFunction<E, ?> field, PignooFilter.FMode mode, Object... values) {
         super.filter(field, mode, values);
         return this;
     }
 
     @Override
-    public PignooWriter<E> filter(Function<E, ?> field, String mode, Object... values) {
+    public PignooWriter<E> filter(EntityFunction<E, ?> field, String mode, Object... values) {
         super.filter(field, mode, values);
         return this;
     }
 
     @Override
-    public PignooWriter<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
+    public PignooWriter<E> filter(Boolean condition, EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
         super.filter(condition, field, mode, values);
         return this;
     }
 
     @Override
-    public PignooWriter<E> filter(Boolean condition, Function<E, ?> field, String mode, Collection<?> values) {
+    public PignooWriter<E> filter(Boolean condition, EntityFunction<E, ?> field, String mode, Collection<?> values) {
         super.filter(condition, field, mode, values);
         return this;
     }
 
     @Override
-    public PignooWriter<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
+    public PignooWriter<E> filter(EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
         super.filter(field, mode, values);
         return this;
     }
 
     @Override
-    public PignooWriter<E> filter(Function<E, ?> field, String mode, Collection<?> values) {
+    public PignooWriter<E> filter(EntityFunction<E, ?> field, String mode, Collection<?> values) {
         super.filter(field, mode, values);
         return this;
     }

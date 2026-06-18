@@ -3,7 +3,6 @@ package com.xuesinuo.pignoo.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 
 import com.xuesinuo.pignoo.core.exception.MapperException;
 
@@ -143,7 +142,7 @@ public class PignooFilter<E> {
         AND, OR;
     }
 
-    private Function<E, ?> field;
+    private EntityFunction<E, ?> field;
     private FMode mode;
     private Collection<Object> values;
     private XOR xor;
@@ -202,7 +201,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public static <E> PignooFilter<E> build(Function<E, ?> field, FMode mode, Object... values) {
+    public static <E> PignooFilter<E> build(EntityFunction<E, ?> field, FMode mode, Object... values) {
         PignooFilter<E> filter = new PignooFilter<>();
         filter.field = field;
         filter.mode = mode;
@@ -215,9 +214,9 @@ public class PignooFilter<E> {
     }
 
     /**
-     * 请参考{@link #build(Function, FMode, Object...)}
+     * 请参考{@link #build(EntityFunction, FMode, Object...)}
      * <p>
-     * Please refer to {@link #build(Function, FMode, Object...)}
+     * Please refer to {@link #build(EntityFunction, FMode, Object...)}
      *
      * @param field  字段（用Getter方法指代）
      *               <p>
@@ -235,7 +234,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public static <E> PignooFilter<E> build(Function<E, ?> field, String mode, Object... values) {
+    public static <E> PignooFilter<E> build(EntityFunction<E, ?> field, String mode, Object... values) {
         return build(field, FMode.getFMode(mode), values);
     }
 
@@ -260,7 +259,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public static <E> PignooFilter<E> build(Function<E, ?> field, FMode mode, Collection<?> values) {
+    public static <E> PignooFilter<E> build(EntityFunction<E, ?> field, FMode mode, Collection<?> values) {
         PignooFilter<E> filter = new PignooFilter<>();
         filter.field = field;
         filter.mode = mode;
@@ -273,9 +272,9 @@ public class PignooFilter<E> {
     }
 
     /**
-     * 请参考{@link #build(Function, FMode, Collection)}
+     * 请参考{@link #build(EntityFunction, FMode, Collection)}
      * <p>
-     * Please refer to {@link #build(Function, FMode, Collection)}
+     * Please refer to {@link #build(EntityFunction, FMode, Collection)}
      *
      * @param field  字段（用Getter方法指代）
      *               <p>
@@ -293,7 +292,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public static <E> PignooFilter<E> build(Function<E, ?> field, String mode, Collection<?> values) {
+    public static <E> PignooFilter<E> build(EntityFunction<E, ?> field, String mode, Collection<?> values) {
         return build(field, FMode.getFMode(mode), values);
     }
 
@@ -335,7 +334,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public PignooFilter<E> and(Function<E, ?> field, FMode mode, Object... values) {
+    public PignooFilter<E> and(EntityFunction<E, ?> field, FMode mode, Object... values) {
         PignooFilter<E> filter = new PignooFilter<>();
         filter.field = field;
         filter.mode = mode;
@@ -348,9 +347,9 @@ public class PignooFilter<E> {
     }
 
     /**
-     * 请参考{@link #and(Function, FMode, Object...)}
+     * 请参考{@link #and(EntityFunction, FMode, Object...)}
      * <p>
-     * Please refer to {@link #and(Function, FMode, Object...)}
+     * Please refer to {@link #and(EntityFunction, FMode, Object...)}
      *
      * @param field  字段（用Getter方法指代）
      *               <p>
@@ -365,7 +364,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public PignooFilter<E> and(Function<E, ?> field, String mode, Object... values) {
+    public PignooFilter<E> and(EntityFunction<E, ?> field, String mode, Object... values) {
         return and(field, FMode.getFMode(mode), values);
     }
 
@@ -387,7 +386,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public PignooFilter<E> and(Function<E, ?> field, FMode mode, Collection<?> values) {
+    public PignooFilter<E> and(EntityFunction<E, ?> field, FMode mode, Collection<?> values) {
         PignooFilter<E> filter = new PignooFilter<>();
         filter.field = field;
         filter.mode = mode;
@@ -400,9 +399,9 @@ public class PignooFilter<E> {
     }
 
     /**
-     * 请参考{@link #and(Function, FMode, Collection)}
+     * 请参考{@link #and(EntityFunction, FMode, Collection)}
      * <p>
-     * Please refer to {@link #and(Function, FMode, Collection)}
+     * Please refer to {@link #and(EntityFunction, FMode, Collection)}
      *
      * @param field  字段（用Getter方法指代）
      *               <p>
@@ -417,7 +416,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public PignooFilter<E> and(Function<E, ?> field, String mode, Collection<?> values) {
+    public PignooFilter<E> and(EntityFunction<E, ?> field, String mode, Collection<?> values) {
         return and(field, FMode.getFMode(mode), values);
     }
 
@@ -439,7 +438,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public PignooFilter<E> or(Function<E, ?> field, FMode mode, Object... values) {
+    public PignooFilter<E> or(EntityFunction<E, ?> field, FMode mode, Object... values) {
         PignooFilter<E> filter = new PignooFilter<>();
         filter.field = field;
         filter.mode = mode;
@@ -452,9 +451,9 @@ public class PignooFilter<E> {
     }
 
     /**
-     * 请参考{@link #or(Function, FMode, Object...)}
+     * 请参考{@link #or(EntityFunction, FMode, Object...)}
      * <p>
-     * Please refer to {@link #or(Function, FMode, Object...)}
+     * Please refer to {@link #or(EntityFunction, FMode, Object...)}
      *
      * @param field  字段（用Getter方法指代）
      *               <p>
@@ -469,7 +468,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public PignooFilter<E> or(Function<E, ?> field, String mode, Object... values) {
+    public PignooFilter<E> or(EntityFunction<E, ?> field, String mode, Object... values) {
         return or(field, FMode.getFMode(mode), values);
     }
 
@@ -491,7 +490,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public PignooFilter<E> or(Function<E, ?> field, FMode mode, Collection<?> values) {
+    public PignooFilter<E> or(EntityFunction<E, ?> field, FMode mode, Collection<?> values) {
         PignooFilter<E> filter = new PignooFilter<>();
         filter.field = field;
         filter.mode = mode;
@@ -504,9 +503,9 @@ public class PignooFilter<E> {
     }
 
     /**
-     * 请参考{@link #or(Function, FMode, Collection)}
+     * 请参考{@link #or(EntityFunction, FMode, Collection)}
      * <p>
-     * Please refer to {@link #or(Function, FMode, Collection)}
+     * Please refer to {@link #or(EntityFunction, FMode, Collection)}
      * 
      * @param field  字段（用Getter方法指代）
      *               <p>
@@ -521,7 +520,7 @@ public class PignooFilter<E> {
      *         <p>
      *         PignooFilter instance
      */
-    public PignooFilter<E> or(Function<E, ?> field, String mode, Collection<?> values) {
+    public PignooFilter<E> or(EntityFunction<E, ?> field, String mode, Collection<?> values) {
         return or(field, FMode.getFMode(mode), values);
     }
 

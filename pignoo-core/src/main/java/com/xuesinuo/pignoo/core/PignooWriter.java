@@ -151,22 +151,22 @@ public interface PignooWriter<E> extends PignooReader<E> {
     long removeAll();
 
     @Override
-    PignooWriter<E> sort(Function<E, ?> field, PignooSorter.SMode mode);
+    PignooWriter<E> sort(EntityFunction<E, ?> field, PignooSorter.SMode mode);
 
     @Override
     PignooWriter<E> sort(PignooSorter<E> sorter);
 
     @Override
-    PignooWriter<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Object... values);
+    PignooWriter<E> filter(Boolean condition, EntityFunction<E, ?> field, PignooFilter.FMode mode, Object... values);
 
     @Override
-    PignooWriter<E> filter(Boolean condition, Function<E, ?> field, String mode, Object... values);
+    PignooWriter<E> filter(Boolean condition, EntityFunction<E, ?> field, String mode, Object... values);
 
     @Override
-    PignooWriter<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values);
+    PignooWriter<E> filter(EntityFunction<E, ?> field, PignooFilter.FMode mode, Object... values);
 
     @Override
-    PignooWriter<E> filter(Function<E, ?> field, String mode, Object... values);
+    PignooWriter<E> filter(EntityFunction<E, ?> field, String mode, Object... values);
 
     @Override
     PignooWriter<E> filter(PignooFilter<E> filter);
@@ -175,14 +175,14 @@ public interface PignooWriter<E> extends PignooReader<E> {
     PignooWriter<E> filter(Function<PignooFilter<E>, PignooFilter<E>> filterBuilder);
 
     @Override
-    PignooWriter<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
+    PignooWriter<E> filter(Boolean condition, EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
 
     @Override
-    PignooWriter<E> filter(Boolean condition, Function<E, ?> field, String mode, Collection<?> values);
+    PignooWriter<E> filter(Boolean condition, EntityFunction<E, ?> field, String mode, Collection<?> values);
 
     @Override
-    PignooWriter<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
+    PignooWriter<E> filter(EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
 
     @Override
-    PignooWriter<E> filter(Function<E, ?> field, String mode, Collection<?> values);
+    PignooWriter<E> filter(EntityFunction<E, ?> field, String mode, Collection<?> values);
 }

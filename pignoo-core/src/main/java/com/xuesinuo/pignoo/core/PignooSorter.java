@@ -1,7 +1,5 @@
 package com.xuesinuo.pignoo.core;
 
-import java.util.function.Function;
-
 import lombok.Getter;
 
 /**
@@ -24,7 +22,7 @@ public class PignooSorter<E> {
         MAX_FIRST;
     }
 
-    private Function<E, ?> field;
+    private EntityFunction<E, ?> field;
     private SMode mode;
     private PignooSorter<E> otherPignooSorter;
 
@@ -72,7 +70,7 @@ public class PignooSorter<E> {
      *         <p>
      *         The built PignooSorter
      */
-    public static <E> PignooSorter<E> build(Function<E, ?> field, SMode mode) {
+    public static <E> PignooSorter<E> build(EntityFunction<E, ?> field, SMode mode) {
         PignooSorter<E> pignooSorter = new PignooSorter<>();
         pignooSorter.field = field;
         pignooSorter.mode = mode;
@@ -94,7 +92,7 @@ public class PignooSorter<E> {
      *         <p>
      *         The built PignooSorter
      */
-    public PignooSorter<E> then(Function<E, ?> field, SMode mode) {
+    public PignooSorter<E> then(EntityFunction<E, ?> field, SMode mode) {
         PignooSorter<E> pignooSorter = new PignooSorter<>();
         pignooSorter.field = field;
         pignooSorter.mode = mode;

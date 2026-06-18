@@ -140,7 +140,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         <p>
      *         The sorted list
      */
-    PignooReader<E> sort(Function<E, ?> field, PignooSorter.SMode mode);
+    PignooReader<E> sort(EntityFunction<E, ?> field, PignooSorter.SMode mode);
 
     /**
      * 排序
@@ -177,12 +177,12 @@ public interface PignooReader<E> extends Iterable<E> {
      *         <p>
      *         The filtered result
      */
-    PignooReader<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Object... values);
+    PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, PignooFilter.FMode mode, Object... values);
 
     /**
-     * 请参考{@link #filter(Boolean, Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
+     * 请参考{@link #filter(Boolean, EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
      * <p>
-     * Please refer to {@link #filter(Boolean, Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
+     * Please refer to {@link #filter(Boolean, EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
      * 
      * @param condition 条件：仅为True时使用此条件
      *                  <p>
@@ -200,7 +200,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         <p>
      *         The filtered result
      */
-    PignooReader<E> filter(Boolean condition, Function<E, ?> field, String mode, Object... values);
+    PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, String mode, Object... values);
 
     /**
      * 单一条件过滤
@@ -220,12 +220,12 @@ public interface PignooReader<E> extends Iterable<E> {
      *         <p>
      *         The filtered result
      */
-    PignooReader<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Object... values);
+    PignooReader<E> filter(EntityFunction<E, ?> field, PignooFilter.FMode mode, Object... values);
 
     /**
-     * 请参考{@link #filter(Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
+     * 请参考{@link #filter(EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
      * <p>
-     * Please refer to {@link #filter(Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
+     * Please refer to {@link #filter(EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Object...)}
      *
      * @param field  过滤字段
      *               <p>
@@ -240,7 +240,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         <p>
      *         The filtered result
      */
-    PignooReader<E> filter(Function<E, ?> field, String mode, Object... values);
+    PignooReader<E> filter(EntityFunction<E, ?> field, String mode, Object... values);
 
     /**
      * 在满足条件后，单一条件过滤
@@ -263,12 +263,12 @@ public interface PignooReader<E> extends Iterable<E> {
      *         <p>
      *         The filtered result
      */
-    PignooReader<E> filter(Boolean condition, Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
+    PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
 
     /**
-     * 请参考{@link #filter(Boolean, Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
+     * 请参考{@link #filter(Boolean, EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
      * <p>
-     * Please refer to {@link #filter(Boolean, Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
+     * Please refer to {@link #filter(Boolean, EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
      * 
      * @param condition 条件：仅为True时使用此条件
      *                  <p>
@@ -286,7 +286,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         <p>
      *         The filtered result
      */
-    PignooReader<E> filter(Boolean condition, Function<E, ?> field, String mode, Collection<?> values);
+    PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, String mode, Collection<?> values);
 
     /**
      * 单一条件过滤
@@ -306,12 +306,12 @@ public interface PignooReader<E> extends Iterable<E> {
      *         <p>
      *         The filtered result
      */
-    PignooReader<E> filter(Function<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
+    PignooReader<E> filter(EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
 
     /**
-     * 请参考{@link #filter(Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
+     * 请参考{@link #filter(EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
      * <p>
-     * Please refer to {@link #filter(Function, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
+     * Please refer to {@link #filter(EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
      *
      * @param field  过滤字段
      *               <p>
@@ -326,7 +326,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         <p>
      *         The filtered result
      */
-    PignooReader<E> filter(Function<E, ?> field, String mode, Collection<?> values);
+    PignooReader<E> filter(EntityFunction<E, ?> field, String mode, Collection<?> values);
 
     /**
      * 最通用的过滤条件，使用PignooFilter嵌套，构建一个复杂的Filter后，应用它
@@ -375,7 +375,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         result
      * @since 1.1.0
      */
-    <R> R max(Function<E, R> field, Class<R> c);
+    <R> R max(EntityFunction<E, R> field, Class<R> c);
 
     /**
      * 求最大值
@@ -399,7 +399,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         result
      * @since 1.1.0
      */
-    <R> R maxNullAs(Function<E, R> field, Class<R> c, R nullAs);
+    <R> R maxNullAs(EntityFunction<E, R> field, Class<R> c, R nullAs);
 
     /**
      * 求最小值
@@ -420,7 +420,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         result
      * @since 1.1.0
      */
-    <R> R min(Function<E, R> field, Class<R> c);
+    <R> R min(EntityFunction<E, R> field, Class<R> c);
 
     /**
      * 求最小值
@@ -444,7 +444,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         result
      * @since 1.1.0
      */
-    <R> R minNullAs(Function<E, R> field, Class<R> c, R nullAs);
+    <R> R minNullAs(EntityFunction<E, R> field, Class<R> c, R nullAs);
 
     /**
      * 求和
@@ -464,7 +464,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         <p>
      *         result
      */
-    <R> R sum(Function<E, R> field, Class<R> c);
+    <R> R sum(EntityFunction<E, R> field, Class<R> c);
 
     /**
      * 求和
@@ -488,7 +488,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         result
      * @since 1.1.0
      */
-    <R> R sumNullAs(Function<E, R> field, Class<R> c, R nullAs);
+    <R> R sumNullAs(EntityFunction<E, R> field, Class<R> c, R nullAs);
 
     /**
      * 求平均
@@ -508,7 +508,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         <p>
      *         result of avg
      */
-    <R> R avg(Function<E, R> field, Class<R> c);
+    <R> R avg(EntityFunction<E, R> field, Class<R> c);
 
     /**
      * 求平均
@@ -532,7 +532,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         result of avg
      * @since 1.1.0
      */
-    <R> R avgNullAs(Function<E, R> field, Class<R> c, R nullAs);
+    <R> R avgNullAs(EntityFunction<E, R> field, Class<R> c, R nullAs);
 
     /**
      * 求不重复的总条数
@@ -550,7 +550,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         result of avg
      * @since 1.1.0
      */
-    <R> long countDistinct(Function<E, R> field);
+    <R> long countDistinct(EntityFunction<E, R> field);
 
     /**
      * 求不重复的总条数
@@ -571,7 +571,7 @@ public interface PignooReader<E> extends Iterable<E> {
      *         result of avg
      * @since 1.1.0
      */
-    <R> long countDistinctNullAs(Function<E, R> field, R nullAs);
+    <R> long countDistinctNullAs(EntityFunction<E, R> field, R nullAs);
 
     /**
      * 是否包含指定ID
