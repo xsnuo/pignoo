@@ -1,0 +1,90 @@
+  总体评价
+
+  作为一个个人维护的轻量框架，工程质量是中上的：模块划分清晰、中英双语 JavaDoc 完整、值参数全部走 PreparedStatement（值层面无 SQL 注入）、用 MethodHandle + 经典反射兜底做了性能取舍、Spring 事务集成用
+  DataSourceUtils + TransactionSynchronization 做得规范、EntityMapper 有缓存。
+
+  但代码里有几个确实的 bug、一个比较严重的性能/Metaspace 隐患，以及若干 reader/writer 之间因复制粘贴产生的不一致。而且整个仓库没有任何单元测试（只有 src/main，无 src/test），对一个已发布到 Maven
+  中央仓库的库来说是明显短板——下面好几个 bug 有测试就能挡住。
+
+  ---
+  一、性能 / 资源隐患（最该优先处理）
+
+  P1（最严重）：每次 writer() 都重新用 ByteBuddy 生成并加载一个代理类。
+  PignooWriter4Mysql 构造器里无条件 new EntityProxyFactory<>(...)（PignooWriter4Mysql.java:64），而 EntityProxyFactory 构造器每次都执行 new
+  ByteBuddy().subclass(c)...make().load(...)（EntityProxyFactory.java:62-79）。
+
+  - EntityMapper（含其 FunctionNameGetter 代理）是有缓存的（EntityMapper.java:63-71），但 EntityProxyFactory 没有任何缓存。
+  - 推荐用法恰恰是「注入一个 Pignoo Bean，每次请求调 writer(X.class)」——于是每个请求都动态生成一个新类并 classload。这是 ByteBuddy 最昂贵的操作，长期运行会持续向 Metaspace 灌入类（即便可被
+  GC，代价也很高）。
+  - 对一个标榜「轻量」的框架，这是头号实际问题。建议：把 EntityProxyFactory 像 EntityMapper 一样按 (Class, config) 缓存（或直接塞进 ClassInfo/EntityMapper）。
+
+  P2：只读迭代器也会构造 writer 代理。 PignooIterator4Mysql 构造器无论是否只读都 reader.copyWriter()（PignooIterator4Mysql.java:66），于是普通 for (e : reader) 也付了一次 P1 的 ByteBuddy
+  代价。只读时应跳过。
+
+  P3：字段名解析有全局锁 + 每次都走代理。 getColumnByFunction → FunctionNameGetter.getFunctionName 在共享缓存对象上 synchronized(this)（FunctionNameGetter.java:71）。每个 filter/sort/sum
+  都会触发，高并发下是按实体类型串行化的竞争点。
+
+  P4（小）：EntityMapper.build 用 get 再 put 而非 computeIfAbsent（EntityMapper.java:65-69），并发下会重复构建（幂等，仅浪费）。
+
+  ---
+  二、正确性 Bug
+
+  B1：getAny() 非事务分支调错了方法。 PignooWriter4Mysql.getAny() 的 else 分支写成 e = super.getFirst();（PignooWriter4Mysql.java:163），应为 super.getAny()。后果：非事务下 getAny() 会带上 ORDER
+  BY（getFirst 的语义），与「任取一条、不排序」的设计不符。明显的复制粘贴错误。
+
+  B2：writer 的 WHERE 拼接缺少 reader 有的 isBlank() 防护 → 空过滤器会产出非法 SQL。
+  reader 端统一写成 if (sqlWhere != null && !sqlWhere.isBlank()) { append("WHERE"...) }，但 writer 端的 getAll/get/mixAll/replaceAll/removeAll/mixById/replaceById/removeById 直接 append("WHERE ") +
+  filter2Sql(...) 或 append("AND " + filter2Sql(...))，没有判空（PignooWriter4Mysql.java:179-182, 205-208, 331-333, 362-365, 402-404, 431-434, 455-457, 467-470）。
+
+  当过滤器存在但解析为空串时（如 .filter(f -> f) 或 .filter(PignooFilter.build(X.class))，filter2Sql 返回 ""），就会生成 ... WHERE  / ... AND  这种残缺 SQL 直接报错。reader 不会，writer
+  会——典型的两边逻辑漂移。
+
+  B3：TransactionPignoo.close()/rollback() 在 conn==null 时 NPE，且 commit 失败会泄漏连接。
+  经 Gru.runTransaction 进入时，config 已带 engine，构造器不会调 getConnection()，conn 保持 null（TransactionPignoo.java:77）。若事务体没有触发任何 DB 操作：
+  - close() 直接 conn.commit()（:156）、conn.getAutoCommit()（:162）→ NPE；那个 if (conn != null)（:165）位置还在解引用之后，等于失效。
+  - rollback() 无判空 conn.rollback()（:140）→ NPE。
+  - 另外 close() 的 commit() 不在 finally 里，commit 抛异常时连接不会被关闭/归还 → 连接泄漏（:154-173）。
+
+  B4：PignooFilter.or(field, mode, Object...) 不展开数组/集合。 and(...)/build(...) 都用 addInCollection 把数组、Iterable 摊平（PignooFilter.java:343-345），但 or(...) 用的是
+  filter.values.add(value)（:447-449），导致 or(field, IN, 数组) 把整个数组当成一个值。行为不一致。
+
+  B5：基本类型 getter 会让字段解析 NPE（需实测确认，但机理明确）。 FunctionNameGetter 的拦截器对所有方法 return null（FunctionNameGetter.java:44-46）。若 lambda 引用的 getter 返回基本类型（long
+  getId()、boolean isActive()），ByteBuddy 生成的方法在 return 处需要对 null 拆箱 → NPE，于是 filter(X::getId) 抛异常。README 用的是 Long
+  id（包装类型）所以正常；这其实是个对实体必须用包装类型的隐性约束，建议补测试并在文档中写明。
+
+  B6：DDL 检查用 replaceAll 做库名/表名替换。 DatabaseChecker4MySql.java:141 用 replaceAll（正则 + 替换串里 $/\ 有特殊含义）注入库名表名；:79 也把表名/库名字符串拼进 information_schema
+  查询。虽然这些标识符来自类名/注解（非外部输入，注入风险低），但库表名含特殊字符时会出错，应改用字面量 replace() 并尽量参数化。
+
+  B7：构造失败被静默吞掉。 实体无无参构造时，ClassInfo 的 catch{ e.printStackTrace(); } 留下 constructor=null（ClassInfo.java:92-93），随后 buildEntity() 又 printStackTrace 并 return
+  null（EntityMapper.java:113-114），最终在 setters().get(i).run(null, ...) 处抛一个让人摸不着头脑的 NPE。应尽早抛清晰的 MapperException。
+
+  ---
+  三、设计层面的「脚枪」（不算 bug，但要警惕）
+
+  - removeAll()/mixAll()/replaceAll() 在没有 filter 时是整表操作（PignooWriter4Mysql.java:462-472 等）。这是 List 语义的自然结果，但少写一个 .filter() 就清表，威力很大。
+  - setter 自动回写 = 每次 setter 一条 UPDATE：pig.setA(); pig.setB(); 发两条 SQL；非事务模式下各自独立提交，多字段更新无原子性。改多个字段应优先 mixById/replaceById。值得在文档里更醒目地提示。
+  - autodatabase 的 RADICALLY 模式会自动执行 DROP COLUMN（EntityScaner.java:210-214 + DatabaseChecker4MySql.java:170）→ 数据丢失风险。目前靠 BuildMode 分级 + 日志 warning
+  兜着，属启动期工具，但建议默认更保守。
+  - SpringPignoo.basePignoo 字段非 volatile 且会被重新赋值（SpringPignoo.java:142），多线程下有可见性/竞态问题（实际触发概率低，因为 basePignoo 几乎不会 closed）。
+
+  ---
+  四、代码质量 / 可维护性
+
+  - 生产代码里残留了 main 方法和测试用的 Pig 内部类：ClassInfo.java:203-223 会被打进发布 jar，是明显的调试遗留。
+  - PignooConfig 的 static 块向 System.out 打印 ASCII LOGO（`PignooConfig.java:22-31）：库在类加载时无条件 println，无法关闭，会污染使用者的日志/控制台。
+  - 大量 SQL 拼接重复：reader/writer 里 SELECT 列... FROM... WHERE... ORDER BY 的模板被复制了十几遍，正是 B1/B2 这类漂移的温床，建议抽一个 SQL builder。
+  - 多处用 e.printStackTrace() 而非 SLF4J（ClassInfo、EntityMapper）。
+  - switch(engine){ case MySQL: ... } 缺 default 返回，靠 fall-through 后抛异常，可读性差；且实际只实现了 MySQL（README TODO 也确认 PG 未做）。
+  - 文档/命名小错别字不少：porxyClass、Unknow、Naive JDBC、过路器、启动包很类信息 等。
+  - SqlParam 的 index/params 字段直接 public，封装性偏弱。
+
+  ---
+  建议的优先级
+
+  1. 缓存 EntityProxyFactory（P1） —— 收益最大。
+  2. 修 getAny()（B1）和 writer 的 WHERE 判空（B2） —— 一行/小范围改动，配上测试。
+  3. 修 TransactionPignoo.close()/rollback() 的判空与 commit-finally（B3） —— 避免连接泄漏与 NPE。
+  4. 补一套基础单元测试（CRUD、filter 组合、空 filter、基本类型 getter、事务回滚），上面一半问题都能被它挡住。
+  5. 清理 ClassInfo.main、给 LOGO 打印加开关、统一 SQL 构建。
+
+  需要的话，我可以直接把 B1～B3 的修复改出来，或先写一组能复现这些 bug 的测试。

@@ -62,11 +62,7 @@ public class EntityMapper<E> {
     @SuppressWarnings("unchecked")
     public static <E> EntityMapper<E> build(Class<E> c, PignooConfig config) {
         CacheKey cacheKey = new CacheKey(c, config);
-        EntityMapper<E> mapper = (EntityMapper<E>) cache.get(cacheKey);
-        if (mapper == null) {
-            mapper = new EntityMapper<>(c, config);
-            cache.put(cacheKey, mapper);
-        }
+        EntityMapper<E> mapper = (EntityMapper<E>) cache.computeIfAbsent(cacheKey, key -> new EntityMapper<>(c, config));
         return mapper;
     }
 

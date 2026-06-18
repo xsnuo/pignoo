@@ -127,11 +127,7 @@ public class EntityProxyFactory<E> {
     @SuppressWarnings("unchecked")
     public static <E> EntityProxyFactory<E> build(Class<E> c, List<String> setterNames, List<Field> fields, PignooConfig config) {
         CacheKey cacheKey = new CacheKey(c, config);
-        EntityProxyFactory<E> entityProxyFactory = (EntityProxyFactory<E>) cache.get(cacheKey);
-        if (entityProxyFactory == null) {
-            entityProxyFactory = new EntityProxyFactory<>(c, setterNames, fields);
-            cache.put(cacheKey, entityProxyFactory);
-        }
+        EntityProxyFactory<E> entityProxyFactory = (EntityProxyFactory<E>) cache.computeIfAbsent(cacheKey, key -> new EntityProxyFactory<>(c, setterNames, fields));
         return entityProxyFactory;
     }
 
