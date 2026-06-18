@@ -150,6 +150,9 @@
           <extensions>true</extensions>
           <configuration>
             <publishingServerId>central</publishingServerId>
+            <excludeArtifacts>
+              <excludeArtifact>pignoo-test</excludeArtifact>
+            </excludeArtifacts>
           </configuration>
         </plugin>
       </plugins>
@@ -169,24 +172,9 @@
         <artifactId>maven-gpg-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-      </plugin>
-      <plugin>
         <groupId>org.sonatype.central</groupId>
         <artifactId>central-publishing-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>central</id>
-      <url>https://ossrh-staging-api.central.sonatype.com/service/local/repositories/snapshots/content/</url>
-    </snapshotRepository>
-    <repository>
-      <id>central</id>
-      <url>https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
 </project>
