@@ -32,7 +32,7 @@ import com.xuesinuo.pignoo.core.exception.MapperException;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.2.3
- * @version 1.1.3
+ * @version 1.1.8
  */
 public class PignooReader4Mysql<E> implements PignooReader<E> {
 
@@ -473,37 +473,6 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
 
     @Override
     public PignooReader<E> filter(EntityFunction<E, ?> field, String mode, Object... values) {
-        return filter(field, FMode.getFMode(mode), values);
-    }
-
-    @Override
-    public PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
-        if (condition != null && condition) {
-            return filter(field, mode, values);
-        }
-        return this;
-    }
-
-    @Override
-    public PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, String mode, Collection<?> values) {
-        if (condition != null && condition) {
-            return filter(field, mode, values);
-        }
-        return this;
-    }
-
-    @Override
-    public PignooReader<E> filter(EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
-        if (this.filter == null) {
-            this.filter = PignooFilter.build(field, mode, values);
-        } else {
-            this.filter = this.filter.and(field, mode, values);
-        }
-        return this;
-    }
-
-    @Override
-    public PignooReader<E> filter(EntityFunction<E, ?> field, String mode, Collection<?> values) {
         return filter(field, FMode.getFMode(mode), values);
     }
 

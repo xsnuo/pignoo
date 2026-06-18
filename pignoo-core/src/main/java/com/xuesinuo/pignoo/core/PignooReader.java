@@ -27,7 +27,7 @@ import com.xuesinuo.pignoo.core.PignooSorter.SMode;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.2.3
- * @version 1.1.0
+ * @version 1.1.8
  */
 public interface PignooReader<E> extends Iterable<E> {
 
@@ -241,92 +241,6 @@ public interface PignooReader<E> extends Iterable<E> {
      *         The filtered result
      */
     PignooReader<E> filter(EntityFunction<E, ?> field, String mode, Object... values);
-
-    /**
-     * 在满足条件后，单一条件过滤
-     * <p>
-     * Single condition filter after satisfying the condition
-     * 
-     * @param condition 条件：仅为True时使用此条件
-     *                  <p>
-     *                  Condition: use this condition only when it is True
-     * @param field     过滤字段
-     *                  <p>
-     *                  Filtering field
-     * @param mode      过滤方式
-     *                  <p>
-     *                  Filtering mode
-     * @param values    过滤值
-     *                  <p>
-     *                  Filtering value
-     * @return 过滤后的结果
-     *         <p>
-     *         The filtered result
-     */
-    PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
-
-    /**
-     * 请参考{@link #filter(Boolean, EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
-     * <p>
-     * Please refer to {@link #filter(Boolean, EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
-     * 
-     * @param condition 条件：仅为True时使用此条件
-     *                  <p>
-     *                  Condition: use this condition only when it is True
-     * @param field     过滤字段
-     *                  <p>
-     *                  Filtering field
-     * @param mode      过滤方式
-     *                  <p>
-     *                  Filtering mode
-     * @param values    过滤值
-     *                  <p>
-     *                  Filtering value
-     * @return 过滤后的结果
-     *         <p>
-     *         The filtered result
-     */
-    PignooReader<E> filter(Boolean condition, EntityFunction<E, ?> field, String mode, Collection<?> values);
-
-    /**
-     * 单一条件过滤
-     * <p>
-     * Single condition filter
-     *
-     * @param field  过滤字段
-     *               <p>
-     *               Filtering field
-     * @param mode   过滤方式
-     *               <p>
-     *               Filtering mode
-     * @param values 过滤值
-     *               <p>
-     *               Filtering value
-     * @return 过滤后的结果
-     *         <p>
-     *         The filtered result
-     */
-    PignooReader<E> filter(EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values);
-
-    /**
-     * 请参考{@link #filter(EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
-     * <p>
-     * Please refer to {@link #filter(EntityFunction, com.xuesinuo.pignoo.core.PignooFilter.FMode, Collection)}
-     *
-     * @param field  过滤字段
-     *               <p>
-     *               Filtering field
-     * @param mode   过滤方式
-     *               <p>
-     *               Filtering mode
-     * @param values 过滤值
-     *               <p>
-     *               Filtering value
-     * @return 过滤后的结果
-     *         <p>
-     *         The filtered result
-     */
-    PignooReader<E> filter(EntityFunction<E, ?> field, String mode, Collection<?> values);
 
     /**
      * 最通用的过滤条件，使用PignooFilter嵌套，构建一个复杂的Filter后，应用它

@@ -42,6 +42,7 @@
     <module>pignoo-autodatabase</module>
     <module>pignoo-core</module>
     <module>pignoo-spring</module>
+    <module>pignoo-test</module>
   </modules>
 
   <properties>

@@ -17,7 +17,7 @@ import lombok.Getter;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
- * @version 0.2.0
+ * @version 1.1.8
  */
 @Getter
 public class PignooFilter<E> {
@@ -200,14 +200,19 @@ public class PignooFilter<E> {
      * @return PignooFilter实例
      *         <p>
      *         PignooFilter instance
+     * @version 1.1.8
      */
     public static <E> PignooFilter<E> build(EntityFunction<E, ?> field, FMode mode, Object... values) {
         PignooFilter<E> filter = new PignooFilter<>();
         filter.field = field;
         filter.mode = mode;
         filter.values = new ArrayList<>();
-        for (Object value : values) {
-            addInCollection(filter.values, value);
+        if (values == null) {
+            filter.values.add(null);
+        } else {
+            for (Object value : values) {
+                addInCollection(filter.values, value);
+            }
         }
         filter.xor = XOR.AND;
         return filter;
@@ -235,64 +240,6 @@ public class PignooFilter<E> {
      *         PignooFilter instance
      */
     public static <E> PignooFilter<E> build(EntityFunction<E, ?> field, String mode, Object... values) {
-        return build(field, FMode.getFMode(mode), values);
-    }
-
-    /**
-     * 构建一个PignooFilter实例
-     * <p>
-     * Build a PignooFilter instance
-     *
-     * @param field  字段（用Getter方法指代）
-     *               <p>
-     *               Field (use Getter method to refer)
-     * @param mode   筛选条件
-     *               <p>
-     *               Filter conditions
-     * @param values 值集合
-     *               <p>
-     *               Value collection
-     * @param <E>    过路器应用的实体类型
-     *               <p>
-     *               The entity type applied by the filter
-     * @return PignooFilter实例
-     *         <p>
-     *         PignooFilter instance
-     */
-    public static <E> PignooFilter<E> build(EntityFunction<E, ?> field, FMode mode, Collection<?> values) {
-        PignooFilter<E> filter = new PignooFilter<>();
-        filter.field = field;
-        filter.mode = mode;
-        filter.values = new ArrayList<>();
-        if (values != null && !values.isEmpty()) {
-            filter.values.addAll(values);
-        }
-        filter.xor = XOR.AND;
-        return filter;
-    }
-
-    /**
-     * 请参考{@link #build(EntityFunction, FMode, Collection)}
-     * <p>
-     * Please refer to {@link #build(EntityFunction, FMode, Collection)}
-     *
-     * @param field  字段（用Getter方法指代）
-     *               <p>
-     *               Field (use Getter method to refer)
-     * @param mode   筛选条件
-     *               <p>
-     *               Filter conditions
-     * @param values 值集合
-     *               <p>
-     *               Value collection
-     * @param <E>    过路器应用的实体类型
-     *               <p>
-     *               The entity type applied by the filter
-     * @return PignooFilter实例
-     *         <p>
-     *         PignooFilter instance
-     */
-    public static <E> PignooFilter<E> build(EntityFunction<E, ?> field, String mode, Collection<?> values) {
         return build(field, FMode.getFMode(mode), values);
     }
 
@@ -333,14 +280,19 @@ public class PignooFilter<E> {
      * @return PignooFilter实例
      *         <p>
      *         PignooFilter instance
+     * @version 1.1.8
      */
     public PignooFilter<E> and(EntityFunction<E, ?> field, FMode mode, Object... values) {
         PignooFilter<E> filter = new PignooFilter<>();
         filter.field = field;
         filter.mode = mode;
         filter.values = new ArrayList<>();
-        for (Object value : values) {
-            addInCollection(filter.values, value);
+        if (values == null) {
+            filter.values.add(null);
+        } else {
+            for (Object value : values) {
+                addInCollection(filter.values, value);
+            }
         }
         filter.xor = XOR.AND;
         return this.and(filter);
@@ -369,58 +321,6 @@ public class PignooFilter<E> {
     }
 
     /**
-     * 现有条件上AND拼接下一个条件
-     * <p>
-     * AND concatenate the next condition on the existing condition
-     *
-     * @param field  字段（用Getter方法指代）
-     *               <p>
-     *               Field (use Getter method to refer)
-     * @param mode   筛选条件
-     *               <p>
-     *               Filter conditions
-     * @param values 值集合
-     *               <p>
-     *               Value collection
-     * @return PignooFilter实例
-     *         <p>
-     *         PignooFilter instance
-     */
-    public PignooFilter<E> and(EntityFunction<E, ?> field, FMode mode, Collection<?> values) {
-        PignooFilter<E> filter = new PignooFilter<>();
-        filter.field = field;
-        filter.mode = mode;
-        filter.values = new ArrayList<>();
-        if (values != null && !values.isEmpty()) {
-            filter.values.addAll(values);
-        }
-        filter.xor = XOR.AND;
-        return this.and(filter);
-    }
-
-    /**
-     * 请参考{@link #and(EntityFunction, FMode, Collection)}
-     * <p>
-     * Please refer to {@link #and(EntityFunction, FMode, Collection)}
-     *
-     * @param field  字段（用Getter方法指代）
-     *               <p>
-     *               Field (use Getter method to refer)
-     * @param mode   筛选条件
-     *               <p>
-     *               Filter conditions
-     * @param values 值
-     *               <p>
-     *               Value
-     * @return PignooFilter实例
-     *         <p>
-     *         PignooFilter instance
-     */
-    public PignooFilter<E> and(EntityFunction<E, ?> field, String mode, Collection<?> values) {
-        return and(field, FMode.getFMode(mode), values);
-    }
-
-    /**
      * 现有条件上OR拼接下一个条件
      * <p>
      * OR concatenate the next condition on the existing condition
@@ -437,14 +337,19 @@ public class PignooFilter<E> {
      * @return PignooFilter实例
      *         <p>
      *         PignooFilter instance
+     * @version 1.1.8
      */
     public PignooFilter<E> or(EntityFunction<E, ?> field, FMode mode, Object... values) {
         PignooFilter<E> filter = new PignooFilter<>();
         filter.field = field;
         filter.mode = mode;
         filter.values = new ArrayList<>();
-        for (Object value : values) {
-            filter.values.add(value);
+        if (values == null) {
+            filter.values.add(null);
+        } else {
+            for (Object value : values) {
+                addInCollection(filter.values, value);
+            }
         }
         filter.xor = XOR.AND;
         return this.or(filter);
@@ -469,58 +374,6 @@ public class PignooFilter<E> {
      *         PignooFilter instance
      */
     public PignooFilter<E> or(EntityFunction<E, ?> field, String mode, Object... values) {
-        return or(field, FMode.getFMode(mode), values);
-    }
-
-    /**
-     * 现有条件上OR拼接下一个条件
-     * <p>
-     * OR concatenate the next condition on the existing condition
-     *
-     * @param field  字段（用Getter方法指代）
-     *               <p>
-     *               Field (use Getter method to refer)
-     * @param mode   筛选条件
-     *               <p>
-     *               Filter conditions
-     * @param values 值集合
-     *               <p>
-     *               Value collection
-     * @return PignooFilter实例
-     *         <p>
-     *         PignooFilter instance
-     */
-    public PignooFilter<E> or(EntityFunction<E, ?> field, FMode mode, Collection<?> values) {
-        PignooFilter<E> filter = new PignooFilter<>();
-        filter.field = field;
-        filter.mode = mode;
-        filter.values = new ArrayList<>();
-        if (values != null && !values.isEmpty()) {
-            filter.values.addAll(values);
-        }
-        filter.xor = XOR.AND;
-        return this.or(filter);
-    }
-
-    /**
-     * 请参考{@link #or(EntityFunction, FMode, Collection)}
-     * <p>
-     * Please refer to {@link #or(EntityFunction, FMode, Collection)}
-     * 
-     * @param field  字段（用Getter方法指代）
-     *               <p>
-     *               Field (use Getter method to refer)
-     * @param mode   筛选条件
-     *               <p>
-     *               Filter conditions
-     * @param values 值集合
-     *               <p>
-     *               Value collection
-     * @return PignooFilter实例
-     *         <p>
-     *         PignooFilter instance
-     */
-    public PignooFilter<E> or(EntityFunction<E, ?> field, String mode, Collection<?> values) {
         return or(field, FMode.getFMode(mode), values);
     }
 
@@ -565,22 +418,26 @@ public class PignooFilter<E> {
     }
 
     /**
-     * 添加一个值到集合中，如果值是集合，则将值中的所有元素添加到集合中
+     * 添加一个值到集合中，如果值是数组或集合，则递归拆解其中的所有元素添加到集合中（支持数组与集合的多层嵌套）
      * <p>
-     * Add a value to the collection, if the value is a collection, add all elements in the value to the collection
-     * 
+     * Add a value to the collection. If the value is an array or collection, recursively flatten and add all its
+     * elements to the collection (supporting multi-level nesting of arrays and collections)
+     *
      * @param collection 集合
      * @param value      添加到集合中的值
+     * @version 1.1.8
      */
     private static void addInCollection(Collection<Object> collection, Object value) {
-        if (value instanceof Iterable) {
+        if (value == null) {
+            collection.add(null);
+        } else if (value instanceof Iterable) {
             for (var item : (Iterable<?>) value) {
-                collection.add(item);
+                addInCollection(collection, item);
             }
         } else if (value instanceof Object[]) {
             Object[] array = (Object[]) value;
             for (var item : array) {
-                collection.add(item);
+                addInCollection(collection, item);
             }
         } else if (value instanceof byte[]) {
             byte[] array = (byte[]) value;

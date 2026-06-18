@@ -2,7 +2,6 @@
 package com.xuesinuo.pignoo.core.implement;
 
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ import com.xuesinuo.pignoo.core.exception.MapperException;
  * @param <E> JavaBean Type
  * @author xuesinuo
  * @since 0.1.0
- * @version 1.1.3
+ * @version 1.1.8
  */
 public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements PignooWriter<E> {
 
@@ -534,30 +533,6 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
 
     @Override
     public PignooWriter<E> filter(EntityFunction<E, ?> field, String mode, Object... values) {
-        super.filter(field, mode, values);
-        return this;
-    }
-
-    @Override
-    public PignooWriter<E> filter(Boolean condition, EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
-        super.filter(condition, field, mode, values);
-        return this;
-    }
-
-    @Override
-    public PignooWriter<E> filter(Boolean condition, EntityFunction<E, ?> field, String mode, Collection<?> values) {
-        super.filter(condition, field, mode, values);
-        return this;
-    }
-
-    @Override
-    public PignooWriter<E> filter(EntityFunction<E, ?> field, PignooFilter.FMode mode, Collection<?> values) {
-        super.filter(field, mode, values);
-        return this;
-    }
-
-    @Override
-    public PignooWriter<E> filter(EntityFunction<E, ?> field, String mode, Collection<?> values) {
         super.filter(field, mode, values);
         return this;
     }
