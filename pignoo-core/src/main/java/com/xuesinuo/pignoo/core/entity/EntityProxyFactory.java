@@ -2,9 +2,13 @@ package com.xuesinuo.pignoo.core.entity;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
+import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.exception.PignooRuntimeException;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.implementation.InvocationHandlerAdapter;
@@ -24,6 +28,15 @@ import net.bytebuddy.matcher.ElementMatchers;
 public class EntityProxyFactory<E> {
     private Class<? extends E> porxyClass;
     private Field proxyField;
+    private Field updaterField;
+    private static final ConcurrentHashMap<CacheKey, EntityProxyFactory<?>> cache = new ConcurrentHashMap<>();
+
+    @AllArgsConstructor
+    @Data
+    private static class CacheKey {
+        Class<?> c;
+        PignooConfig config;
+    }
 
     /**
      * 在代理执行setter时，拦截并执行的update操作
@@ -53,15 +66,13 @@ public class EntityProxyFactory<E> {
      * @param fields      字段列表
      *                    <p>
      *                    Field List
-     * @param updater     在代理执行setter时，拦截并执行的update操作
-     *                    <p>
-     *                    Update Operation Executed When Proxy Executes Setter
      */
-    public EntityProxyFactory(Class<E> c, List<String> setterNames, List<Field> fields, Updater updater) {
+    private EntityProxyFactory(Class<E> c, List<String> setterNames, List<Field> fields) {
         try {
             this.porxyClass = new ByteBuddy()
                     .subclass(c)
                     .defineField("$proxy", c, java.lang.reflect.Modifier.PRIVATE)
+                    .defineField("$updater", Updater.class, java.lang.reflect.Modifier.PRIVATE)
                     .method(ElementMatchers.not(ElementMatchers.isDeclaredBy(Object.class)))
                     .intercept(InvocationHandlerAdapter.of((proxy, method, args) -> {
                         Object $proxy = this.proxyField.get(proxy);
@@ -70,7 +81,10 @@ public class EntityProxyFactory<E> {
                         int index = setterNames.indexOf(methodName);
                         if (index >= 0 && method.getParameterCount() == 1 && fields.get(index).getType().isAssignableFrom(method.getParameterTypes()[0])) {
                             Object fieldValue = fields.get(index).get($proxy);
-                            updater.run(index, fieldValue, $proxy);
+                            Updater updater = (Updater) this.updaterField.get(proxy);
+                            if (updater != null) {
+                                updater.run(index, fieldValue, $proxy);
+                            }
                         }
                         return invokeResult;
                     }))
@@ -79,9 +93,46 @@ public class EntityProxyFactory<E> {
                     .getLoaded();
             this.proxyField = porxyClass.getDeclaredField("$proxy");
             this.proxyField.setAccessible(true);
+            this.updaterField = porxyClass.getDeclaredField("$updater");
+            this.updaterField.setAccessible(true);
         } catch (Exception e) {
             throw new PignooRuntimeException("Pignoo create proxy-factory error", e);
         }
+    }
+
+    /**
+     * 获取代理工厂：每个类型缓存一座工厂
+     * <p>
+     * Get the proxy factory: Each type caches a factory
+     *
+     * @param c           实体类型
+     *                    <p>
+     *                    Entity Type
+     * @param setterNames setter方法名列表
+     *                    <p>
+     *                    Setter Method Name List
+     * @param fields      字段列表
+     *                    <p>
+     *                    Field List
+     * @param config      配置
+     *                    <p>
+     *                    Config
+     * @param <E>         实体类型
+     *                    <p>
+     *                    Entity Type
+     * @return 代理工厂
+     *         <p>
+     *         Proxy Factory
+     */
+    @SuppressWarnings("unchecked")
+    public static <E> EntityProxyFactory<E> build(Class<E> c, List<String> setterNames, List<Field> fields, PignooConfig config) {
+        CacheKey cacheKey = new CacheKey(c, config);
+        EntityProxyFactory<E> entityProxyFactory = (EntityProxyFactory<E>) cache.get(cacheKey);
+        if (entityProxyFactory == null) {
+            entityProxyFactory = new EntityProxyFactory<>(c, setterNames, fields);
+            cache.put(cacheKey, entityProxyFactory);
+        }
+        return entityProxyFactory;
     }
 
     /**
@@ -89,14 +140,17 @@ public class EntityProxyFactory<E> {
      * <p>
      * Build a JavaBean Proxy
      *
-     * @param entity 原始JavaBean
-     *               <p>
-     *               Original JavaBean
+     * @param entity  原始JavaBean
+     *                <p>
+     *                Original JavaBean
+     * @param updater 在代理执行setter时，拦截并执行的update操作
+     *                <p>
+     *                Update Operation Executed When Proxy Executes Setter
      * @return 代理
      *         <p>
      *         Proxy
      */
-    public E build(E entity) {
+    public E build(E entity, Updater updater) {
         if (entity == null) {
             return null;
         }
@@ -104,6 +158,7 @@ public class EntityProxyFactory<E> {
         try {
             proxy = (E) porxyClass.getDeclaredConstructor().newInstance();
             proxyField.set(proxy, entity);
+            updaterField.set(proxy, updater);
         } catch (Exception e) {
             throw new PignooRuntimeException("Pignoo create proxy error", e);
         }
@@ -115,17 +170,20 @@ public class EntityProxyFactory<E> {
      * <p>
      * Build a proxy for each element in the List
      *
-     * @param list JavaBean列表
-     *             <p>
-     *             JavaBean List
+     * @param list    JavaBean列表
+     *                <p>
+     *                JavaBean List
+     * @param updater 在代理执行setter时，拦截并执行的update操作
+     *                <p>
+     *                Update Operation Executed When Proxy Executes Setter
      * @return 代理列表
      *         <p>
      *         Proxy List
      */
-    public List<E> build(List<E> list) {
+    public List<E> build(List<E> list, Updater updater) {
         if (list == null) {
             return null;
         }
-        return list.stream().map(e -> build(e)).toList();
+        return list.stream().map(e -> build(e, updater)).toList();
     }
 }

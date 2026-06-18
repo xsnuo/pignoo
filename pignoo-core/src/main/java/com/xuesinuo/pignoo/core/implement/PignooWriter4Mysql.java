@@ -36,6 +36,8 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
 
     protected final EntityProxyFactory<E> entityProxyFactory;
 
+    protected final EntityProxyFactory.Updater entityUpdater;
+
     /**
      * 构造器
      * <p>
@@ -61,7 +63,8 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
     public PignooWriter4Mysql(Pignoo pignoo, Supplier<Connection> connGetter, Consumer<Connection> connCloser, boolean inTransaction, Class<E> c, PignooConfig config) {
         super(pignoo, connGetter, connCloser, inTransaction, c, config);
         if (config.getOpenSetterProxy() == null || config.getOpenSetterProxy() == true) {
-            this.entityProxyFactory = new EntityProxyFactory<>(c, entityMapper.setterNames(), entityMapper.fields(), (index, arg, e) -> {
+            this.entityProxyFactory = EntityProxyFactory.build(c, entityMapper.setterNames(), entityMapper.fields(), config);
+            this.entityUpdater = (index, arg, e) -> {
                 if (pignoo.closed()) {
                     return;
                 }
@@ -83,9 +86,10 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
                 sql.append("WHERE ");
                 sql.append("`" + entityMapper.primaryKeyColumn() + "` = " + sqlParam.next(primaryKeyValue) + " ");
                 sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
-            });
+            };
         } else {
             this.entityProxyFactory = null;
+            this.entityUpdater = null;
         }
     }
 
@@ -128,7 +132,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
             e = super.getFirst();
         }
         if (entityProxyFactory != null && e != null) {
-            e = entityProxyFactory.build(e);
+            e = entityProxyFactory.build(e, entityUpdater);
         }
         return e;
     }
@@ -163,7 +167,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
             e = super.getFirst();
         }
         if (entityProxyFactory != null && e != null) {
-            e = entityProxyFactory.build(e);
+            e = entityProxyFactory.build(e, entityUpdater);
         }
         return e;
     }
@@ -189,7 +193,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         }
         List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.params, c, config);
         if (entityProxyFactory != null) {
-            eList = entityProxyFactory.build(eList);
+            eList = entityProxyFactory.build(eList, entityUpdater);
         }
         return eList;
     }
@@ -216,7 +220,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         }
         List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.params, c, config);
         if (entityProxyFactory != null) {
-            eList = entityProxyFactory.build(eList);
+            eList = entityProxyFactory.build(eList, entityUpdater);
         }
         return eList;
     }
@@ -268,7 +272,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql2.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam2.next(primaryKeyValue) + " ");
         e = sqlExecuter.selectOne(connGetter, connCloser, sql2.toString(), sqlParam2.params, c, config);
         if (entityProxyFactory != null) {
-            e = entityProxyFactory.build(e);
+            e = entityProxyFactory.build(e, entityUpdater);
         }
         return e;
     }

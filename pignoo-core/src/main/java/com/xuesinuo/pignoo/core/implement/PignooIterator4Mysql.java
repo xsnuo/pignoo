@@ -63,7 +63,7 @@ public class PignooIterator4Mysql<E> implements Iterator<E> {
      */
     public PignooIterator4Mysql(PignooReader4Mysql<E> reader, Class<E> c, boolean isReadOnly, int step, long offset, long limit, SMode idSortMode) {
         this.reader = reader.copyReader();
-        this.writer = reader.copyWriter();
+        this.writer = isReadOnly ? null : reader.copyWriter();
         this.config = reader.config;
         this.c = c;
         this.isReadOnly = isReadOnly;
@@ -168,7 +168,7 @@ public class PignooIterator4Mysql<E> implements Iterator<E> {
         this.now = entity;
         if (this.isReadOnly == false) {
             if (this.writer.entityProxyFactory != null) {
-                entity = this.writer.entityProxyFactory.build(entity);
+                entity = this.writer.entityProxyFactory.build(entity, this.writer.entityUpdater);
             }
         }
         return entity;
