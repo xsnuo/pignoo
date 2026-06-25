@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.xuesinuo.pignoo.core.PignooConfig;
 import com.xuesinuo.pignoo.core.EntityFunction;
+import com.xuesinuo.pignoo.core.exception.MapperException;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -103,11 +104,13 @@ public class EntityMapper<E> {
      *         New entity
      */
     public E buildEntity() {
+        if (classInfo.constructor == null) {
+            throw new MapperException("Entity " + c.getName() + " missing a no-arg constructor");
+        }
         try {
             return classInfo.constructor.newInstance();
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            e.printStackTrace();
-            return null;
+            throw new MapperException("Entity " + c.getName() + " create instance failed", e);
         }
     }
 

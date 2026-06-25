@@ -90,7 +90,7 @@ public class ClassInfo<E> {
         try {
             this.constructor = c.getDeclaredConstructor();
         } catch (NoSuchMethodException | SecurityException e) {
-            e.printStackTrace();
+            throw new MapperException("Entity " + c.getName() + " can not find a no-arg constructor", e);
         }
         Field[] classFields = c.getDeclaredFields();
         for (Field field : classFields) {
@@ -117,7 +117,7 @@ public class ClassInfo<E> {
                 }
                 this.autoPrimaryKey = columnAnn.primaryKey() == Column.PrimaryKey.AUTO;
                 if (this.primaryKeyField != null) {
-                    throw new MapperException("Entity " + c.getName() + " can't has more than one @PrimaryKey");
+                    throw new MapperException("Entity " + c.getName() + " can't have more than one @PrimaryKey");
                 } else {
                     this.primaryKeyField = field;
                 }
