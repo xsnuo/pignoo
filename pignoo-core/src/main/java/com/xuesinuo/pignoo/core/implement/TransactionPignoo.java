@@ -137,7 +137,9 @@ public class TransactionPignoo implements Pignoo {
             return;
         }
         try {
-            conn.rollback();
+            if (conn != null) {
+                conn.rollback();
+            }
             hasRollbacked = true;
         } catch (SQLException e) {
             throw new SqlExecuteException(e);
@@ -151,24 +153,26 @@ public class TransactionPignoo implements Pignoo {
         }
         hasClosed = true;
         dataSource = null;
-        if (!hasRollbacked) {
-            try {
-                conn.commit();
-            } catch (SQLException e) {
-                throw new SqlExecuteException(e);
-            }
+        if (conn == null) {
+            return;
         }
         try {
+            if (!hasRollbacked) {
+                conn.commit();
+            }
             if (connAutoCommit != conn.getAutoCommit()) {
                 conn.setAutoCommit(connAutoCommit);
-            }
-            if (conn != null) {
-                conn.close();
             }
         } catch (SQLException e) {
             throw new SqlExecuteException(e);
         } finally {
-            conn = null;
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                throw new SqlExecuteException(e);
+            } finally {
+                conn = null;
+            }
         }
     }
 
