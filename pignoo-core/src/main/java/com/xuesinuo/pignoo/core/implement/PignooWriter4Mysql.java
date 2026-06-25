@@ -164,7 +164,7 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
             sql2.append("FOR UPDATE ");
             e = sqlExecuter.selectOne(connGetter, connCloser, sql2.toString(), sqlParam.params, c, config);
         } else {
-            e = super.getFirst();
+            e = super.getAny();
         }
         if (entityProxyFactory != null && e != null) {
             e = entityProxyFactory.build(e, entityUpdater);
@@ -181,8 +181,11 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql.append("FROM ");
         sql.append("`" + entityMapper.tableName() + "` ");
         if (filter != null) {
-            sql.append("WHERE ");
-            sql.append(filter2Sql(filter, sqlParam));
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
         }
         if (sorter != null) {
             sql.append("ORDER BY ");
@@ -207,8 +210,11 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql.append("FROM ");
         sql.append("`" + entityMapper.tableName() + "` ");
         if (filter != null) {
-            sql.append("WHERE ");
-            sql.append(filter2Sql(filter, sqlParam));
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
         }
         if (sorter != null) {
             sql.append("ORDER BY ");
@@ -333,7 +339,11 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + sqlParam.next(params.get(column))).collect(Collectors.joining(",")) + " ");
         sql.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
         if (filter != null) {
-            sql.append("AND " + filter2Sql(filter, sqlParam));
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("AND ");
+                sql.append(sqlWhere);
+            }
         }
         return sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
     }
@@ -364,8 +374,11 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql.append("SET ");
         sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + sqlParam.next(params.get(column))).collect(Collectors.joining(",")) + " ");
         if (filter != null) {
-            sql.append("WHERE ");
-            sql.append(filter2Sql(filter, sqlParam));
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
         }
         return sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
     }
@@ -404,7 +417,11 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + (params.get(column) == null ? "NULL" : sqlParam.next(params.get(column)))).collect(Collectors.joining(",")) + " ");
         sql.append("WHERE `" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
         if (filter != null) {
-            sql.append("AND " + filter2Sql(filter, sqlParam));
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("AND ");
+                sql.append(sqlWhere);
+            }
         }
         return sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
     }
@@ -433,8 +450,11 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql.append("SET ");
         sql.append(params.keySet().stream().map(column -> "`" + column + "`=" + (params.get(column) == null ? "NULL" : sqlParam.next(params.get(column)))).collect(Collectors.joining(",")) + " ");
         if (filter != null) {
-            sql.append("WHERE ");
-            sql.append(filter2Sql(filter, sqlParam));
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
         }
         return sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
     }
@@ -457,7 +477,11 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql.append("WHERE ");
         sql.append("`" + entityMapper.primaryKeyColumn() + "`=" + sqlParam.next(primaryKeyValue) + " ");
         if (filter != null) {
-            sql.append("AND " + filter2Sql(filter, sqlParam));
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("AND ");
+                sql.append(sqlWhere);
+            }
         }
         return sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
     }
@@ -469,8 +493,11 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql.append("DELETE FROM ");
         sql.append("`" + entityMapper.tableName() + "` ");
         if (filter != null) {
-            sql.append("WHERE ");
-            sql.append(filter2Sql(filter, sqlParam));
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
         }
         return sqlExecuter.update(connGetter, connCloser, sql.toString(), sqlParam.params);
     }
@@ -482,8 +509,11 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql.append("SELECT SUM(`" + entityMapper.getColumnByFunction(field) + "`) ");
         sql.append("FROM `" + entityMapper.tableName() + "` ");
         if (filter != null) {
-            sql.append("WHERE ");
-            sql.append(filter2Sql(filter, sqlParam));
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
         }
         return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
     }
@@ -495,8 +525,11 @@ public class PignooWriter4Mysql<E> extends PignooReader4Mysql<E> implements Pign
         sql.append("SELECT AVG(`" + entityMapper.getColumnByFunction(field) + "`) ");
         sql.append("FROM `" + entityMapper.tableName() + "` ");
         if (filter != null) {
-            sql.append("WHERE ");
-            sql.append(filter2Sql(filter, sqlParam));
+            String sqlWhere = filter2Sql(filter, sqlParam);
+            if (sqlWhere != null && !sqlWhere.isBlank()) {
+                sql.append("WHERE ");
+                sql.append(sqlWhere);
+            }
         }
         return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
     }
