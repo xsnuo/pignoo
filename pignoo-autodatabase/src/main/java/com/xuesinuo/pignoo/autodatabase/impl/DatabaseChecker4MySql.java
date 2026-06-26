@@ -138,7 +138,7 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
                         ORDER BY
                             c.ORDINAL_POSITION;
                         """;
-                sql = sql.replaceAll("__database_name__", database).replaceAll("__table_name__", tableName);
+                sql = sql.replace("__database_name__", database).replace("__table_name__", tableName);
                 List<LinkedHashMap<String, String>> columnInfosInDatabase = sqlExecuter.selectLinkedHashMap(() -> c, (x) -> {}, sql, new HashMap<>());
                 List<String> columnNamesInDatabase = columnInfosInDatabase.stream().map(x -> x.get("column_name")).toList();
                 for (int i = 0; i < entityMapper.columns().size(); i++) {// 数据库中缺少字段：添加

@@ -19,15 +19,22 @@ import lombok.Data;
 @Data
 public class PignooConfig {
 
-    static {
-        System.out.println("""
-                #################################
-                ####      _  ._  _  _  _     ####
-                ####     /_///_// //_//_/    ####
-                ####    /    _/ #pignoo#     ####
-                ####                         ####
-                #################################
-                """);
+    public static boolean showLogo = true;
+
+    {
+        if (showLogo) {
+            showLogo = false;
+            System.out.println("""
+
+                    #################################
+                    ####      _  ._  _  _  _     ####
+                    ####     /_///_// //_//_/    ####
+                    ####    /    _/ #pignoo#     ####
+                    ####                         ####
+                    #################################
+
+                    """);
+        }
     }
 
     /**
