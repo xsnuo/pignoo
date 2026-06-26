@@ -11,8 +11,8 @@ import java.util.Map;
  * @version 0.2.3
  */
 public class SqlParam {
-    public int index = 0;
-    public Map<Integer, Object> params = new LinkedHashMap<>();
+    private int index = 0;
+    private final Map<Integer, Object> params = new LinkedHashMap<>();
 
     /**
      * 拼接下一个参数，并返回一个占位符
@@ -27,5 +27,18 @@ public class SqlParam {
     public String next(Object value) {
         params.put(index++, value);
         return "?";
+    }
+
+    /**
+     * 获取已拼接的参数
+     * <p>
+     * Get the collected parameters
+     *
+     * @return 参数表
+     *         <p>
+     *         parameters
+     */
+    public Map<Integer, Object> getParams() {
+        return params;
     }
 }

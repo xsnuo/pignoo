@@ -126,7 +126,7 @@ public class PignooIterator4Mysql<E> implements Iterator<E> {
         } else {
             sql.append("LIMIT " + this.step + " ");
         }
-        this.list = sqlExecuter.selectList(this.reader.connGetter, this.reader.connCloser, sql.toString(), sqlParam.params, this.c, config);
+        this.list = sqlExecuter.selectList(this.reader.connGetter, this.reader.connCloser, sql.toString(), sqlParam.getParams(), this.c, config);
         this.stepIndex = 0;
     }
 

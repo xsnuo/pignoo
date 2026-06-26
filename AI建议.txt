@@ -32,7 +32,6 @@
   - 大量 SQL 拼接重复：reader/writer 里 SELECT 列... FROM... WHERE... ORDER BY 的模板被复制了十几遍，是逻辑漂移的温床，建议抽一个 SQL builder。
   - switch(engine){ case MySQL: ... } 缺 default 返回（TransactionPignoo/BasePignoo/SpringPignooItem 的 writer/reader 靠落到末尾抛异常），可读性差；且实际只实现了 MySQL（README TODO 也确认 PG 未做）。
   - 错别字 porxyClass / Unknow / 过路器 / 启动包很类信息 均已修；仅剩 Naive JDBC（SimpleJdbcSqlExecuter:30），待确认是笔误（Native?）还是本意（朴素实现）。
-  - SqlParam 的 index/params 字段直接 public（SqlParam.java:14-15），封装性偏弱。
 
   ---
   建议的优先级

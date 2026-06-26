@@ -337,7 +337,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
             sql.append(sorter2Sql(sorter));
         }
         sql.append("LIMIT 1 ");
-        E e = sqlExecuter.selectOne(connGetter, connCloser, sql.toString(), sqlParam.params, c, config);
+        E e = sqlExecuter.selectOne(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c, config);
         return e;
     }
 
@@ -357,7 +357,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
             }
         }
         sql.append("LIMIT 1 ");
-        E e = sqlExecuter.selectOne(connGetter, connCloser, sql.toString(), sqlParam.params, c, config);
+        E e = sqlExecuter.selectOne(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c, config);
         return e;
     }
 
@@ -380,7 +380,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
             sql.append("ORDER BY ");
             sql.append(sorter2Sql(sorter));
         }
-        List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.params, c, config);
+        List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c, config);
         return eList;
     }
 
@@ -404,7 +404,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
             sql.append(sorter2Sql(sorter));
         }
         sql.append("LIMIT " + offset + "," + limit + " ");
-        List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.params, c, config);
+        List<E> eList = sqlExecuter.selectList(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c, config);
         return eList;
     }
 
@@ -421,7 +421,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        Long size = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, Long.class);
+        Long size = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), Long.class);
         return size == null ? 0L : size;
     }
 
@@ -510,7 +510,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c);
     }
 
     @Override
@@ -529,7 +529,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c);
     }
 
     @Override
@@ -545,7 +545,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c);
     }
 
     @Override
@@ -564,7 +564,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c);
     }
 
     @Override
@@ -580,7 +580,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c);
     }
 
     @Override
@@ -596,7 +596,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c);
     }
 
     @Override
@@ -612,7 +612,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c);
     }
 
     @Override
@@ -628,7 +628,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, c);
+        return sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), c);
     }
 
     @Override
@@ -644,7 +644,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        Long count = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, Long.class);
+        Long count = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), Long.class);
         if (count == null) {
             return 0;
         }
@@ -664,7 +664,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        Long count = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, Long.class);
+        Long count = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), Long.class);
         if (count == null) {
             return 0;
         }
@@ -698,7 +698,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        Long size = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, Long.class);
+        Long size = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), Long.class);
         return size != null && size > 0;
     }
 
@@ -731,7 +731,7 @@ public class PignooReader4Mysql<E> implements PignooReader<E> {
                 sql.append(sqlWhere);
             }
         }
-        Long size = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.params, Long.class);
+        Long size = sqlExecuter.selectColumn(connGetter, connCloser, sql.toString(), sqlParam.getParams(), Long.class);
         return size != null && size.intValue() == collection.size();
     }
 
