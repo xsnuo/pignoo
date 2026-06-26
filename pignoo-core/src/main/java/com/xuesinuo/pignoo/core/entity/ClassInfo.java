@@ -16,8 +16,6 @@ import com.xuesinuo.pignoo.core.config.AnnotationMode;
 import com.xuesinuo.pignoo.core.config.PrimaryKeyNamingConvention;
 import com.xuesinuo.pignoo.core.exception.MapperException;
 
-import lombok.Data;
-
 import com.xuesinuo.pignoo.core.config.NamingMode;
 
 /**
@@ -198,28 +196,6 @@ public class ClassInfo<E> {
         for (Field field : this.fields) {
             field.setAccessible(true);
         }
-    }
-
-    public static void main(String[] args) {
-        System.out.println(Character.isLowerCase('_'));
-        Pig pig = new Pig();
-        pig.is$();
-        pig.is0();
-        pig.isB();
-        pig.isIsa();
-        pig.isX();
-        pig.setX(false);
-        pig.set$(false);
-    }
-
-    @Data
-    public static class Pig {
-        boolean x;
-        boolean isa;
-        boolean isB;
-        boolean is_;
-        boolean is0;
-        boolean is$;
     }
 
     private String[] fields2GetterSetterName(Class<E> c, Field field) {
