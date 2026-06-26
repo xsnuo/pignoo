@@ -56,7 +56,7 @@ public class SpringPignooItem implements Pignoo {
      */
     protected SpringPignooItem(DataSource dataSource, PignooConfig pignooConfig, boolean inTransaction) {
         if (dataSource == null) {
-            throw new DataSourceException("Unknow dataSource");
+            throw new DataSourceException("Unknown dataSource");
         }
         this.dataSource = dataSource;
         if (pignooConfig == null) {
@@ -80,7 +80,7 @@ public class SpringPignooItem implements Pignoo {
             }
         }
         if (this.config.getEngine() == null) {
-            throw new DataSourceException("Unknow database engine");
+            throw new DataSourceException("Unknown database engine");
         }
     }
 
@@ -104,7 +104,7 @@ public class SpringPignooItem implements Pignoo {
         case MySQL:
             return new PignooWriter4Mysql<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
         }
-        throw new DataSourceException("Unknow database engine");
+        throw new DataSourceException("Unknown database engine");
     }
 
     @Override
@@ -113,7 +113,7 @@ public class SpringPignooItem implements Pignoo {
         case MySQL:
             return new PignooReader4Mysql<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
         }
-        throw new DataSourceException("Unknow database engine");
+        throw new DataSourceException("Unknown database engine");
     }
 
     @Override

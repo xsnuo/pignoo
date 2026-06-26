@@ -69,7 +69,7 @@ public class Gru {
             throw new DataSourceException("Read database engine failed", e);
         }
         if (engine == null) {
-            throw new DataSourceException("Unknow database engine");
+            throw new DataSourceException("Unknown database engine");
         }
         config.setEngine(engine);
         this.config = config;

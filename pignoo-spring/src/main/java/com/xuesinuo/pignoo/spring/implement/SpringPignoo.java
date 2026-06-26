@@ -86,7 +86,7 @@ public class SpringPignoo implements Pignoo {
     public SpringPignoo(DataSource dataSource, PignooConfig pignooConfig) {
         DatabaseEngine engine = null;
         if (dataSource == null) {
-            throw new DataSourceException("Unknow dataSource");
+            throw new DataSourceException("Unknown dataSource");
         }
         this.dataSource = dataSource;
         if (engine == null) {
@@ -97,7 +97,7 @@ public class SpringPignoo implements Pignoo {
             }
         }
         if (engine == null) {
-            throw new DataSourceException("Unknow database engine");
+            throw new DataSourceException("Unknown database engine");
         }
         if (pignooConfig == null) {
             pignooConfig = new PignooConfig();

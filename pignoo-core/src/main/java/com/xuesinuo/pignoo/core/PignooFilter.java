@@ -156,7 +156,7 @@ public class PignooFilter<E> {
      * @param filter 要复制的PignooFilter实例
      *               <p>
      *               The PignooFilter instance to be copied
-     * @param <E>    过路器应用的实体类型
+     * @param <E>    过滤器应用的实体类型
      *               <p>
      *               The entity type applied by the filter
      * @return 复制后的PignooFilter实例
@@ -194,7 +194,7 @@ public class PignooFilter<E> {
      * @param values 值
      *               <p>
      *               Value
-     * @param <E>    过路器应用的实体类型
+     * @param <E>    过滤器应用的实体类型
      *               <p>
      *               The entity type applied by the filter
      * @return PignooFilter实例
@@ -232,7 +232,7 @@ public class PignooFilter<E> {
      * @param values 值
      *               <p>
      *               Value
-     * @param <E>    过路器应用的实体类型
+     * @param <E>    过滤器应用的实体类型
      *               <p>
      *               The entity type applied by the filter
      * @return PignooFilter实例
@@ -251,7 +251,7 @@ public class PignooFilter<E> {
      * @param c   实体类型
      *            <p>
      *            Entity type
-     * @param <E> 过路器应用的实体类型
+     * @param <E> 过滤器应用的实体类型
      *            <p>
      *            The entity type applied by the filter
      * @return PignooFilter实例

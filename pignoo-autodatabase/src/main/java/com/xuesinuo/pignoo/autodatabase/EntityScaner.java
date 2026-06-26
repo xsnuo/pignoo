@@ -64,7 +64,7 @@ public class EntityScaner {
             this.databaseChecker = new DatabaseChecker4MySql(dataSource, entityScanConfig.getTypeMapper(), entityScanConfig.getStrictColumnType());
             break;
         default:
-            throw new DataSourceException("Unknow database engine");
+            throw new DataSourceException("Unknown database engine");
         }
     }
 

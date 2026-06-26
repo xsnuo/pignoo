@@ -26,7 +26,7 @@ import net.bytebuddy.matcher.ElementMatchers;
  */
 @Slf4j
 public class EntityProxyFactory<E> {
-    private Class<? extends E> porxyClass;
+    private Class<? extends E> proxyClass;
     private Field proxyField;
     private Field updaterField;
     private static final ConcurrentHashMap<CacheKey, EntityProxyFactory<?>> cache = new ConcurrentHashMap<>();
@@ -69,7 +69,7 @@ public class EntityProxyFactory<E> {
      */
     private EntityProxyFactory(Class<E> c, List<String> setterNames, List<Field> fields) {
         try {
-            this.porxyClass = new ByteBuddy()
+            this.proxyClass = new ByteBuddy()
                     .subclass(c)
                     .defineField("$proxy", c, java.lang.reflect.Modifier.PRIVATE)
                     .defineField("$updater", Updater.class, java.lang.reflect.Modifier.PRIVATE)
@@ -91,9 +91,9 @@ public class EntityProxyFactory<E> {
                     .make()
                     .load(c.getClassLoader())
                     .getLoaded();
-            this.proxyField = porxyClass.getDeclaredField("$proxy");
+            this.proxyField = proxyClass.getDeclaredField("$proxy");
             this.proxyField.setAccessible(true);
-            this.updaterField = porxyClass.getDeclaredField("$updater");
+            this.updaterField = proxyClass.getDeclaredField("$updater");
             this.updaterField.setAccessible(true);
         } catch (Exception e) {
             throw new PignooRuntimeException("Pignoo create proxy-factory error", e);
@@ -152,7 +152,7 @@ public class EntityProxyFactory<E> {
         }
         E proxy = null;
         try {
-            proxy = (E) porxyClass.getDeclaredConstructor().newInstance();
+            proxy = (E) proxyClass.getDeclaredConstructor().newInstance();
             proxyField.set(proxy, entity);
             updaterField.set(proxy, updater);
         } catch (Exception e) {

@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * 实体映射器，启动包很类信息、getter方法与属性名的映射器
+ * 实体映射器，映射类信息、getter方法与属性名
  * <p>
  * Entity Mapper, Map ClassInfo, Getter Method and Property Name
  *
@@ -104,9 +104,6 @@ public class EntityMapper<E> {
      *         New entity
      */
     public E buildEntity() {
-        if (classInfo.constructor == null) {
-            throw new MapperException("Entity " + c.getName() + " missing a no-arg constructor");
-        }
         try {
             return classInfo.constructor.newInstance();
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
