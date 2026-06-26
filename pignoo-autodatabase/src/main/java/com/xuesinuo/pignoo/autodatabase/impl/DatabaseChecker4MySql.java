@@ -24,6 +24,7 @@ import com.xuesinuo.pignoo.autodatabase.entity.DatabaseCheckResult;
 import com.xuesinuo.pignoo.core.SqlExecuter;
 import com.xuesinuo.pignoo.core.annotation.Column;
 import com.xuesinuo.pignoo.core.entity.EntityMapper;
+import com.xuesinuo.pignoo.core.entity.SqlParam;
 import com.xuesinuo.pignoo.core.exception.DataSourceException;
 import com.xuesinuo.pignoo.core.exception.SqlExecuteException;
 import com.xuesinuo.pignoo.core.implement.SimpleJdbcSqlExecuter;
@@ -75,9 +76,10 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
             }
             // 表是否存在
             String tableName = entityMapper.tableName();
+            SqlParam sqlParam = new SqlParam();
             Integer hasTable = sqlExecuter.selectColumn(() -> c, x -> {},
-                    "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='" + database + "' AND TABLE_NAME='" + tableName + "'",
-                    new HashMap<>(), Integer.class);
+                    "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=" + sqlParam.next(database) + " AND TABLE_NAME=" + sqlParam.next(tableName),
+                    sqlParam.getParams(), Integer.class);
             if (hasTable == null || hasTable == 0) {// 表不存在：创建表
                 StringBuilder sql = new StringBuilder();
                 String pkColumn = entityMapper.primaryKeyColumn();
@@ -133,13 +135,15 @@ public class DatabaseChecker4MySql implements DatabaseChecker {
                             AND c.COLUMN_NAME = k.COLUMN_NAME
                             AND k.CONSTRAINT_NAME = 'PRIMARY'
                         WHERE
-                            c.TABLE_SCHEMA = '__database_name__'
-                            AND c.TABLE_NAME = '__table_name__'
+                            c.TABLE_SCHEMA = ?
+                            AND c.TABLE_NAME = ?
                         ORDER BY
                             c.ORDINAL_POSITION;
                         """;
-                sql = sql.replace("__database_name__", database).replace("__table_name__", tableName);
-                List<LinkedHashMap<String, String>> columnInfosInDatabase = sqlExecuter.selectLinkedHashMap(() -> c, (x) -> {}, sql, new HashMap<>());
+                SqlParam sqlParam2 = new SqlParam();
+                sqlParam2.next(database);
+                sqlParam2.next(tableName);
+                List<LinkedHashMap<String, String>> columnInfosInDatabase = sqlExecuter.selectLinkedHashMap(() -> c, (x) -> {}, sql, sqlParam2.getParams());
                 List<String> columnNamesInDatabase = columnInfosInDatabase.stream().map(x -> x.get("column_name")).toList();
                 for (int i = 0; i < entityMapper.columns().size(); i++) {// 数据库中缺少字段：添加
                     String column = entityMapper.columns().get(i);

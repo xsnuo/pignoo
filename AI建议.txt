@@ -3,39 +3,24 @@
   作为一个个人维护的轻量框架，工程质量是中上的：模块划分清晰、中英双语 JavaDoc 完整、值参数全部走 PreparedStatement（值层面无 SQL 注入）、用 MethodHandle + 经典反射兜底做了性能取舍、Spring 事务集成用
   DataSourceUtils + TransactionSynchronization 做得规范、EntityMapper / EntityProxyFactory / FunctionNameGetter 均已缓存。
 
-  原先的性能/资源隐患（代理工厂未缓存、只读迭代器误建 writer、字段解析全局锁、build 非原子）以及正确性 bug（B1 getAny、B2 writer 空 filter、B3 事务 NPE/泄漏、B4 or 不展开数组、B5 基本类型 getter
-  NPE、B7 构造失败吞异常）均已处理，主代码也不再有 e.printStackTrace()。下面是仍未解决的部分。
-
-  pignoo-test 模块已建立基础用例（core CRUD/Config/DataType/Gru/Iterator、autodatabase、spring 事务）。刚修的 B2/B3/B7 尚无对应复现用例，值得补。
+  原先列出的问题大部分已处理：性能/资源隐患（代理工厂缓存、只读迭代器不再误建 writer、字段解析去全局锁、build 原子化）、正确性 bug（B1~B5、B7）、发布 jar 卫生（删 ClassInfo.main/Pig、LOGO 改为可开关且只打印一次）、主代码去除 e.printStackTrace()、B6 的 replaceAll(141)、错别字（porxyClass/Unknow/过路器/启动包很类信息）、SqlParam 字段封装、switch(engine) 补 default、SpringPignoo.basePignoo 加 volatile + 同步取值判空赋值。下面是仍未处理的部分。
 
   ---
-  一、待处理（低风险健壮性）
+  一、待处理（低风险 / 小改）
 
-  B6：DDL 检查用 replaceAll 做库名/表名替换。 DatabaseChecker4MySql.java:141 用 replaceAll（正则 + 替换串里 $/\ 有特殊含义）注入库名表名；:79 也把表名/库名字符串拼进 information_schema
-  查询。虽然这些标识符来自类名/注解（非外部输入，注入风险低），但库表名含特殊字符时会出错，应改用字面量 replace() 并尽量参数化。
+  - Naive JDBC 文案：SimpleJdbcSqlExecuter.java:30，待确认是笔误（Native?）还是本意（朴素/简单实现）。
 
   ---
-  二、设计层面的「脚枪」（不算 bug，但要警惕）
+  二、设计层面的「脚枪」（不算 bug，属设计决策，建议只在文档醒目提示）
 
   - removeAll()/mixAll()/replaceAll() 在没有 filter 时是整表操作。这是 List 语义的自然结果，但少写一个 .filter() 就清表，威力很大。
   - setter 自动回写 = 每次 setter 一条 UPDATE：pig.setA(); pig.setB(); 发两条 SQL；非事务模式下各自独立提交，多字段更新无原子性。改多个字段应优先 mixById/replaceById。
     （现已可通过 PignooConfig.openSetterProxy=false 关闭代理回写；值得在文档里更醒目地提示这一点与取舍。）
-  - autodatabase 的 RADICALLY 模式会自动执行 DROP COLUMN（EntityScaner.java:210-211 + DatabaseChecker4MySql.java:170）→ 数据丢失风险。目前靠 BuildMode 分级 + 日志 warning
-  兜着，属启动期工具，但建议默认更保守。
+  - autodatabase 的 RADICALLY 模式会自动执行 DROP COLUMN（EntityScaner.java:210-211 + DatabaseChecker4MySql.java:170）→ 数据丢失风险。目前靠 BuildMode 分级 + 日志 warning 兜着，属启动期工具，但建议默认更保守。
 
   ---
-  三、代码质量 / 可维护性
+  三、待排期 / 测试
 
-  - 生产代码里残留了 main 方法和测试用的 Pig 内部类：ClassInfo.java:203-223 会被打进发布 jar，是明显的调试遗留。
-  - PignooConfig 的 static 块向 System.out 打印 ASCII LOGO（PignooConfig.java:22-31）：库在类加载时无条件 println，无法关闭，会污染使用者的日志/控制台。
-  - 大量 SQL 拼接重复：reader/writer 里 SELECT 列... FROM... WHERE... ORDER BY 的模板被复制了十几遍，是逻辑漂移的温床，建议抽一个 SQL builder。
-  - 错别字 porxyClass / Unknow / 过路器 / 启动包很类信息 均已修；仅剩 Naive JDBC（SimpleJdbcSqlExecuter:30），待确认是笔误（Native?）还是本意（朴素实现）。
-
-  ---
-  建议的优先级
-
-  1. 发布 jar 卫生：删 ClassInfo.main + Pig 内部类、给 LOGO println 加开关或移除 —— 零风险，直接影响使用者体验与发布 jar 干净度。
-  2. 给已修的 B2/B3/B7 在 pignoo-test 补复现用例（空 filter 查询、Gru 空事务回滚、无无参构造实体）。
-  3. B6：库表名替换改 replace() 字面量 —— 低风险小改。
-  4. 批量修错别字（porxyClass / Unknow / 过路器 / 启动包很类信息 等）—— 纯文案，注意 porxyClass 是字段名需同步多处。
-  5. 较大的：抽 SQL builder 统一 reader/writer 拼接；SpringPignoo.basePignoo 加 volatile。
+  - 抽 SQL builder：reader/writer 里 SELECT 列... FROM... WHERE... ORDER BY 的模板被复制了十几遍，是逻辑漂移的温床。收益大但是一次小重构，建议单独排期。
+  - 给已修的 B2/B3/B7 在 pignoo-test 补复现用例（空 filter 查询、Gru 空事务回滚、无无参构造实体）。
+  - pignoo-test 里 6 处 UUID 去横线用的 replaceAll("-","")，可等价换 replace（测试 scope）。
