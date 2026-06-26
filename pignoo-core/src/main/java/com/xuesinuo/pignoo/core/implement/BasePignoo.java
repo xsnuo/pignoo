@@ -127,8 +127,9 @@ public class BasePignoo implements Pignoo {
         switch (this.config.getEngine()) {
         case MySQL:
             return new PignooWriter4Mysql<E>(this, connGetter, connCloser, false, c, this.config);
+        default:
+            throw new DataSourceException("Unknown database engine");
         }
-        throw new DataSourceException("Unknown database engine");
     }
 
     @Override
@@ -136,8 +137,9 @@ public class BasePignoo implements Pignoo {
         switch (this.config.getEngine()) {
         case MySQL:
             return new PignooReader4Mysql<E>(this, connGetter, connCloser, false, c, this.config);
+        default:
+            throw new DataSourceException("Unknown database engine");
         }
-        throw new DataSourceException("Unknown database engine");
     }
 
     @Override

@@ -22,7 +22,6 @@
     （现已可通过 PignooConfig.openSetterProxy=false 关闭代理回写；值得在文档里更醒目地提示这一点与取舍。）
   - autodatabase 的 RADICALLY 模式会自动执行 DROP COLUMN（EntityScaner.java:210-211 + DatabaseChecker4MySql.java:170）→ 数据丢失风险。目前靠 BuildMode 分级 + 日志 warning
   兜着，属启动期工具，但建议默认更保守。
-  - SpringPignoo.basePignoo 字段非 volatile 且会被重新赋值（SpringPignoo.java:55, :142），多线程下有可见性/竞态问题（实际触发概率低，因为 basePignoo 几乎不会 closed）。
 
   ---
   三、代码质量 / 可维护性
@@ -30,7 +29,6 @@
   - 生产代码里残留了 main 方法和测试用的 Pig 内部类：ClassInfo.java:203-223 会被打进发布 jar，是明显的调试遗留。
   - PignooConfig 的 static 块向 System.out 打印 ASCII LOGO（PignooConfig.java:22-31）：库在类加载时无条件 println，无法关闭，会污染使用者的日志/控制台。
   - 大量 SQL 拼接重复：reader/writer 里 SELECT 列... FROM... WHERE... ORDER BY 的模板被复制了十几遍，是逻辑漂移的温床，建议抽一个 SQL builder。
-  - switch(engine){ case MySQL: ... } 缺 default 返回（TransactionPignoo/BasePignoo/SpringPignooItem 的 writer/reader 靠落到末尾抛异常），可读性差；且实际只实现了 MySQL（README TODO 也确认 PG 未做）。
   - 错别字 porxyClass / Unknow / 过路器 / 启动包很类信息 均已修；仅剩 Naive JDBC（SimpleJdbcSqlExecuter:30），待确认是笔误（Native?）还是本意（朴素实现）。
 
   ---

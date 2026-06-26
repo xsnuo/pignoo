@@ -103,8 +103,9 @@ public class SpringPignooItem implements Pignoo {
         switch (this.config.getEngine()) {
         case MySQL:
             return new PignooWriter4Mysql<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
+        default:
+            throw new DataSourceException("Unknown database engine");
         }
-        throw new DataSourceException("Unknown database engine");
     }
 
     @Override
@@ -112,8 +113,9 @@ public class SpringPignooItem implements Pignoo {
         switch (this.config.getEngine()) {
         case MySQL:
             return new PignooReader4Mysql<E>(this, connGetter, connCloser, this.inTransaction, c, this.config);
+        default:
+            throw new DataSourceException("Unknown database engine");
         }
-        throw new DataSourceException("Unknown database engine");
     }
 
     @Override

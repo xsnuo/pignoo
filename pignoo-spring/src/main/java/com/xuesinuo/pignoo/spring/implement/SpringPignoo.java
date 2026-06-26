@@ -52,7 +52,7 @@ public class SpringPignoo implements Pignoo {
 
     private final PignooConfig config;// 配置
 
-    private SpringPignooItem basePignoo;// 基础Pignoo，用于非事务操作
+    private volatile SpringPignooItem basePignoo;// 基础Pignoo，用于非事务操作
 
     private final ThreadLocal<SpringPignooItem> transactionPignooThreadLocal = new ThreadLocal<>();// 事务Pignoo，每个线程分配一个（支持JTA）
 
@@ -138,10 +138,14 @@ public class SpringPignoo implements Pignoo {
             }
             pignoo = transactionPignoo;
         } else {
-            if (this.basePignoo.closed()) {
-                this.basePignoo = new SpringPignooItem(dataSource, config, false);
+            synchronized (this) {
+                SpringPignooItem base = this.basePignoo;
+                if (base == null || base.closed()) {
+                    base = new SpringPignooItem(dataSource, config, false);
+                    this.basePignoo = base;
+                }
+                pignoo = base;
             }
-            pignoo = this.basePignoo;
         }
         return pignoo;
     }
