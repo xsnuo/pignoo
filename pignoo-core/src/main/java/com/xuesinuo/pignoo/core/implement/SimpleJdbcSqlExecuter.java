@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 原生JDBC的{@link com.xuesinuo.pignoo.core.SqlExecuter}实现
  * <p>
- * Naive JDBC {@link com.xuesinuo.pignoo.core.SqlExecuter} implementation
+ * Native JDBC {@link com.xuesinuo.pignoo.core.SqlExecuter} implementation
  *
  * @author xuesinuo
  * @since 0.1.0
