@@ -22,7 +22,7 @@ public class Test01_TransactionalTool {
     }
 
     private static String RandomCode(int length) {
-        return UUID.randomUUID().toString().toUpperCase().replaceAll("-", "").substring(0, length);
+        return UUID.randomUUID().toString().toUpperCase().replace("-", "").substring(0, length);
     }
 
     @Transactional
@@ -69,7 +69,7 @@ class Test01_TransactionalTool2 {
     }
 
     private static String RandomCode(int length) {
-        return UUID.randomUUID().toString().toUpperCase().replaceAll("-", "").substring(0, length);
+        return UUID.randomUUID().toString().toUpperCase().replace("-", "").substring(0, length);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

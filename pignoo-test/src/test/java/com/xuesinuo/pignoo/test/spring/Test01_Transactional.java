@@ -25,7 +25,7 @@ public class Test01_Transactional {
     }
 
     private static String RandomCode(int length) {
-        return UUID.randomUUID().toString().toUpperCase().replaceAll("-", "").substring(0, length);
+        return UUID.randomUUID().toString().toUpperCase().replace("-", "").substring(0, length);
     }
 
     @Data
