@@ -3,24 +3,33 @@
   作为一个个人维护的轻量框架，工程质量是中上的：模块划分清晰、中英双语 JavaDoc 完整、值参数全部走 PreparedStatement（值层面无 SQL 注入）、用 MethodHandle + 经典反射兜底做了性能取舍、Spring 事务集成用
   DataSourceUtils + TransactionSynchronization 做得规范、EntityMapper / EntityProxyFactory / FunctionNameGetter 均已缓存。
 
-  原先列出的问题大部分已处理：性能/资源隐患（代理工厂缓存、只读迭代器不再误建 writer、字段解析去全局锁、build 原子化）、正确性 bug（B1~B5、B7）、发布 jar 卫生（删 ClassInfo.main/Pig、LOGO 改为可开关且只打印一次）、主代码去除 e.printStackTrace()、B6 的 replaceAll(141)、错别字（porxyClass/Unknow/过路器/启动包很类信息）、SqlParam 字段封装、switch(engine) 补 default、SpringPignoo.basePignoo 加 volatile + 同步取值判空赋值。下面是仍未处理的部分。
+  最初一轮 review 列出的问题已基本清完（见下「已完成」）。当前纯代码层无遗留待修项；剩下的是一个值得排期的重构、测试补充，以及几个属于设计取舍、建议靠文档提示的点。
 
   ---
-  一、待处理（低风险 / 小改）
+  一、已完成（归档）
 
-  - Naive JDBC 文案：SimpleJdbcSqlExecuter.java:30，待确认是笔误（Native?）还是本意（朴素/简单实现）。
+  性能 / 资源：
+  - 代理工厂 EntityProxyFactory 按 (Class, config) 缓存；只读迭代器不再误建 writer；字段名解析改 SerializedLambda、去掉全局锁；EntityMapper/EntityProxyFactory build 改 computeIfAbsent 原子化。
+
+  正确性 bug：
+  - B1 getAny() 非事务分支调用纠正；B2 writer 全部 WHERE/AND 拼接补 isBlank 判空；B3 TransactionPignoo close()/rollback() 判空 + commit 进 finally 防泄漏；B4 or(...) 展开数组/集合；B5 基本类型 getter 不再 NPE（随 SerializedLambda 消失）；B7 构造失败抛清晰 MapperException（ClassInfo 构造期抛 + buildEntity 收口）。
+  - B6 DDL 检查的库表名：两处 information_schema 查询均改为绑定参数（不再 replaceAll/字面量拼接）。
+
+  发布 jar 卫生 / 代码质量：
+  - 删 ClassInfo.main + Pig 调试内部类；LOGO 改为 PignooConfig.showLogo 开关且只打印一次；主代码去除 e.printStackTrace()。
+  - SqlParam 字段改 private、仅暴露 getParams()；switch(engine) 补 default；SpringPignoo.basePignoo 加 volatile + 同步「取值→判空→赋值」。
+  - 错别字 porxyClass / Unknow / 过路器 / 启动包很类信息 / Naive JDBC 均已修。
+
+  测试：
+  - B2/B3/B7 复现用例已补（pignoo-test Test06_Regression：空 filter、Gru 空事务、无无参构造），测试里 replaceAll("-","") 已换 replace。
+  - mvn test 全绿（32 个 @Test，0 失败/0 错误）。注：测试依赖 MySQL 127.0.0.1:3306 的 pignoo 库，需先用 pignoo-test/init.sql 初始化。
 
   ---
-  二、设计层面的「脚枪」（不算 bug，属设计决策，建议只在文档醒目提示）
+  二、设计层面的「脚枪」（不算 bug，属设计取舍，建议在文档 / README 醒目提示，而非改代码）
 
-  - removeAll()/mixAll()/replaceAll() 在没有 filter 时是整表操作。这是 List 语义的自然结果，但少写一个 .filter() 就清表，威力很大。
-  - setter 自动回写 = 每次 setter 一条 UPDATE：pig.setA(); pig.setB(); 发两条 SQL；非事务模式下各自独立提交，多字段更新无原子性。改多个字段应优先 mixById/replaceById。
-    （现已可通过 PignooConfig.openSetterProxy=false 关闭代理回写；值得在文档里更醒目地提示这一点与取舍。）
-  - autodatabase 的 RADICALLY 模式会自动执行 DROP COLUMN（EntityScaner.java:210-211 + DatabaseChecker4MySql.java:170）→ 数据丢失风险。目前靠 BuildMode 分级 + 日志 warning 兜着，属启动期工具，但建议默认更保守。
+  - removeAll()/mixAll()/replaceAll() 在没有 filter 时是整表操作：List 语义的自然结果，但少写一个 .filter() 就清表，威力很大。
+  - setter 自动回写 = 每次 setter 一条 UPDATE，非事务模式下各自独立提交、多字段无原子性；改多个字段应优先 mixById/replaceById。（可用 PignooConfig.openSetterProxy=false 关闭代理回写。）
+  - autodatabase 的 RADICALLY 模式会自动执行 DROP COLUMN（EntityScaner.java:210-211 + DatabaseChecker4MySql.java:174）→ 数据丢失风险。目前靠 BuildMode 分级 + 日志 warning 兜着，属启动期工具，但建议默认更保守。
 
-  ---
-  三、待排期 / 测试
-
-  - 抽 SQL builder：reader/writer 里 SELECT 列... FROM... WHERE... ORDER BY 的模板被复制了十几遍，是逻辑漂移的温床。收益大但是一次小重构，建议单独排期。
-  - 给已修的 B2/B3/B7 在 pignoo-test 补复现用例（空 filter 查询、Gru 空事务回滚、无无参构造实体）。
-  - pignoo-test 里 6 处 UUID 去横线用的 replaceAll("-","")，可等价换 replace（测试 scope）。
+  已决策不做：
+  - SQL 拼接保持各方法内联完整（SELECT/FROM/WHERE/ORDER BY 摆在一起），不抽公共 builder/helper。作者明确取舍——到 SQL 落地层不应用封装隐藏细节，宁可少量重复也要保证单方法内一眼看全整条语句。（曾试抽 selectFrom/appendWhere 等，因降低可读性已撤销，不再建议。）
